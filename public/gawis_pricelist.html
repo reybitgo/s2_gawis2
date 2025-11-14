@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gawis iHerbal - Financial Wellness</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --gawis-green: #669933;
+            --gawis-dark-green: #557722;
+            --gawis-light-green: #77aa44;
+            --gawis-gold: #d4af37;
+        }
+        
+        body {
+            scroll-behavior: smooth;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+        }
+        
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            background: linear-gradient(135deg, var(--gawis-green) 0%, var(--gawis-dark-green) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="rgba(255,255,255,0.05)" d="M0,96L48,112C96,128,192,160,288,186.7C384,213,480,235,576,213.3C672,192,768,128,864,128C960,128,1056,192,1152,197.3C1248,203,1344,149,1392,122.7L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') no-repeat center bottom;
+            background-size: cover;
+        }
+        
+        section {
+            padding: 80px 0;
+        }
+        
+        .navbar {
+            background: rgba(0, 0, 0, 0.95) !important;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .navbar-brand {
+            color: var(--gawis-green) !important;
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+        
+        .nav-link {
+            color: rgba(255, 255, 255, 0.85) !important;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link:hover {
+            color: var(--gawis-green) !important;
+        }
+        
+        #scrollTopBtn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 99;
+            border: 2px solid var(--gawis-green);
+            outline: none;
+            background-color: rgba(102, 153, 51, 0.2);
+            color: var(--gawis-green);
+            cursor: pointer;
+            padding: 0;
+            border-radius: 50%;
+            font-size: 24px;
+            width: 55px;
+            height: 55px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(102, 153, 51, 0.3);
+            backdrop-filter: blur(10px);
+        }
+        
+        #scrollTopBtn:hover {
+            background-color: var(--gawis-green);
+            border-color: var(--gawis-light-green);
+            color: white;
+            transform: translateY(-5px);
+            box-shadow: 0 6px 16px rgba(102, 153, 51, 0.5);
+        }
+        
+        .pricing-card {
+            transition: all 0.4s ease;
+            height: 100%;
+            border: 2px solid rgba(102, 153, 51, 0.2);
+            background: rgba(45, 45, 45, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            overflow: hidden;
+        }
+        
+        .pricing-card:hover {
+            transform: translateY(-15px);
+            border-color: var(--gawis-green);
+            box-shadow: 0 20px 40px rgba(102, 153, 51, 0.3);
+        }
+        
+        .pricing-card.featured {
+            border: 3px solid var(--gawis-green);
+            box-shadow: 0 10px 30px rgba(102, 153, 51, 0.4);
+            transform: scale(1.05);
+        }
+        
+        .pricing-card.featured:hover {
+            transform: scale(1.05) translateY(-15px);
+        }
+        
+        .pricing-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, var(--gawis-gold), #f4c430);
+            color: #000;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 0.85rem;
+            box-shadow: 0 4px 10px rgba(212, 175, 55, 0.4);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .pricing-header {
+            background: linear-gradient(135deg, var(--gawis-green), var(--gawis-dark-green));
+            padding: 40px 30px;
+            text-align: center;
+            color: white;
+            position: relative;
+        }
+        
+        .pricing-icon {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 2.5rem;
+        }
+        
+        .pricing-title {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .pricing-description {
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+        
+        .pricing-price {
+            font-size: 3.5rem;
+            font-weight: bold;
+            color: var(--gawis-green);
+            margin: 30px 0 20px;
+        }
+        
+        .pricing-price small {
+            font-size: 1.2rem;
+            color: #999;
+        }
+        
+        .pricing-features {
+            list-style: none;
+            padding: 0;
+            margin: 30px 0;
+        }
+        
+        .pricing-features li {
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(102, 153, 51, 0.1);
+            display: flex;
+            align-items: center;
+        }
+        
+        .pricing-features li:last-child {
+            border-bottom: none;
+        }
+        
+        .pricing-features i {
+            color: var(--gawis-green);
+            font-size: 1.2rem;
+            margin-right: 15px;
+            min-width: 20px;
+        }
+        
+        .btn-gawis {
+            background: linear-gradient(135deg, var(--gawis-green), var(--gawis-dark-green));
+            border: none;
+            color: white;
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 153, 51, 0.3);
+        }
+        
+        .btn-gawis:hover {
+            background: linear-gradient(135deg, var(--gawis-light-green), var(--gawis-green));
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(102, 153, 51, 0.5);
+            color: white;
+        }
+        
+        .btn-outline-gawis {
+            background: transparent;
+            border: 2px solid var(--gawis-green);
+            color: var(--gawis-green);
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-outline-gawis:hover {
+            background: var(--gawis-green);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(102, 153, 51, 0.5);
+        }
+        
+        .feature-icon {
+            font-size: 3rem;
+            color: var(--gawis-green);
+            margin-bottom: 1rem;
+        }
+        
+        .card {
+            transition: transform 0.3s ease;
+            height: 100%;
+            border: 1px solid rgba(102, 153, 51, 0.2);
+            background: rgba(45, 45, 45, 0.6);
+            backdrop-filter: blur(10px);
+        }
+        
+        .card:hover {
+            transform: translateY(-10px);
+            border-color: var(--gawis-green);
+        }
+        
+        .badge-gawis {
+            background: var(--gawis-green);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .text-gawis {
+            color: var(--gawis-green);
+        }
+        
+        .bg-gawis {
+            background: linear-gradient(135deg, var(--gawis-green), var(--gawis-dark-green));
+        }
+        
+        .comparison-table {
+            background: rgba(45, 45, 45, 0.6);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid rgba(102, 153, 51, 0.2);
+        }
+        
+        .comparison-table thead {
+            background: linear-gradient(135deg, var(--gawis-green), var(--gawis-dark-green));
+        }
+        
+        .comparison-table th {
+            padding: 20px;
+            font-weight: bold;
+            border: none;
+        }
+        
+        .comparison-table td {
+            padding: 20px;
+            border-color: rgba(102, 153, 51, 0.1);
+        }
+        
+        .comparison-table tbody tr:hover {
+            background: rgba(102, 153, 51, 0.1);
+        }
+        
+        .testimonial-card {
+            background: rgba(45, 45, 45, 0.6);
+            border: 1px solid rgba(102, 153, 51, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+            height: 100%;
+            transition: all 0.3s ease;
+        }
+        
+        .testimonial-card:hover {
+            border-color: var(--gawis-green);
+            transform: translateY(-5px);
+        }
+        
+        .star-rating {
+            color: var(--gawis-gold);
+            font-size: 1.2rem;
+        }
+        
+        footer {
+            background: rgba(0, 0, 0, 0.9);
+            border-top: 2px solid var(--gawis-green);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="#home">
+                <i class="fas fa-leaf me-2"></i>Gawis iHerbal
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="#home">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#pricing">Pricing</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#features">Features</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#comparison">Compare</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#testimonials">Testimonials</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#faq">FAQ</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="container text-center text-white position-relative">
+            <h1 class="display-1 fw-bold mb-4">Your Path to Financial Wellness</h1>
+            <p class="lead mb-5 fs-3">Build your business with high-quality health and wellness products through our Unilevel MLM platform</p>
+            <a href="#pricing" class="btn btn-light btn-lg me-3 px-5 py-3">View Packages</a>
+            <a href="#features" class="btn btn-outline-light btn-lg px-5 py-3">Learn More</a>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="pricing" class="py-5">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="display-3 fw-bold mb-3">Choose Your <span class="text-gawis">Package</span></h2>
+                <p class="lead text-muted mb-4">Select the perfect plan to start your wellness journey</p>
+                <div class="d-inline-block">
+                    <span class="badge bg-gawis fs-6 px-4 py-2">
+                        <i class="fas fa-gift me-2"></i>Special Launch Offer - Limited Time!
+                    </span>
+                </div>
+            </div>
+
+            <div class="row g-4 mb-5">
+                <!-- Starter Package -->
+                <div class="col-lg-4">
+                    <div class="pricing-card">
+                        <div class="pricing-header">
+                            <div class="pricing-icon">
+                                <i class="fas fa-seedling"></i>
+                            </div>
+                            <h3 class="pricing-title">Starter</h3>
+                            <p class="pricing-description">Perfect for beginners</p>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="pricing-price">
+                                ₱500<small>/package</small>
+                            </div>
+                            <ul class="pricing-features">
+                                <li><i class="fas fa-check-circle"></i> 1 Premium Product</li>
+                                <li><i class="fas fa-check-circle"></i> Basic Training Materials</li>
+                                <li><i class="fas fa-check-circle"></i> E-Commerce Access</li>
+                                <li><i class="fas fa-check-circle"></i> Digital Wallet</li>
+                                <li><i class="fas fa-check-circle"></i> Email Support</li>
+                                <li><i class="fas fa-check-circle"></i> Community Access</li>
+                            </ul>
+                            <button class="btn btn-outline-gawis w-100 mt-3">Get Started</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Business Package (Featured) -->
+                <div class="col-lg-4">
+                    <div class="pricing-card featured position-relative">
+                        <div class="pricing-badge">
+                            <i class="fas fa-star me-1"></i>POPULAR
+                        </div>
+                        <div class="pricing-header">
+                            <div class="pricing-icon">
+                                <i class="fas fa-spa"></i>
+                            </div>
+                            <h3 class="pricing-title">Business</h3>
+                            <p class="pricing-description">Most popular choice</p>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="pricing-price">
+                                ₱750<small>/package</small>
+                            </div>
+                            <ul class="pricing-features">
+                                <li><i class="fas fa-check-circle"></i> 2 Premium Products</li>
+                                <li><i class="fas fa-check-circle"></i> Complete Training Suite</li>
+                                <li><i class="fas fa-check-circle"></i> Full E-Commerce Platform</li>
+                                <li><i class="fas fa-check-circle"></i> Enhanced Digital Wallet</li>
+                                <li><i class="fas fa-check-circle"></i> Priority Support</li>
+                                <li><i class="fas fa-check-circle"></i> Marketing Materials</li>
+                                <li><i class="fas fa-check-circle"></i> Unilevel Commission</li>
+                                <li><i class="fas fa-check-circle"></i> Bonus Incentives</li>
+                            </ul>
+                            <button class="btn btn-gawis w-100 mt-3">Get Started</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Premium Package -->
+                <div class="col-lg-4">
+                    <div class="pricing-card">
+                        <div class="pricing-header">
+                            <div class="pricing-icon">
+                                <i class="fas fa-crown"></i>
+                            </div>
+                            <h3 class="pricing-title">Premium</h3>
+                            <p class="pricing-description">For serious entrepreneurs</p>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="pricing-price">
+                                ₱1,500<small>/package</small>
+                            </div>
+                            <ul class="pricing-features">
+                                <li><i class="fas fa-check-circle"></i> 4 Premium Products</li>
+                                <li><i class="fas fa-check-circle"></i> VIP Training & Mentorship</li>
+                                <li><i class="fas fa-check-circle"></i> Advanced E-Commerce Tools</li>
+                                <li><i class="fas fa-check-circle"></i> Premium Digital Wallet</li>
+                                <li><i class="fas fa-check-circle"></i> 24/7 Dedicated Support</li>
+                                <li><i class="fas fa-check-circle"></i> Custom Marketing Suite</li>
+                                <li><i class="fas fa-check-circle"></i> Maximum Commissions</li>
+                                <li><i class="fas fa-check-circle"></i> Exclusive Bonuses</li>
+                                <li><i class="fas fa-check-circle"></i> Fast-Track Rewards</li>
+                                <li><i class="fas fa-check-circle"></i> Leadership Training</li>
+                            </ul>
+                            <button class="btn btn-outline-gawis w-100 mt-3">Get Started</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center">
+                <p class="text-muted">
+                    <i class="fas fa-shield-alt text-gawis me-2"></i>
+                    All packages include secure payment processing and 30-day money-back guarantee
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="bg-dark py-5">
+        <div class="container">
+            <h2 class="text-center mb-5 display-4">Why Choose <span class="text-gawis">Gawis iHerbal</span></h2>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card bg-secondary text-center">
+                        <div class="card-body p-4">
+                            <i class="fas fa-chart-line feature-icon"></i>
+                            <h3 class="card-title mb-3">Unilevel MLM System</h3>
+                            <p class="card-text">Build unlimited depth and width in your network with our proven compensation plan</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-secondary text-center">
+                        <div class="card-body p-4">
+                            <i class="fas fa-leaf feature-icon"></i>
+                            <h3 class="card-title mb-3">Premium Products</h3>
+                            <p class="card-text">High-quality herbal wellness products backed by research and customer satisfaction</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-secondary text-center">
+                        <div class="card-body p-4">
+                            <i class="fas fa-wallet feature-icon"></i>
+                            <h3 class="card-title mb-3">Digital Wallet</h3>
+                            <p class="card-text">Secure integrated wallet for seamless transactions, commissions, and withdrawals</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-secondary text-center">
+                        <div class="card-body p-4">
+                            <i class="fas fa-mobile-alt feature-icon"></i>
+                            <h3 class="card-title mb-3">Mobile Friendly</h3>
+                            <p class="card-text">Manage your business anywhere with our responsive platform and mobile app</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-secondary text-center">
+                        <div class="card-body p-4">
+                            <i class="fas fa-graduation-cap feature-icon"></i>
+                            <h3 class="card-title mb-3">Training & Support</h3>
+                            <p class="card-text">Comprehensive training materials and dedicated support to ensure your success</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-secondary text-center">
+                        <div class="card-body p-4">
+                            <i class="fas fa-shield-alt feature-icon"></i>
+                            <h3 class="card-title mb-3">Secure Platform</h3>
+                            <p class="card-text">Bank-level security with SSL encryption and secure payment processing</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Comparison Table -->
+    <section id="comparison" class="py-5">
+        <div class="container">
+            <h2 class="text-center mb-5 display-4">Package <span class="text-gawis">Comparison</span></h2>
+            <div class="table-responsive">
+                <table class="table comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Features</th>
+                            <th class="text-center">Starter</th>
+                            <th class="text-center">Business</th>
+                            <th class="text-center">Premium</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Premium Products</strong></td>
+                            <td class="text-center">1</td>
+                            <td class="text-center">2</td>
+                            <td class="text-center">4</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Training Materials</strong></td>
+                            <td class="text-center"><i class="fas fa-check text-gawis"></i></td>
+                            <td class="text-center"><i class="fas fa-check text-gawis"></i></td>
+                            <td class="text-center"><i class="fas fa-check text-gawis"></i></td>
+                        </tr>
+                        <tr>
+                            <td><strong>E-Commerce Platform</strong></td>
+                            <td class="text-center"><i class="fas fa-check text-gawis"></i></td>
+                            <td class="text-center"><i class="fas fa-check text-gawis"></i></td>
+                            <td class="text-center"><i class="fas fa-check text-gawis"></i></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Digital Wallet</strong></td>
+                            <td class="text-center">Basic</td>
+                            <td class="text-center">Enhanced</td>
+                            <td class="text-center">Premium</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Support Level</strong></td>
+                            <td class="text-center">Email</td>
+                            <td class="text-center">Priority</td>
+                            <td class="text-center">24/7 Dedicated</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Marketing Materials</strong></td>
+                            <td class="text-center"><i class="fas fa-times text-muted"></i></td>
+                            <td class="text-center"><i class="fas fa-check text-gawis"></i></td>
+                            <td class="text-center"><i class="fas fa-check text-gawis"></i></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Commission Rate</strong></td>
+                            <td class="text-center">Standard</td>
+                            <td class="text-center">Higher</td>
+                            <td class="text-center">Maximum</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Bonus Incentives</strong></td>
+                            <td class="text-center"><i class="fas fa-times text-muted"></i></td>
+                            <td class="text-center"><i class="fas fa-check text-gawis"></i></td>
+                            <td class="text-center"><i class="fas fa-check text-gawis"></i></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Leadership Training</strong></td>
+                            <td class="text-center"><i class="fas fa-times text-muted"></i></td>
+                            <td class="text-center"><i class="fas fa-times text-muted"></i></td>
+                            <td class="text-center"><i class="fas fa-check text-gawis"></i></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="bg-dark py-5">
+        <div class="container">
+            <h2 class="text-center mb-5 display-4">What Our <span class="text-gawis">Members Say</span></h2>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="testimonial-card">
+                        <div class="star-rating mb-3">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <p class="mb-4">"Gawis iHerbal changed my life! The Business package was perfect to start, and within 6 months I've built a solid network."</p>
+                        <div class="d-flex align-items-center">
+                            <div class="bg-gawis rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                                <i class="fas fa-user text-white"></i>
+                            </div>
+                            <div>
+                                <h5 class="mb-0">Maria Santos</h5>
+                                <small class="text-muted">Business Package Member</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="testimonial-card">
+                        <div class="star-rating mb-3">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <p class="mb-4">"The Premium package gave me everything I needed to succeed. The training and support are exceptional!"</p>
+                        <div class="d-flex align-items-center">
+                            <div class="bg-gawis rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                                <i class="fas fa-user text-white"></i>
+                            </div>
+                            <div>
+                                <h5
+                                <h5

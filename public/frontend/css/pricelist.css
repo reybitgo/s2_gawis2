@@ -1,0 +1,159 @@
+:root {
+    --gawis-green: #669933;
+    --gawis-dark-green: #557722;
+    --gawis-light-green: #77aa44;
+    --gawis-gold: #d4af37;
+}
+
+.text-gawis {
+    color: var(--gawis-green);
+}
+
+.pricing-card {
+    transition: all 0.4s ease;
+    height: 100%;
+    border: 2px solid rgba(102, 153, 51, 0.2);
+    background: rgba(45, 45, 45, 0.8);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.pricing-card:hover {
+    transform: translateY(-15px);
+    border-color: var(--gawis-green);
+    box-shadow: 0 20px 40px rgba(102, 153, 51, 0.3);
+}
+
+.pricing-card.featured {
+    border: 3px solid var(--gawis-green);
+    box-shadow: 0 10px 30px rgba(102, 153, 51, 0.4);
+    transform: scale(1.05);
+}
+
+.pricing-card.featured:hover {
+    transform: scale(1.05) translateY(-15px);
+}
+
+.pricing-badge {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, var(--gawis-gold), #f4c430);
+    color: #000;
+    padding: 8px 20px;
+    border-radius: 25px;
+    font-weight: bold;
+    font-size: 0.85rem;
+    box-shadow: 0 4px 10px rgba(212, 175, 55, 0.4);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.pricing-header {
+    background: linear-gradient(135deg, var(--gawis-green), var(--gawis-dark-green));
+    padding: 40px 30px;
+    text-align: center;
+    color: white;
+    position: relative;
+}
+
+.pricing-icon {
+    width: 80px;
+    height: 80px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    font-size: 2.5rem;
+}
+
+.pricing-title {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.pricing-price {
+    font-size: 3.5rem;
+    font-weight: bold;
+    color: var(--gawis-green);
+    margin: 30px 0 20px;
+    text-align: center;
+}
+
+.pricing-price small {
+    font-size: 1.2rem;
+    color: #999;
+}
+
+.pricing-card .card-body {
+    background-color: #f8f9fa;
+}
+
+.pricing-features {
+    list-style: none;
+    padding: 0;
+    margin: 30px 0;
+}
+
+.pricing-features li {
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    align-items: center;
+}
+
+.pricing-features li:last-child {
+    border-bottom: none;
+}
+
+.pricing-features i {
+    color: var(--gawis-green);
+    font-size: 1.2rem;
+    margin-right: 15px;
+    min-width: 20px;
+}
+
+.btn-gawis {
+    background: linear-gradient(135deg, var(--gawis-green), var(--gawis-dark-green));
+    border: none;
+    color: white;
+    padding: 15px 40px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102, 153, 51, 0.3);
+}
+
+.btn-gawis:hover {
+    background: linear-gradient(135deg, var(--gawis-light-green), var(--gawis-green));
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(102, 153, 51, 0.5);
+    color: white;
+}
+
+.btn-outline-gawis {
+    background: transparent;
+    border: 2px solid var(--gawis-green);
+    color: var(--gawis-green);
+    padding: 15px 40px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-gawis:hover {
+    background: var(--gawis-green);
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(102, 153, 51, 0.5);
+}

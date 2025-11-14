@@ -1,0 +1,6 @@
+RewriteEngine On
+
+# Redirect all requests to public/ folder
+RewriteCond %{REQUEST_URI} !^/public/
+RewriteCond %{REQUEST_URI} !^/test\.php$
+RewriteRule ^(.*)$ public/$1 [L]
