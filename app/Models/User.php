@@ -278,4 +278,91 @@ class User extends Authenticatable implements MustVerifyEmail
 
         return $code;
     }
+
+    /**
+     * Get user's monthly quota tracker records
+     */
+    public function monthlyQuotaTrackers()
+    {
+        return $this->hasMany(MonthlyQuotaTracker::class);
+    }
+
+    /**
+     * Get user's current month quota tracker
+     */
+    public function currentMonthQuota()
+    {
+        return $this->monthlyQuotaTrackers()
+            ->where('year', now()->year)
+            ->where('month', now()->month)
+            ->first();
+    }
+
+    /**
+     * Get the monthly quota requirement based on user's active package
+     */
+    public function getMonthlyQuotaRequirement(): float
+    {
+        // Get the user's first purchased MLM package
+        $package = $this->orders()
+            ->where('payment_status', 'paid')
+            ->whereHas('orderItems.package', function($q) {
+                $q->where('is_mlm_package', true);
+            })
+            ->first()
+            ?->orderItems
+            ?->first(fn($item) => $item->package && $item->package->is_mlm_package)
+            ?->package;
+
+        if (!$package || !$package->enforce_monthly_quota) {
+            return 0;
+        }
+
+        return $package->monthly_quota_points ?? 0;
+    }
+
+    /**
+     * Check if user meets monthly quota for Unilevel earnings
+     */
+    public function meetsMonthlyQuota(): bool
+    {
+        $tracker = $this->currentMonthQuota();
+        
+        if (!$tracker) {
+            // No tracker yet, create one
+            $tracker = MonthlyQuotaTracker::getOrCreateForCurrentMonth($this);
+        }
+
+        return $tracker->checkQuotaMet();
+    }
+
+    /**
+     * Check if user qualifies for Unilevel bonuses (active + quota)
+     */
+    public function qualifiesForUnilevelBonus(): bool
+    {
+        // Must be network active
+        if (!$this->isNetworkActive()) {
+            return false;
+        }
+
+        // Check if user's package enforces monthly quota
+        $package = $this->orders()
+            ->where('payment_status', 'paid')
+            ->whereHas('orderItems.package', function($q) {
+                $q->where('is_mlm_package', true);
+            })
+            ->first()
+            ?->orderItems
+            ?->first(fn($item) => $item->package && $item->package->is_mlm_package)
+            ?->package;
+
+        // If no package or quota not enforced, only check active status
+        if (!$package || !$package->enforce_monthly_quota) {
+            return true; // Network active is enough
+        }
+
+        // If quota is enforced, check if met
+        return $this->meetsMonthlyQuota();
+    }
 }

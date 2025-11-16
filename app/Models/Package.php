@@ -26,6 +26,8 @@ class Package extends Model
         'meta_data',
         'is_mlm_package',
         'max_mlm_levels',
+        'monthly_quota_points',
+        'enforce_monthly_quota',
     ];
 
     protected $casts = [
@@ -37,6 +39,8 @@ class Package extends Model
         'meta_data' => 'array',
         'is_mlm_package' => 'boolean',
         'max_mlm_levels' => 'integer',
+        'monthly_quota_points' => 'decimal:2',
+        'enforce_monthly_quota' => 'boolean',
     ];
 
     protected static function boot()

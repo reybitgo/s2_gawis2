@@ -32,7 +32,7 @@ class Product extends Model
 
     protected $casts = [
         'price' => 'decimal:2',
-        'points_awarded' => 'integer',
+        'points_awarded' => 'decimal:2',
         'quantity_available' => 'integer',
         'is_active' => 'boolean',
         'sort_order' => 'integer',

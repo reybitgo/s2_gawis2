@@ -6,7 +6,7 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
-            <div class="card">
+            <div class="card mb-4">
                 <div class="card-header">
                     <div class="d-flex justify-content-between align-items-center">
                         <h5 class="card-title mb-0">Create New Product</h5>
@@ -61,9 +61,10 @@
                                     </div>
                                     <div class="col-md-4">
                                         <div class="mb-3">
-                                            <label for="points_awarded" class="form-label">Points Awarded <span class="text-danger">*</span></label>
-                                            <input type="number" min="0" class="form-control @error('points_awarded') is-invalid @enderror"
+                                            <label for="points_awarded" class="form-label">Points Awarded (PV) <span class="text-danger">*</span></label>
+                                            <input type="number" step="0.01" min="0" max="9999.99" class="form-control @error('points_awarded') is-invalid @enderror"
                                                    id="points_awarded" name="points_awarded" value="{{ old('points_awarded') }}" required>
+                                            <div class="form-text">Personal Volume points for monthly quota</div>
                                             @error('points_awarded')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
