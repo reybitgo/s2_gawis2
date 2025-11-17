@@ -8,6 +8,7 @@ use App\Services\CartService;
 use App\Services\WalletPaymentService;
 use App\Services\InputSanitizationService;
 use App\Services\FraudDetectionService;
+use App\Services\MonthlyQuotaService;
 use App\Jobs\ProcessMLMCommissions;
 use App\Jobs\ProcessUnilevelBonusesJob;
 use App\Models\Product;
@@ -23,17 +24,20 @@ class CheckoutController extends Controller
     protected WalletPaymentService $walletPaymentService;
     protected InputSanitizationService $sanitizationService;
     protected FraudDetectionService $fraudDetectionService;
+    protected MonthlyQuotaService $quotaService;
 
     public function __construct(
         CartService $cartService,
         WalletPaymentService $walletPaymentService,
         InputSanitizationService $sanitizationService,
-        FraudDetectionService $fraudDetectionService
+        FraudDetectionService $fraudDetectionService,
+        MonthlyQuotaService $quotaService
     ) {
         $this->cartService = $cartService;
         $this->walletPaymentService = $walletPaymentService;
         $this->sanitizationService = $sanitizationService;
         $this->fraudDetectionService = $fraudDetectionService;
+        $this->quotaService = $quotaService;
     }
 
     /**
@@ -370,6 +374,11 @@ class CheckoutController extends Controller
             });
 
             if ($hasProduct) {
+                // PHASE 2: Process monthly quota points FIRST (before Unilevel bonuses)
+                // This updates the buyer's monthly PV tracker
+                $this->quotaService->processOrderPoints($order);
+
+                // Then process Unilevel bonuses (will use updated quota status)
                 ProcessUnilevelBonusesJob::dispatchSync($order);
 
                 $productNames = $order->orderItems
@@ -377,11 +386,12 @@ class CheckoutController extends Controller
                     ->pluck('product.name')
                     ->join(', ');
 
-                Log::info('Unilevel Bonus Processing Initiated', [
+                Log::info('Monthly Quota & Unilevel Bonus Processing Completed', [
                     'order_id' => $order->id,
                     'order_number' => $order->order_number,
                     'buyer_id' => $order->user_id,
-                    'products' => $productNames
+                    'products' => $productNames,
+                    'processing_mode' => 'synchronous_direct_call'
                 ]);
             }
 
