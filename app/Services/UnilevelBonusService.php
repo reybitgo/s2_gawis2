@@ -7,6 +7,7 @@ use App\Models\UnilevelSetting;
 use App\Models\User;
 use App\Models\ActivityLog;
 use App\Notifications\UnilevelBonusEarned;
+use App\Services\MonthlyQuotaService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -47,7 +48,31 @@ class UnilevelBonusService
                 $bonusesDistributed = [];
 
                 while ($currentUser && $level <= $maxLevels) {
-                    if (!$currentUser->isNetworkActive()) {
+                    // PHASE 3: Check both network active AND monthly quota
+                    if (!$currentUser->qualifiesForUnilevelBonus()) {
+                        // Enhanced logging for why user was skipped
+                        $quotaService = app(MonthlyQuotaService::class);
+                        $monthlyStatus = $quotaService->getUserMonthlyStatus($currentUser);
+                        
+                        Log::info('Upline Skipped - Unilevel Qualification Failed', [
+                            'order_id' => $order->id,
+                            'buyer_id' => $buyer->id,
+                            'buyer_username' => $buyer->username,
+                            'upline_id' => $currentUser->id,
+                            'upline_username' => $currentUser->username,
+                            'level' => $level,
+                            'product_id' => $product->id,
+                            'product_name' => $product->name,
+                            'reason' => [
+                                'is_network_active' => $currentUser->isNetworkActive(),
+                                'meets_monthly_quota' => $currentUser->meetsMonthlyQuota(),
+                                'monthly_pv' => $monthlyStatus['total_pv'],
+                                'required_quota' => $monthlyStatus['required_quota'],
+                                'remaining_pv' => $monthlyStatus['remaining_pv'],
+                                'progress_percentage' => number_format($monthlyStatus['progress_percentage'], 2) . '%',
+                            ],
+                        ]);
+                        
                         $currentUser = $currentUser->sponsor;
                         continue; // Skip to the next sponsor
                     }
@@ -116,8 +141,27 @@ class UnilevelBonusService
     private function creditBonus(User $user, float $amount, Order $order, int $level, User $buyer, \App\Models\Product $product): bool
     {
         try {
-            if (!$user->isNetworkActive()) {
-                Log::info('User is not active, skipping unilevel bonus', ['user_id' => $user->id, 'level' => $level]);
+            // PHASE 3: Check both network active AND monthly quota
+            if (!$user->qualifiesForUnilevelBonus()) {
+                $quotaService = app(MonthlyQuotaService::class);
+                $monthlyStatus = $quotaService->getUserMonthlyStatus($user);
+                
+                Log::info('User does not qualify for unilevel bonus', [
+                    'user_id' => $user->id,
+                    'username' => $user->username,
+                    'level' => $level,
+                    'order_id' => $order->id,
+                    'buyer_id' => $buyer->id,
+                    'product_id' => $product->id,
+                    'reason' => [
+                        'is_network_active' => $user->isNetworkActive(),
+                        'meets_monthly_quota' => $user->meetsMonthlyQuota(),
+                        'monthly_pv' => $monthlyStatus['total_pv'],
+                        'required_quota' => $monthlyStatus['required_quota'],
+                        'remaining_pv' => $monthlyStatus['remaining_pv'],
+                        'progress_percentage' => number_format($monthlyStatus['progress_percentage'], 2) . '%',
+                    ],
+                ]);
                 return false;
             }
 
