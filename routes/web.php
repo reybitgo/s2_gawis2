@@ -267,6 +267,17 @@ Route::middleware(['auth', 'conditional.verified', 'enforce.2fa', 'role:admin'])
             ->name('confirm-received');
         Route::get('/pending/count', [\App\Http\Controllers\Admin\AdminReturnController::class, 'pendingCount'])->name('pending-count');
     });
+
+    // Monthly Quota Management Routes (Phase 4: Unilevel Quota System)
+    Route::prefix('monthly-quota')->name('monthly-quota.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\MonthlyQuotaController::class, 'index'])->name('index');
+        Route::get('/packages', [\App\Http\Controllers\Admin\MonthlyQuotaController::class, 'packages'])->name('packages');
+        Route::post('/packages/{package}/update-quota', [\App\Http\Controllers\Admin\MonthlyQuotaController::class, 'updatePackageQuota'])
+            ->middleware('throttle:30,1')
+            ->name('packages.update-quota');
+        Route::get('/reports', [\App\Http\Controllers\Admin\MonthlyQuotaController::class, 'reports'])->name('reports');
+        Route::get('/reports/user/{user}', [\App\Http\Controllers\Admin\MonthlyQuotaController::class, 'userReport'])->name('reports.user');
+    });
 });
 
 // Database Reset Routes (Admin Only)
