@@ -22,17 +22,44 @@ $unilevelService = new UnilevelBonusService();
 echo "Setting up test hierarchy...\n";
 echo str_repeat('-', 60) . "\n";
 
-// Find or create test users
-$buyer = User::where('network_status', 'active')->first();
+// Find users with proper 3+ level hierarchy
+echo "Looking for users with 3+ level hierarchy...\n";
+
+$usersWithSponsor = User::where('network_status', 'active')
+    ->whereNotNull('sponsor_id')
+    ->with(['sponsor.sponsor.sponsor'])
+    ->get();
+
+if ($usersWithSponsor->isEmpty()) {
+    die("❌ No active users with sponsor_id found in database.\n");
+}
+
+// Find a user with at least 3 levels of sponsors
+$buyer = null;
+foreach ($usersWithSponsor as $user) {
+    if ($user->sponsor && $user->sponsor->sponsor && $user->sponsor->sponsor->sponsor) {
+        $buyer = $user;
+        break;
+    }
+}
+
 if (!$buyer) {
-    die("No active user found. Create an active user first.\n");
+    die("❌ No active user with 3+ level hierarchy found.\n" .
+        "Please ensure there's a user with: Buyer -> Sponsor -> Grand Sponsor -> Great Grand Sponsor\n" .
+        "Run check_user_hierarchy.php to see available hierarchies.\n");
 }
 
 $sponsor = $buyer->sponsor;
 $grandSponsor = $sponsor?->sponsor;
 
-if (!$sponsor || !$grandSponsor) {
-    die("Need at least 3-level hierarchy for testing.\nBuyer -> Sponsor -> Grand Sponsor\n");
+if (!$sponsor) {
+    die("❌ Buyer has no sponsor (sponsor_id: {$buyer->sponsor_id}).\n" .
+        "Check if sponsor_id points to existing user.\n");
+}
+
+if (!$grandSponsor) {
+    die("❌ Sponsor has no grand sponsor (sponsor_id: {$sponsor->sponsor_id}).\n" .
+        "Need at least 3-level hierarchy: Buyer -> Sponsor -> Grand Sponsor\n");
 }
 
 echo "Test Hierarchy:\n";
