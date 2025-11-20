@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\User;
 use App\Models\Order;
 use App\Models\MonthlyQuotaTracker;
+use App\Notifications\QuotaMetNotification;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 
@@ -95,6 +96,8 @@ class MonthlyQuotaService
         $tracker = MonthlyQuotaTracker::getOrCreateForCurrentMonth($user);
 
         $previousPV = $tracker->total_pv_points;
+        $wasQuotaMet = $tracker->quota_met;
+        
         $tracker->total_pv_points += $pvPoints;
         $tracker->last_purchase_at = now();
         
@@ -103,6 +106,23 @@ class MonthlyQuotaService
         
         // Check if quota is now met
         $tracker->checkQuotaMet();
+
+        // Send notification if quota just became met
+        if (!$wasQuotaMet && $tracker->quota_met && $tracker->required_quota > 0) {
+            $user->notify(new QuotaMetNotification(
+                $tracker->total_pv_points,
+                $tracker->required_quota,
+                now()->format('F'),
+                now()->year
+            ));
+
+            Log::info('Quota Met Notification Sent', [
+                'user_id' => $user->id,
+                'user_username' => $user->username,
+                'total_pv' => $tracker->total_pv_points,
+                'required_quota' => $tracker->required_quota,
+            ]);
+        }
 
         Log::info('PV Points Updated', [
             'user_id' => $user->id,

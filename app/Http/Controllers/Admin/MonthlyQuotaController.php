@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\Package;
 use App\Models\User;
 use App\Models\MonthlyQuotaTracker;
+use App\Models\ActivityLog;
 use App\Services\MonthlyQuotaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -85,16 +86,21 @@ class MonthlyQuotaController extends Controller
         $package->enforce_monthly_quota = $request->enforce_monthly_quota;
         $package->save();
 
-        activity()
-            ->causedBy(auth()->user())
-            ->performedOn($package)
-            ->withProperties([
+        ActivityLog::createLog(
+            type: 'system',
+            event: 'package_quota_updated',
+            message: "Updated package monthly quota: {$package->name}",
+            level: 'INFO',
+            userId: auth()->id(),
+            metadata: [
+                'package_id' => $package->id,
+                'package_name' => $package->name,
                 'old_quota' => $oldQuota,
                 'new_quota' => $request->monthly_quota_points,
                 'old_enforce' => $oldEnforce,
                 'new_enforce' => $request->enforce_monthly_quota,
-            ])
-            ->log("Updated package monthly quota: {$package->name}");
+            ]
+        );
 
         return back()->with('success', "Package quota updated successfully! {$package->name} now requires {$request->monthly_quota_points} PV monthly (Enforce: " . ($request->enforce_monthly_quota ? 'YES' : 'NO') . ").");
     }
@@ -104,8 +110,8 @@ class MonthlyQuotaController extends Controller
      */
     public function reports(Request $request)
     {
-        $year = $request->input('year', now()->year);
-        $month = $request->input('month', now()->month);
+        $year = (int) $request->input('year', now()->year);
+        $month = (int) $request->input('month', now()->month);
 
         $trackers = MonthlyQuotaTracker::with('user')
             ->where('year', $year)
@@ -118,7 +124,7 @@ class MonthlyQuotaController extends Controller
             'quota_met' => MonthlyQuotaTracker::where('year', $year)->where('month', $month)->where('quota_met', true)->count(),
             'quota_not_met' => MonthlyQuotaTracker::where('year', $year)->where('month', $month)->where('quota_met', false)->count(),
             'total_pv' => MonthlyQuotaTracker::where('year', $year)->where('month', $month)->sum('total_pv_points'),
-            'avg_pv' => MonthlyQuotaTracker::where('year', $year)->where('month', $month)->avg('total_pv_points'),
+            'avg_pv' => MonthlyQuotaTracker::where('year', $year)->where('month', $month)->avg('total_pv_points') ?? 0,
         ];
 
         return view('admin.monthly-quota.reports', compact('trackers', 'summary', 'year', 'month'));

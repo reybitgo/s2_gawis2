@@ -3,7 +3,7 @@
 @section('title', 'User Quota Report: ' . $user->username)
 
 @section('content')
-<div class="container-fluid">
+<div class="container-fluid pb-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1>User Quota Report: {{ $user->username }}</h1>
         <a href="{{ route('admin.monthly-quota.reports') }}" class="btn btn-secondary">

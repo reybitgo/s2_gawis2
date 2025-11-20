@@ -3,27 +3,13 @@
 @section('title', 'Manage Package Monthly Quotas')
 
 @section('content')
-<div class="container-fluid">
+<div class="container-fluid pb-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1>Manage Package Monthly Quotas</h1>
         <a href="{{ route('admin.monthly-quota.index') }}" class="btn btn-secondary">
             <i class="fas fa-arrow-left"></i> Back to Dashboard
         </a>
     </div>
-
-    @if(session('success'))
-    <div class="alert alert-success alert-dismissible fade show">
-        {{ session('success') }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-    @endif
-
-    @if(session('error'))
-    <div class="alert alert-danger alert-dismissible fade show">
-        {{ session('error') }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-    @endif
 
     <div class="card">
         <div class="card-header">
@@ -38,7 +24,7 @@
                             <th width="5%">ID</th>
                             <th width="20%">Package Name</th>
                             <th width="15%">Price</th>
-                            <th width="10%">MLM Package</th>
+                            <th width="10%">Has MLM</th>
                             <th width="15%">Current Quota</th>
                             <th width="15%">New Quota (PV)</th>
                             <th width="10%">Enforce</th>

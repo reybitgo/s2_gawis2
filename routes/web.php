@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\AdminUnilevelSettingsController;
 use App\Http\Controllers\Member\WalletController;
 use App\Http\Controllers\Member\UserActivityController;
 use App\Http\Controllers\Member\GenealogyController;
+use App\Http\Controllers\Member\MemberQuotaController;
 use App\Http\Controllers\PackageController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
@@ -137,6 +138,12 @@ Route::middleware(['auth', 'enforce.2fa'])->group(function () {
     Route::prefix('my-activities')->name('activities.')->group(function () {
         Route::get('/', [UserActivityController::class, 'index'])->name('index');
         Route::post('/export', [UserActivityController::class, 'export'])->name('export');
+    });
+
+    // Member Quota Routes (Phase 5: Unilevel Quota System)
+    Route::prefix('my-quota')->name('member.quota.')->group(function () {
+        Route::get('/', [MemberQuotaController::class, 'index'])->name('index');
+        Route::get('/history', [MemberQuotaController::class, 'history'])->name('history');
     });
 
     // Genealogy Routes

@@ -3,7 +3,7 @@
 @section('title', 'Monthly Quota System')
 
 @section('content')
-<div class="container-fluid">
+<div class="container-fluid pb-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1>Monthly Quota System</h1>
         <div>
@@ -32,7 +32,7 @@
         <div class="col-md-3">
             <div class="card bg-success text-white">
                 <div class="card-body">
-                    <h5 class="card-title">Quota Met This Month</h5>
+                    <h5 class="card-title">Quota Met</h5>
                     <h2>{{ number_format($stats['users_met_quota']) }}</h2>
                 </div>
             </div>

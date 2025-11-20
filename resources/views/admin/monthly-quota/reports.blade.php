@@ -3,7 +3,7 @@
 @section('title', 'Monthly Quota Reports')
 
 @section('content')
-<div class="container-fluid">
+<div class="container-fluid pb-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1>Monthly Quota Reports</h1>
         <a href="{{ route('admin.monthly-quota.index') }}" class="btn btn-secondary">
