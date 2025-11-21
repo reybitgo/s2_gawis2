@@ -151,6 +151,42 @@
                     @endcan
                 </ul>
             </li>
+
+            <!-- Monthly Quota System (Phase 4) -->
+            <li class="nav-group">
+                <a class="nav-link nav-group-toggle{{ Request::routeIs('admin.monthly-quota.*') ? ' active' : '' }}" href="#">
+                    <svg class="nav-icon">
+                        <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-task') }}"></use>
+                    </svg>
+                    <span>Monthly Quota</span>
+                </a>
+                <ul class="nav-group-items compact">
+                    <li class="nav-item">
+                        <a class="nav-link{{ Request::routeIs('admin.monthly-quota.index') ? ' active' : '' }}" href="{{ route('admin.monthly-quota.index') }}">
+                            <span class="nav-icon">
+                                <span class="nav-icon-bullet"></span>
+                            </span>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link{{ Request::routeIs('admin.monthly-quota.packages') ? ' active' : '' }}" href="{{ route('admin.monthly-quota.packages') }}">
+                            <span class="nav-icon">
+                                <span class="nav-icon-bullet"></span>
+                            </span>
+                            Package Quotas
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link{{ Request::routeIs('admin.monthly-quota.reports*') ? ' active' : '' }}" href="{{ route('admin.monthly-quota.reports') }}">
+                            <span class="nav-icon">
+                                <span class="nav-icon-bullet"></span>
+                            </span>
+                            Quota Reports
+                        </a>
+                    </li>
+                </ul>
+            </li>
         @endif
         @endauth
 
@@ -231,6 +267,32 @@
                             <span class="nav-icon-bullet"></span>
                         </span>
                         Unilevel
+                    </a>
+                </li>
+            </ul>
+        </li>
+        <li class="nav-group">
+            <a class="nav-link nav-group-toggle{{ Request::routeIs('member.quota.*') ? ' active' : '' }}" href="#">
+                <svg class="nav-icon">
+                    <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-chart-line') }}"></use>
+                </svg>
+                <span>My Quota</span>
+            </a>
+            <ul class="nav-group-items compact">
+                <li class="nav-item">
+                    <a class="nav-link{{ Request::routeIs('member.quota.index') ? ' active' : '' }}" href="{{ route('member.quota.index') }}">
+                        <span class="nav-icon">
+                            <span class="nav-icon-bullet"></span>
+                        </span>
+                        Current Month
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link{{ Request::routeIs('member.quota.history') ? ' active' : '' }}" href="{{ route('member.quota.history') }}">
+                        <span class="nav-icon">
+                            <span class="nav-icon-bullet"></span>
+                        </span>
+                        Quota History
                     </a>
                 </li>
             </ul>
