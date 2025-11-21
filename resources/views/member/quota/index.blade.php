@@ -3,6 +3,7 @@
 @section('title', 'My Monthly Quota')
 
 @section('content')
+<div class="pb-4">
 <!-- Page Header -->
 <div class="card mb-4">
     <div class="card-body">
@@ -217,5 +218,6 @@
             </div>
         </div>
     </div>
+</div>
 </div>
 @endsection
