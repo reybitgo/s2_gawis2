@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\Models\User;
 use App\Models\MonthlyQuotaTracker;
 use App\Notifications\QuotaReminderNotification;
+use App\Services\MonthlyQuotaService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
@@ -15,138 +15,112 @@ class SendQuotaReminders extends Command
      *
      * @var string
      */
-    protected $signature = 'quota:send-reminders {--force : Send reminders even if not the 25th}';
+    protected $signature = 'quota:send-reminders {--force : Send reminders regardless of date}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Send monthly quota reminders to users who have not met their quota';
+    protected $description = 'Send reminder notifications to users who haven\'t met their monthly quota';
+
+    protected MonthlyQuotaService $quotaService;
+
+    /**
+     * Create a new command instance.
+     */
+    public function __construct(MonthlyQuotaService $quotaService)
+    {
+        parent::__construct();
+        $this->quotaService = $quotaService;
+    }
 
     /**
      * Execute the console command.
      */
     public function handle()
     {
-        // Check if it's the 25th of the month (unless --force is used)
+        // Only send reminders between 20th-28th of month (or if --force)
         $today = now()->day;
-        if (!$this->option('force') && $today < 20) {
-            $this->info("Quota reminders are sent on or after the 20th of each month. Use --force to override.");
-            return 0;
+        if (!$this->option('force') && ($today < 20 || $today > 28)) {
+            $this->warn('Quota reminders are only sent between 20th-28th of the month.');
+            $this->info("Today is: {$today}th of " . now()->format('F Y'));
+            return Command::SUCCESS;
         }
 
-        $this->info("Sending monthly quota reminders...");
+        $this->info('=== Send Quota Reminders ===');
+        $this->info('Started at: ' . now()->toDateTimeString());
         $this->newLine();
 
-        $currentYear = now()->year;
-        $currentMonth = now()->month;
-        $monthName = now()->format('F');
-        $daysRemaining = now()->endOfMonth()->diffInDays(now());
+        $year = now()->year;
+        $month = now()->month;
 
-        // Get all network active users
-        $activeUsers = User::where('network_status', 'active')->get();
+        // Get users who haven't met quota
+        $usersNotMet = MonthlyQuotaTracker::with('user')
+            ->where('year', $year)
+            ->where('month', $month)
+            ->where('quota_met', false)
+            ->where('required_quota', '>', 0) // Only users with quota requirement
+            ->get();
 
-        if ($activeUsers->isEmpty()) {
-            $this->info("No active users found.");
-            return 0;
+        if ($usersNotMet->isEmpty()) {
+            $this->info('No users need quota reminders this month.');
+            $this->info('All users have either met their quota or have no quota requirement.');
+            return Command::SUCCESS;
         }
 
-        $this->info("Found {$activeUsers->count()} active users.");
-        $this->newLine();
+        $sent = 0;
+        $skipped = 0;
+        $failed = 0;
 
-        $remindersSent = 0;
-        $alreadyQualified = 0;
-        $noQuotaRequired = 0;
-        $errors = 0;
+        $this->withProgressBar($usersNotMet, function ($tracker) use (&$sent, &$skipped, &$failed) {
+            $user = $tracker->user;
 
-        $progressBar = $this->output->createProgressBar($activeUsers->count());
-        $progressBar->start();
+            if (!$user) {
+                $skipped++;
+                return;
+            }
 
-        foreach ($activeUsers as $user) {
+            if (!$user->email_verified_at) {
+                $skipped++;
+                return;
+            }
+
             try {
-                // Get or create tracker for current month
-                $tracker = MonthlyQuotaTracker::where('user_id', $user->id)
-                    ->where('year', $currentYear)
-                    ->where('month', $currentMonth)
-                    ->first();
-
-                if (!$tracker) {
-                    $tracker = MonthlyQuotaTracker::getOrCreateForCurrentMonth($user);
-                }
-
-                // Skip if quota not enforced (requirement is 0)
-                if ($tracker->required_quota <= 0) {
-                    $noQuotaRequired++;
-                    $progressBar->advance();
-                    continue;
-                }
-
-                // Skip if user already met quota
-                if ($tracker->quota_met) {
-                    $alreadyQualified++;
-                    $progressBar->advance();
-                    continue;
-                }
-
-                // Send reminder notification
-                $remainingPV = max(0, $tracker->required_quota - $tracker->total_pv_points);
-
-                $user->notify(new QuotaReminderNotification(
-                    $tracker->total_pv_points,
-                    $tracker->required_quota,
-                    $remainingPV,
-                    $monthName,
-                    $currentYear,
-                    $daysRemaining
-                ));
-
-                $remindersSent++;
-
-                Log::info('Quota Reminder Sent', [
-                    'user_id' => $user->id,
-                    'username' => $user->username,
-                    'current_pv' => $tracker->total_pv_points,
-                    'required_quota' => $tracker->required_quota,
-                    'remaining_pv' => $remainingPV,
-                    'days_remaining' => $daysRemaining,
-                ]);
-
+                $status = $this->quotaService->getUserMonthlyStatus($user);
+                $user->notify(new QuotaReminderNotification($status));
+                $sent++;
             } catch (\Exception $e) {
-                $errors++;
+                $failed++;
                 Log::error('Failed to send quota reminder', [
                     'user_id' => $user->id,
+                    'username' => $user->username,
                     'error' => $e->getMessage(),
                 ]);
             }
+        });
 
-            $progressBar->advance();
-        }
-
-        $progressBar->finish();
         $this->newLine(2);
+        $this->info('Quota reminders completed!');
+        $this->table(
+            ['Metric', 'Count'],
+            [
+                ['Users not met quota', $usersNotMet->count()],
+                ['Reminders sent', $sent],
+                ['Skipped (no verified email)', $skipped],
+                ['Failed', $failed],
+            ]
+        );
 
-        // Summary
-        $this->info("=== Quota Reminder Summary ===");
-        $this->info("Total active users: {$activeUsers->count()}");
-        $this->info("Reminders sent: {$remindersSent}");
-        $this->info("Already qualified: {$alreadyQualified}");
-        $this->info("No quota required: {$noQuotaRequired}");
-        if ($errors > 0) {
-            $this->error("Errors: {$errors}");
-        }
-        $this->newLine();
-
-        Log::info('Quota Reminder Command Completed', [
-            'total_users' => $activeUsers->count(),
-            'reminders_sent' => $remindersSent,
-            'already_qualified' => $alreadyQualified,
-            'no_quota_required' => $noQuotaRequired,
-            'errors' => $errors,
-            'month' => $monthName,
-            'year' => $currentYear,
+        Log::info('Quota reminders sent', [
+            'sent' => $sent,
+            'skipped' => $skipped,
+            'failed' => $failed,
+            'total_not_met' => $usersNotMet->count(),
+            'year' => $year,
+            'month' => $month,
         ]);
 
-        return 0;
+        return Command::SUCCESS;
     }
 }

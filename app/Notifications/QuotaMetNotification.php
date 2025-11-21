@@ -2,124 +2,76 @@
 
 namespace App\Notifications;
 
-use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Notifications\Messages\BroadcastMessage;
+use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
+use Illuminate\Notifications\Messages\MailMessage;
 
 class QuotaMetNotification extends Notification
 {
-    public $totalPV;
-    public $requiredQuota;
-    public $monthName;
-    public $year;
+    use Queueable;
+
+    protected array $status;
 
     /**
      * Create a new notification instance.
-     *
-     * @param float $totalPV
-     * @param float $requiredQuota
-     * @param string $monthName
-     * @param int $year
      */
-    public function __construct(float $totalPV, float $requiredQuota, string $monthName, int $year)
+    public function __construct(array $status)
     {
-        $this->totalPV = $totalPV;
-        $this->requiredQuota = $requiredQuota;
-        $this->monthName = $monthName;
-        $this->year = $year;
+        $this->status = $status;
     }
 
     /**
      * Get the notification's delivery channels.
      *
-     * @param mixed $notifiable
-     * @return array
+     * @return array<int, string>
      */
-    public function via($notifiable): array
+    public function via(object $notifiable): array
     {
-        $channels = ['database', 'broadcast'];
-
-        // Only send email if user has verified email
-        if ($notifiable->hasVerifiedEmail()) {
-            $channels[] = 'mail';
-        }
-
-        return $channels;
+        return ['mail', 'database'];
     }
 
     /**
      * Get the mail representation of the notification.
-     *
-     * @param mixed $notifiable
-     * @return MailMessage
      */
-    public function toMail($notifiable): MailMessage
+    public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('🎉 Congratulations! Monthly Quota Achieved!')
-            ->greeting('Hello ' . ($notifiable->fullname ?? $notifiable->username) . '!')
-            ->line("Excellent news! You've met your monthly quota and are now qualified to receive Unilevel bonuses!")
-            ->line('')
-            ->line('**Quota Achievement Details:**')
-            ->line('✅ **Status:** QUALIFIED')
-            ->line('📊 **PV Earned:** ' . number_format($this->totalPV, 2) . ' PV')
-            ->line('🎯 **Required Quota:** ' . number_format($this->requiredQuota, 2) . ' PV')
-            ->line('📅 **Month:** ' . $this->monthName . ' ' . $this->year)
-            ->line('')
-            ->line('**What This Means:**')
-            ->line('• You can now earn Unilevel bonuses from your downline\'s purchases this month')
-            ->line('• Your network contributions will generate income for you')
-            ->line('• Continue purchasing products to maintain your qualification')
-            ->line('')
+            ->subject('🎉 Congratulations! Monthly Quota Met - ' . $this->status['month_name'] . ' ' . $this->status['year'])
+            ->greeting('Congratulations ' . $notifiable->username . '!')
+            ->line('You have successfully met your monthly quota!')
+            ->line('**Total PV Earned:** ' . number_format($this->status['total_pv'], 2) . ' PV')
+            ->line('**Required Quota:** ' . number_format($this->status['required_quota'], 2) . ' PV')
+            ->line('You are now **QUALIFIED** to earn Unilevel bonuses from your downline\'s purchases this month.')
             ->action('View My Quota Status', url('/my-quota'))
-            ->line('')
-            ->line('Keep up the excellent work! Remember, quotas reset on the 1st of each month.')
-            ->salutation('Best regards, ' . config('app.name'));
+            ->line('Keep up the great work and continue building your business!');
     }
 
     /**
-     * Get the array representation of the notification (for database).
+     * Get the database representation of the notification.
      *
-     * @param mixed $notifiable
-     * @return array
+     * @return array<string, mixed>
      */
-    public function toArray($notifiable): array
+    public function toDatabase(object $notifiable): array
     {
         return [
-            'type' => 'quota_met',
-            'total_pv' => $this->totalPV,
-            'required_quota' => $this->requiredQuota,
-            'month_name' => $this->monthName,
-            'year' => $this->year,
-            'message' => sprintf(
-                'Congratulations! You\'ve met your monthly quota for %s %s with %s PV!',
-                $this->monthName,
-                $this->year,
-                number_format($this->totalPV, 2)
-            )
+            'type' => 'monthly_quota_met',
+            'title' => 'Monthly Quota Met!',
+            'message' => 'You have met your monthly quota of ' . number_format($this->status['required_quota'], 2) . ' PV for ' . $this->status['month_name'] . ' ' . $this->status['year'],
+            'status' => $this->status,
+            'action_url' => url('/my-quota'),
         ];
     }
 
     /**
-     * Get the broadcast representation of the notification.
+     * Get the array representation of the notification.
      *
-     * @param mixed $notifiable
-     * @return BroadcastMessage
+     * @return array<string, mixed>
      */
-    public function toBroadcast($notifiable): BroadcastMessage
+    public function toArray(object $notifiable): array
     {
-        return new BroadcastMessage([
-            'type' => 'quota_met',
-            'total_pv' => $this->totalPV,
-            'required_quota' => $this->requiredQuota,
-            'month_name' => $this->monthName,
-            'year' => $this->year,
-            'message' => sprintf(
-                'Congratulations! You\'ve met your monthly quota for %s %s with %s PV!',
-                $this->monthName,
-                $this->year,
-                number_format($this->totalPV, 2)
-            )
-        ]);
+        return [
+            'type' => 'monthly_quota_met',
+            'status' => $this->status,
+        ];
     }
 }

@@ -2,146 +2,80 @@
 
 namespace App\Notifications;
 
-use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Notifications\Messages\BroadcastMessage;
+use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
+use Illuminate\Notifications\Messages\MailMessage;
 
 class QuotaReminderNotification extends Notification
 {
-    public $currentPV;
-    public $requiredQuota;
-    public $remainingPV;
-    public $monthName;
-    public $year;
-    public $daysRemaining;
+    use Queueable;
+
+    protected array $status;
 
     /**
      * Create a new notification instance.
-     *
-     * @param float $currentPV
-     * @param float $requiredQuota
-     * @param float $remainingPV
-     * @param string $monthName
-     * @param int $year
-     * @param int $daysRemaining
      */
-    public function __construct(
-        float $currentPV,
-        float $requiredQuota,
-        float $remainingPV,
-        string $monthName,
-        int $year,
-        int $daysRemaining
-    ) {
-        $this->currentPV = $currentPV;
-        $this->requiredQuota = $requiredQuota;
-        $this->remainingPV = $remainingPV;
-        $this->monthName = $monthName;
-        $this->year = $year;
-        $this->daysRemaining = $daysRemaining;
+    public function __construct(array $status)
+    {
+        $this->status = $status;
     }
 
     /**
      * Get the notification's delivery channels.
      *
-     * @param mixed $notifiable
-     * @return array
+     * @return array<int, string>
      */
-    public function via($notifiable): array
+    public function via(object $notifiable): array
     {
-        $channels = ['database', 'broadcast'];
-
-        // Only send email if user has verified email
-        if ($notifiable->hasVerifiedEmail()) {
-            $channels[] = 'mail';
-        }
-
-        return $channels;
+        return ['mail', 'database'];
     }
 
     /**
      * Get the mail representation of the notification.
-     *
-     * @param mixed $notifiable
-     * @return MailMessage
      */
-    public function toMail($notifiable): MailMessage
+    public function toMail(object $notifiable): MailMessage
     {
-        $progressPercentage = $this->requiredQuota > 0
-            ? ($this->currentPV / $this->requiredQuota) * 100
-            : 0;
-
+        $daysLeft = now()->endOfMonth()->diffInDays(now());
+        
         return (new MailMessage)
-            ->subject('⚠️ Monthly Quota Reminder - ' . $this->monthName . ' ' . $this->year)
-            ->greeting('Hello ' . ($notifiable->fullname ?? $notifiable->username) . '!')
-            ->line("This is a friendly reminder about your monthly quota status for " . $this->monthName . " " . $this->year . ".")
-            ->line('')
-            ->line('**Current Status:**')
-            ->line('⚠️ **Status:** NOT QUALIFIED')
-            ->line('📊 **Current PV:** ' . number_format($this->currentPV, 2) . ' PV')
-            ->line('🎯 **Required Quota:** ' . number_format($this->requiredQuota, 2) . ' PV')
-            ->line('📉 **Remaining:** ' . number_format($this->remainingPV, 2) . ' PV')
-            ->line('📅 **Days Left:** ' . $this->daysRemaining . ' days')
-            ->line('📈 **Progress:** ' . number_format($progressPercentage, 1) . '%')
-            ->line('')
-            ->line('**What You Need to Do:**')
-            ->line('• Purchase products worth ' . number_format($this->remainingPV, 2) . ' PV to qualify')
-            ->line('• Meet your quota to earn Unilevel bonuses from your downline')
-            ->line('• Act now - you have only ' . $this->daysRemaining . ' days remaining!')
-            ->line('')
-            ->action('Shop Products Now', url('/products'))
-            ->line('')
-            ->line('**Important:** If you don\'t meet your quota by the end of this month, you won\'t be able to earn Unilevel bonuses from your downline\'s purchases.')
-            ->line('')
-            ->action('View My Quota Status', url('/my-quota'))
-            ->salutation('Best regards, ' . config('app.name'));
+            ->subject('⏰ Monthly Quota Reminder - ' . $this->status['month_name'] . ' ' . $this->status['year'])
+            ->greeting('Hello ' . $notifiable->username . '!')
+            ->line('This is a friendly reminder about your monthly quota status.')
+            ->line('**Current Progress:** ' . number_format($this->status['total_pv'], 2) . ' / ' . number_format($this->status['required_quota'], 2) . ' PV (' . number_format($this->status['progress_percentage'], 1) . '%)')
+            ->line('**Remaining:** ' . number_format($this->status['remaining_pv'], 2) . ' PV')
+            ->line('**Days Left:** ' . $daysLeft . ' days until month end')
+            ->line('You need to accumulate **' . number_format($this->status['remaining_pv'], 2) . ' more PV** this month to qualify for Unilevel bonuses.')
+            ->action('Shop Products to Earn PV', url('/products'))
+            ->line('Purchase products to earn PV points and meet your monthly quota!')
+            ->line('Don\'t miss out on earning Unilevel bonuses from your downline\'s purchases.');
     }
 
     /**
-     * Get the array representation of the notification (for database).
+     * Get the database representation of the notification.
      *
-     * @param mixed $notifiable
-     * @return array
+     * @return array<string, mixed>
      */
-    public function toArray($notifiable): array
+    public function toDatabase(object $notifiable): array
     {
         return [
-            'type' => 'quota_reminder',
-            'current_pv' => $this->currentPV,
-            'required_quota' => $this->requiredQuota,
-            'remaining_pv' => $this->remainingPV,
-            'month_name' => $this->monthName,
-            'year' => $this->year,
-            'days_remaining' => $this->daysRemaining,
-            'message' => sprintf(
-                'Monthly quota reminder: You need %s more PV to qualify. %d days remaining.',
-                number_format($this->remainingPV, 2),
-                $this->daysRemaining
-            )
+            'type' => 'monthly_quota_reminder',
+            'title' => 'Monthly Quota Reminder',
+            'message' => 'You need ' . number_format($this->status['remaining_pv'], 2) . ' more PV to meet your quota for ' . $this->status['month_name'] . ' ' . $this->status['year'],
+            'status' => $this->status,
+            'action_url' => url('/my-quota'),
         ];
     }
 
     /**
-     * Get the broadcast representation of the notification.
+     * Get the array representation of the notification.
      *
-     * @param mixed $notifiable
-     * @return BroadcastMessage
+     * @return array<string, mixed>
      */
-    public function toBroadcast($notifiable): BroadcastMessage
+    public function toArray(object $notifiable): array
     {
-        return new BroadcastMessage([
-            'type' => 'quota_reminder',
-            'current_pv' => $this->currentPV,
-            'required_quota' => $this->requiredQuota,
-            'remaining_pv' => $this->remainingPV,
-            'month_name' => $this->monthName,
-            'year' => $this->year,
-            'days_remaining' => $this->daysRemaining,
-            'message' => sprintf(
-                'Monthly quota reminder: You need %s more PV to qualify. %d days remaining.',
-                number_format($this->remainingPV, 2),
-                $this->daysRemaining
-            )
-        ]);
+        return [
+            'type' => 'monthly_quota_reminder',
+            'status' => $this->status,
+        ];
     }
 }

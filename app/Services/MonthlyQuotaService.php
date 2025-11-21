@@ -109,12 +109,7 @@ class MonthlyQuotaService
 
         // Send notification if quota just became met
         if (!$wasQuotaMet && $tracker->quota_met && $tracker->required_quota > 0) {
-            $user->notify(new QuotaMetNotification(
-                $tracker->total_pv_points,
-                $tracker->required_quota,
-                now()->format('F'),
-                now()->year
-            ));
+            $user->notify(new QuotaMetNotification($this->getUserMonthlyStatus($user)));
 
             Log::info('Quota Met Notification Sent', [
                 'user_id' => $user->id,
