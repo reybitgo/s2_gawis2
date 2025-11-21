@@ -13,7 +13,6 @@ class MemberQuotaController extends Controller
 
     public function __construct(MonthlyQuotaService $quotaService)
     {
-        $this->middleware('auth');
         $this->quotaService = $quotaService;
     }
 
