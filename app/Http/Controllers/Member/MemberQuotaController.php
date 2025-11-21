@@ -54,7 +54,7 @@ class MemberQuotaController extends Controller
             ->filter(fn($order) => $order['pv_earned'] > 0);
 
         // Calculate days remaining in month
-        $daysRemaining = now()->endOfMonth()->diffInDays(now());
+        $daysRemaining = max(0, (int) now()->diffInDays(now()->endOfMonth(), false));
 
         return view('member.quota.index', compact('status', 'recentOrders', 'daysRemaining'));
     }
