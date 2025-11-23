@@ -3,8 +3,8 @@
 ## Overview
 
 Phase 6 implements automated tasks for the Monthly Quota System:
-1. **Reset Monthly Quotas** - Runs on 1st of each month at 12:01 AM
-2. **Send Quota Reminders** - Runs on 25th of each month at 9:00 AM
+1. **Reset Monthly Quotas** - Runs daily at 12:01 AM, but only executes on the 1st of each month
+2. **Send Quota Reminders** - Runs daily at 9:00 AM, but only executes on the 25th of each month
 
 ---
 
@@ -25,7 +25,7 @@ Command: /usr/bin/php /home/u938213108/public_html/s2/crons/reset_monthly_quota.
 Schedule:
   Minute: 1
   Hour: 0
-  Day: 1
+  Day: * (Every day - script checks internally for 1st of month)
   Month: * (Every month)
   Weekday: * (Every day of week)
   
@@ -40,7 +40,7 @@ Command: /usr/bin/php /home/u938213108/public_html/s2/crons/send_quota_reminders
 Schedule:
   Minute: 0
   Hour: 9
-  Day: 25
+  Day: * (Every day - script checks internally for 25th of month)
   Month: * (Every month)
   Weekday: * (Every day of week)
   
@@ -199,33 +199,35 @@ LIMIT 10;
 ## CRON Schedule Reference
 
 ### Reset Monthly Quotas
-- **When:** 1st day of every month at 12:01 AM
+- **When:** Runs daily at 12:01 AM, but only executes on the 1st of each month
 - **Purpose:** Create new trackers for all active users, reset PV to 0
 - **Impact:** Users start fresh each month
+- **Why Daily:** Allows precise day-of-month detection and easier debugging
 
 **CRON Expression:**
 ```
-1 0 1 * *
+1 0 * * *
 │ │ │ │ │
 │ │ │ │ └─ Weekday (any)
 │ │ │ └─── Month (any)
-│ │ └───── Day (1st)
+│ │ └───── Day (every day - script checks for 1st)
 │ └─────── Hour (0 = midnight)
 └───────── Minute (1)
 ```
 
 ### Send Quota Reminders
-- **When:** 25th day of every month at 9:00 AM
-- **Purpose:** Remind users who haven't met quota (only 20th-28th)
+- **When:** Runs daily at 9:00 AM, but only executes on the 25th of each month
+- **Purpose:** Remind users who haven't met quota
 - **Impact:** Email + database notifications sent
+- **Why Daily:** Allows precise day-of-month detection and easier debugging
 
 **CRON Expression:**
 ```
-0 9 25 * *
-│ │ │  │ │
-│ │ │  │ └─ Weekday (any)
-│ │ │  └─── Month (any)
-│ │ └────── Day (25th)
+0 9 * * *
+│ │ │ │ │
+│ │ │ │ └─ Weekday (any)
+│ │ │ └─── Month (any)
+│ │ └───── Day (every day - script checks for 25th)
 │ └──────── Hour (9 = 9 AM)
 └────────── Minute (0)
 ```
@@ -279,8 +281,9 @@ ls -la storage/logs/
 ### Issue: Reminders not sending
 
 **Check 1: Date restriction**
-- Reminders only send between 20th-28th of month
-- Use `--force` flag to bypass: `php artisan quota:send-reminders --force`
+- Reminders only send on the 25th of month
+- Script will exit early on other days (this is normal)
+- Check logs to confirm script is running daily
 
 **Check 2: Users have verified emails**
 - Script skips users without `email_verified_at`

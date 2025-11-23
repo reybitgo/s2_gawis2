@@ -2,17 +2,17 @@
 /**
  * Monthly Quota Reset CRON Script
  * 
- * This script resets monthly quotas for all active users on the 1st of each month.
+ * This script runs daily but only resets monthly quotas on the 1st of each month.
  * 
  * Hostinger CRON Setup:
  * Command: /usr/bin/php /home/u938213108/public_html/s2/crons/reset_monthly_quota.php
- * Schedule: Minute=1, Hour=0, Day=1, Month=*, Weekday=*
- * (Runs: 1st of every month at 12:01 AM)
+ * Schedule: Minute=1, Hour=0, Day=*, Month=*, Weekday=*
+ * (Runs: Daily at 12:01 AM, but only executes on the 1st of each month)
  * 
  * Windows Task Scheduler (Local Development):
  * Action: C:\laragon\bin\php\php-8.x\php.exe
  * Arguments: C:\laragon\www\s2_gawis2\crons\reset_monthly_quota.php
- * Trigger: Monthly, 1st day, 12:01 AM
+ * Trigger: Daily, 12:01 AM
  */
 
 require __DIR__ . '/../vendor/autoload.php';
@@ -28,6 +28,14 @@ echo "=== Monthly Quota Reset CRON Job ===\n";
 echo "Started at: " . now()->toDateTimeString() . "\n\n";
 
 try {
+    // Only run on the 1st day of the month
+    $today = now()->day;
+    if ($today !== 1) {
+        echo "Quota reset only runs on the 1st of each month.\n";
+        echo "Today is: " . now()->format('F j, Y') . " (Day {$today})\n";
+        echo "Next reset: " . now()->startOfMonth()->addMonth()->format('F 1, Y') . "\n";
+        exit(0);
+    }
     $activeUsers = User::where('network_status', 'active')->get();
     $created = 0;
     $updated = 0;

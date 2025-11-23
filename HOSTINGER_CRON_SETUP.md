@@ -120,7 +120,7 @@ Click **"Create Cron Job"** button
 **Schedule:**
 - **Minute:** `1`
 - **Hour:** `0` (midnight)
-- **Day:** `1` (1st of month)
+- **Day:** `*` (every day - script checks for 1st internally)
 - **Month:** `*` (every month)
 - **Weekday:** `*` (any day)
 
@@ -128,6 +128,8 @@ Click **"Create Cron Job"** button
 - Enter your email if you want to receive execution reports
 
 **Click "Create"**
+
+**Note:** The script runs daily but only executes on the 1st of each month, allowing precise day detection.
 
 ---
 
@@ -149,7 +151,7 @@ Click **"Create Cron Job"** button again
 **Schedule:**
 - **Minute:** `0`
 - **Hour:** `9` (9:00 AM)
-- **Day:** `25` (25th of month)
+- **Day:** `*` (every day - script checks for 25th internally)
 - **Month:** `*` (every month)
 - **Weekday:** `*` (any day)
 
@@ -158,16 +160,20 @@ Click **"Create Cron Job"** button again
 
 **Click "Create"**
 
+**Note:** The script runs daily but only executes on the 25th of each month, allowing precise day detection.
+
 ---
 
 ## Step 7: Verify CRON Jobs
 
 After creating both jobs, you should see them listed in the Cron Jobs section:
 
-| Command | Schedule | Next Run |
-|---------|----------|----------|
-| /usr/bin/php ...reset_monthly_quota.php | 1 0 1 * * | Dec 1, 2025 12:01 AM |
-| /usr/bin/php ...send_quota_reminders.php | 0 9 25 * * | Nov 25, 2025 9:00 AM |
+| Command | Schedule | Next Run | Executes On |
+|---------|----------|----------|-------------|
+| /usr/bin/php ...reset_monthly_quota.php | 1 0 * * * | Tomorrow 12:01 AM | 1st of month only |
+| /usr/bin/php ...send_quota_reminders.php | 0 9 * * * | Tomorrow 9:00 AM | 25th of month only |
+
+**Note:** Both scripts run daily, but check the day of the month internally before executing their main logic.
 
 ---
 
@@ -183,11 +189,15 @@ After creating both jobs, you should see them listed in the Cron Jobs section:
 
 **Examples:**
 
-- `0 0 1 * *` = 1st of every month at 12:00 AM
-- `1 0 1 * *` = 1st of every month at 12:01 AM
-- `0 9 25 * *` = 25th of every month at 9:00 AM
+- `0 0 * * *` = Every day at 12:00 AM (midnight)
+- `1 0 * * *` = Every day at 12:01 AM
+- `0 9 * * *` = Every day at 9:00 AM
 - `30 14 * * 1` = Every Monday at 2:30 PM
 - `0 */6 * * *` = Every 6 hours
+
+**Our Setup:**
+- `1 0 * * *` = Runs daily at 12:01 AM (checks for 1st of month internally)
+- `0 9 * * *` = Runs daily at 9:00 AM (checks for 25th of month internally)
 
 ---
 

@@ -2,18 +2,18 @@
 /**
  * Send Quota Reminders CRON Script
  * 
- * This script sends reminder emails to users who haven't met their monthly quota.
- * Only sends reminders between 20th-28th of the month.
+ * This script runs daily but only sends reminder emails on the 25th of each month.
+ * Reminders are sent to users who haven't met their monthly quota.
  * 
  * Hostinger CRON Setup:
  * Command: /usr/bin/php /home/u938213108/public_html/s2/crons/send_quota_reminders.php
- * Schedule: Minute=0, Hour=9, Day=25, Month=*, Weekday=*
- * (Runs: 25th of every month at 9:00 AM)
+ * Schedule: Minute=0, Hour=9, Day=*, Month=*, Weekday=*
+ * (Runs: Daily at 9:00 AM, but only sends reminders on the 25th of each month)
  * 
  * Windows Task Scheduler (Local Development):
  * Action: C:\laragon\bin\php\php-8.x\php.exe
  * Arguments: C:\laragon\www\s2_gawis2\crons\send_quota_reminders.php
- * Trigger: Monthly, 25th day, 9:00 AM
+ * Trigger: Daily, 9:00 AM
  */
 
 require __DIR__ . '/../vendor/autoload.php';
@@ -30,11 +30,12 @@ echo "=== Send Quota Reminders CRON Job ===\n";
 echo "Started at: " . now()->toDateTimeString() . "\n\n";
 
 try {
-    // Only send reminders between 20th-28th of month
+    // Only send reminders on the 25th of the month
     $today = now()->day;
-    if ($today < 20 || $today > 28) {
-        echo "Reminders only sent between 20th-28th of the month.\n";
-        echo "Today is: {$today}th of " . now()->format('F Y') . "\n";
+    if ($today !== 25) {
+        echo "Quota reminders only sent on the 25th of each month.\n";
+        echo "Today is: " . now()->format('F j, Y') . " (Day {$today})\n";
+        echo "Next reminder: " . now()->startOfMonth()->addDays(24)->format('F 25, Y') . "\n";
         exit(0);
     }
 
