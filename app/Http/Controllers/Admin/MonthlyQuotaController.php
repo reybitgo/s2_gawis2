@@ -19,6 +19,15 @@ class MonthlyQuotaController extends Controller
     public function __construct(MonthlyQuotaService $quotaService)
     {
         $this->quotaService = $quotaService;
+        
+        // Ensure quota system is enabled
+        $this->middleware(function ($request, $next) {
+            if (!\App\Models\SystemSetting::get('unilevel_quota_enabled', true)) {
+                return redirect()->route('admin.dashboard')
+                    ->with('error', 'The Monthly Quota System is currently disabled. Enable it in Application Settings to access this feature.');
+            }
+            return $next($request);
+        });
     }
 
     /**

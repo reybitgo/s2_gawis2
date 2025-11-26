@@ -161,6 +161,48 @@
                     </div>
                 </div>
 
+                <!-- Unilevel Quota System Settings -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <svg class="icon me-2">
+                                <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-task') }}"></use>
+                            </svg>
+                            Unilevel Quota System
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input"
+                                   type="checkbox"
+                                   id="unilevel_quota_enabled"
+                                   name="unilevel_quota_enabled"
+                                   value="1"
+                                   {{ $settings['unilevel_quota_enabled'] ? 'checked' : '' }}>
+                            <label class="form-check-label" for="unilevel_quota_enabled">
+                                Enable Monthly Quota Requirement for Unilevel Bonuses
+                            </label>
+                            <div class="form-text">
+                                When enabled, users must meet their monthly personal purchase quota (PV points) to be eligible for Unilevel bonuses from their downline's purchases. When disabled, the quota system is completely bypassed and all quota-related UI will be hidden.
+                            </div>
+                        </div>
+
+                        <div class="alert alert-warning mt-3">
+                            <svg class="icon me-2">
+                                <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-warning') }}"></use>
+                            </svg>
+                            <strong>Impact when disabled:</strong>
+                            <ul class="mb-0 mt-2">
+                                <li>Unilevel bonuses will be distributed based on <strong>network_active</strong> status only (no quota check)</li>
+                                <li>Monthly Quota menu will be hidden from admin sidebar</li>
+                                <li>My Quota menu will be hidden from member sidebar</li>
+                                <li>All quota-related pages will be inaccessible</li>
+                                <li>Package quota settings will be ignored</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Save Button -->
                 <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                     <button type="submit" class="btn btn-primary">

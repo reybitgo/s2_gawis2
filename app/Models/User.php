@@ -346,6 +346,11 @@ class User extends Authenticatable implements MustVerifyEmail
             return false;
         }
 
+        // Check if quota system is globally enabled
+        if (!SystemSetting::get('unilevel_quota_enabled', true)) {
+            return true; // Quota system disabled, only network active matters
+        }
+
         // Check if user's package enforces monthly quota
         $package = $this->orders()
             ->where('payment_status', 'paid')

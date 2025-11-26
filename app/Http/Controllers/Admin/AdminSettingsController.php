@@ -18,6 +18,7 @@ class AdminSettingsController extends Controller
             'email_verification_required' => SystemSetting::get('email_verification_required', true),
             'currency' => SystemSetting::get('currency', 'PHP'),
             'currency_symbol' => SystemSetting::get('currency_symbol', '₱'),
+            'unilevel_quota_enabled' => SystemSetting::get('unilevel_quota_enabled', true),
         ];
 
         return view('admin.settings.index', compact('settings'));
@@ -33,6 +34,7 @@ class AdminSettingsController extends Controller
             'email_verification_required' => 'boolean',
             'currency' => 'required|string|max:3',
             'currency_symbol' => 'required|string|max:5',
+            'unilevel_quota_enabled' => 'boolean',
         ]);
 
         // Update tax rate
@@ -64,6 +66,14 @@ class AdminSettingsController extends Controller
             $request->currency_symbol,
             'string',
             'Currency symbol to display (₱, $, €, etc.)'
+        );
+
+        // Update unilevel quota system setting
+        SystemSetting::set(
+            'unilevel_quota_enabled',
+            $request->boolean('unilevel_quota_enabled'),
+            'boolean',
+            'Whether the monthly quota system is enabled for Unilevel bonuses'
         );
 
         // Clear cache to ensure changes take effect immediately

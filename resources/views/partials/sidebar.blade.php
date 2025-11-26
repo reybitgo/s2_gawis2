@@ -152,7 +152,8 @@
                 </ul>
             </li>
 
-            <!-- Monthly Quota System (Phase 4) -->
+            <!-- Monthly Quota System (Phase 4) - Only show if enabled -->
+            @if(\App\Models\SystemSetting::get('unilevel_quota_enabled', true))
             <li class="nav-group">
                 <a class="nav-link nav-group-toggle{{ Request::routeIs('admin.monthly-quota.*') ? ' active' : '' }}" href="#">
                     <svg class="nav-icon">
@@ -187,6 +188,7 @@
                     </li>
                 </ul>
             </li>
+            @endif
         @endif
         @endauth
 
@@ -271,6 +273,8 @@
                 </li>
             </ul>
         </li>
+        <!-- My Quota - Only show if quota system is enabled -->
+        @if(\App\Models\SystemSetting::get('unilevel_quota_enabled', true))
         <li class="nav-group">
             <a class="nav-link nav-group-toggle{{ Request::routeIs('member.quota.*') ? ' active' : '' }}" href="#">
                 <svg class="nav-icon">
@@ -297,6 +301,7 @@
                 </li>
             </ul>
         </li>
+        @endif
         <li class="nav-item">
             <a class="nav-link{{ Request::routeIs('member.register.*') ? ' active' : '' }}" href="{{ route('member.register.show') }}">
                 <svg class="nav-icon">
