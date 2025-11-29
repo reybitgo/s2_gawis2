@@ -44,6 +44,9 @@ class User extends Authenticatable implements MustVerifyEmail
         'pickup_location',
         'other_payment_method',
         'other_payment_details',
+        'current_rank',
+        'rank_package_id',
+        'rank_updated_at',
     ];
 
     /**
@@ -70,6 +73,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'suspended_at' => 'datetime',
             'network_activated_at' => 'datetime',
             'last_product_purchase_at' => 'datetime',
+            'rank_updated_at' => 'datetime',
             'password' => 'hashed',
         ];
     }
@@ -369,5 +373,85 @@ class User extends Authenticatable implements MustVerifyEmail
 
         // If quota is enforced, check if met
         return $this->meetsMonthlyQuota();
+    }
+
+    /**
+     * Get user's rank package relationship
+     */
+    public function rankPackage()
+    {
+        return $this->belongsTo(Package::class, 'rank_package_id');
+    }
+
+    /**
+     * Get user's rank advancements history
+     */
+    public function rankAdvancements()
+    {
+        return $this->hasMany(RankAdvancement::class)->orderBy('created_at', 'desc');
+    }
+
+    /**
+     * Get user's direct sponsors tracked
+     */
+    public function directSponsorsTracked()
+    {
+        return $this->hasMany(DirectSponsorsTracker::class, 'user_id');
+    }
+
+    /**
+     * Get user's rank name
+     */
+    public function getRankName(): string
+    {
+        return $this->current_rank ?? 'Unranked';
+    }
+
+    /**
+     * Get user's rank order
+     */
+    public function getRankOrder(): int
+    {
+        return $this->rankPackage?->rank_order ?? 0;
+    }
+
+    /**
+     * Get highest-priced package purchased by user
+     */
+    public function getHighestPackagePurchased(): ?Package
+    {
+        return Package::whereHas('orderItems.order', function($q) {
+            $q->where('user_id', $this->id)
+              ->where('payment_status', 'paid');
+        })
+        ->where('is_rankable', true)
+        ->orderBy('price', 'desc')
+        ->first();
+    }
+
+    /**
+     * Update user's rank based on highest package purchased
+     */
+    public function updateRank(): void
+    {
+        $highestPackage = $this->getHighestPackagePurchased();
+        
+        if ($highestPackage) {
+            $this->update([
+                'current_rank' => $highestPackage->rank_name,
+                'rank_package_id' => $highestPackage->id,
+                'rank_updated_at' => now(),
+            ]);
+        }
+    }
+
+    /**
+     * Get count of same-rank sponsors
+     */
+    public function getSameRankSponsorsCount(): int
+    {
+        return $this->directSponsorsTracked()
+            ->where('sponsored_user_rank_at_time', $this->current_rank)
+            ->count();
     }
 }

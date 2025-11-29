@@ -28,6 +28,11 @@ class Package extends Model
         'max_mlm_levels',
         'monthly_quota_points',
         'enforce_monthly_quota',
+        'rank_name',
+        'rank_order',
+        'required_direct_sponsors',
+        'is_rankable',
+        'next_rank_package_id',
     ];
 
     protected $casts = [
@@ -41,6 +46,9 @@ class Package extends Model
         'max_mlm_levels' => 'integer',
         'monthly_quota_points' => 'decimal:2',
         'enforce_monthly_quota' => 'boolean',
+        'rank_order' => 'integer',
+        'required_direct_sponsors' => 'integer',
+        'is_rankable' => 'boolean',
     ];
 
     protected static function boot()
@@ -141,5 +149,54 @@ class Package extends Model
     public function isMLMPackage(): bool
     {
         return (bool) $this->is_mlm_package;
+    }
+
+    /**
+     * Get next rank package relationship
+     */
+    public function nextRankPackage()
+    {
+        return $this->belongsTo(Package::class, 'next_rank_package_id');
+    }
+
+    /**
+     * Get previous rank packages relationship
+     */
+    public function previousRankPackages()
+    {
+        return $this->hasMany(Package::class, 'next_rank_package_id');
+    }
+
+    /**
+     * Scope for rankable packages
+     */
+    public function scopeRankable($query)
+    {
+        return $query->where('is_rankable', true);
+    }
+
+    /**
+     * Scope for packages ordered by rank
+     */
+    public function scopeOrderedByRank($query)
+    {
+        return $query->where('is_rankable', true)
+                     ->orderBy('rank_order', 'asc');
+    }
+
+    /**
+     * Check if user can advance to next rank
+     */
+    public function canAdvanceToNextRank(): bool
+    {
+        return !is_null($this->next_rank_package_id);
+    }
+
+    /**
+     * Get next rank package
+     */
+    public function getNextRankPackage(): ?Package
+    {
+        return $this->nextRankPackage;
     }
 }

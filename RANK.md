@@ -423,11 +423,16 @@ public function getNextRankPackage(): ?Package
 }
 ```
 
-#### 1.3 One-Time Migration: Assign Ranks to Existing Users (Day 1, Afternoon)
+#### 1.3 Assigning Ranks to Existing Users (Day 1, Afternoon)
 
 **CRITICAL**: Before using the rank system, all existing users who purchased packages must be assigned their initial ranks.
 
-**Create migration**: `database/migrations/YYYY_MM_DD_assign_ranks_to_existing_users.php`
+**Options for assigning ranks:**
+1. Via seeder (recommended for deployment)
+2. Via helper script
+3. Via migration (optional)
+
+**Example implementation** (can be used in seeder or migration):
 
 ```php
 <?php
