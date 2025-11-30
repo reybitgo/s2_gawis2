@@ -427,123 +427,90 @@ public function getNextRankPackage(): ?Package
 
 **CRITICAL**: Before using the rank system, all existing users who purchased packages must be assigned their initial ranks.
 
-**Options for assigning ranks:**
-1. Via seeder (recommended for deployment)
-2. Via helper script
-3. Via migration (optional)
+**Implementation Method**: We use a standalone script `assign_ranks_to_users.php` for rank assignment.
 
-**Example implementation** (can be used in seeder or migration):
+**Why Standalone Script Instead of Migration:**
+- ✅ Can be run repeatedly for new users without migration concerns
+- ✅ Easier to execute on production environments (no database migration state tracking)
+- ✅ Can be run manually anytime to fix rank assignments
+- ✅ More flexible for production deployments (especially Hostinger)
+- ✅ No risk of migration rollback affecting user ranks
 
-```php
-<?php
+**Script: `assign_ranks_to_users.php`**
 
-use Illuminate\Database\Migrations\Migration;
-use App\Models\User;
-use App\Models\Package;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
+Located at project root, this script:
+1. Finds all users who have purchased packages
+2. Determines their highest-priced MLM package
+3. Assigns corresponding rank based on package `rank_name`
+4. Updates only users whose rank needs updating (idempotent)
+5. Logs all changes for audit trail
 
-return new class extends Migration
-{
-    /**
-     * Assign ranks to all existing users based on their purchased packages
-     * This ensures backward compatibility when deploying rank system
-     */
-    public function up(): void
-    {
-        $this->command->info('Assigning ranks to existing users...');
-        
-        $totalUpdated = 0;
-        $totalSkipped = 0;
-        
-        // Get all users who have purchased packages
-        User::whereHas('orders', function($query) {
-            $query->where('payment_status', 'paid')
-                  ->whereHas('orderItems.package');
-        })->chunk(100, function($users) use (&$totalUpdated, &$totalSkipped) {
-            foreach ($users as $user) {
-                // Get highest-priced package purchased by user
-                $highestPackage = Package::whereHas('orderItems.order', function($q) use ($user) {
-                    $q->where('user_id', $user->id)
-                      ->where('payment_status', 'paid');
-                })
-                ->where('is_mlm_package', true)
-                ->orderBy('price', 'desc')
-                ->first();
-                
-                if ($highestPackage && $highestPackage->rank_name) {
-                    // Assign rank based on highest package
-                    $user->update([
-                        'current_rank' => $highestPackage->rank_name,
-                        'rank_package_id' => $highestPackage->id,
-                        'rank_updated_at' => now(),
-                    ]);
-                    
-                    $totalUpdated++;
-                    
-                    if ($totalUpdated % 50 === 0) {
-                        $this->command->info("Updated {$totalUpdated} users...");
-                    }
-                    
-                    Log::info('Rank assigned to existing user', [
-                        'user_id' => $user->id,
-                        'username' => $user->username,
-                        'rank' => $highestPackage->rank_name,
-                        'package' => $highestPackage->name,
-                    ]);
-                } else {
-                    $totalSkipped++;
-                }
-            }
-        });
-        
-        $this->command->info("Rank assignment completed!");
-        $this->command->info("Total users updated: {$totalUpdated}");
-        $this->command->info("Total users skipped: {$totalSkipped}");
-        
-        Log::info('Existing user rank assignment completed', [
-            'updated' => $totalUpdated,
-            'skipped' => $totalSkipped,
-        ]);
-    }
-
-    public function down(): void
-    {
-        $this->command->warn('Rolling back rank assignments...');
-        
-        User::whereNotNull('current_rank')->update([
-            'current_rank' => null,
-            'rank_package_id' => null,
-            'rank_updated_at' => null,
-        ]);
-        
-        $this->command->info('Rank assignments rolled back.');
-    }
-};
+**Usage:**
+```bash
+# Run from project root
+php assign_ranks_to_users.php
 ```
 
-**When to Run This Migration**:
-1. Run AFTER all rank system migrations (Phase 1 database changes)
-2. Run BEFORE enabling rank advancement features
-3. Run BEFORE backfilling legacy sponsorships
+**When to Run This Script:**
+1. **AFTER** all rank system migrations (Phase 1 database changes)
+2. **BEFORE** enabling rank advancement features
+3. **ANYTIME** new users purchase packages and need rank assignment
+4. Can be run repeatedly - only updates users who need it
 
-**Expected Behavior**:
+**Expected Output:**
+```
+===========================================
+Assigning ranks to users based on packages
+===========================================
+
+✓ Updated: john_doe -> Starter (Package: Starter Package)
+✓ Updated: jane_smith -> Newbie (Package: Newbie Package)
+✗ Skipped: new_user (No MLM package with rank found)
+
+--- Progress: 50 users updated ---
+
+===========================================
+Rank assignment completed!
+===========================================
+Total users updated: 147
+Total users skipped: 23
+Execution time: 3.45 seconds
+===========================================
+```
+
+**Expected Behavior:**
 - All users with "Starter" package → Assigned "Starter" rank
 - All users with multiple packages → Assigned rank of highest-priced package
 - Users without packages → Skipped (remain unranked)
+- Users with correct rank already → Skipped (no update needed)
 - Idempotent: Can be run multiple times safely
+- Only updates `current_rank`, `rank_package_id`, `rank_updated_at` fields
 
-**Verification**:
+**Verification:**
 ```bash
 php artisan tinker
-# Check users with Starter rank
+```
+```php
+// Check users with Starter rank
 User::where('current_rank', 'Starter')->count();
 
-# View specific user
+// View specific user
 $user = User::where('username', 'test_user')->first();
 dump($user->getRankName());
 dump($user->rankPackage->name);
+
+// Check users who purchased packages but have no rank
+User::whereHas('orders', function($q) {
+    $q->where('payment_status', 'paid')->whereHas('orderItems.package');
+})->whereNull('current_rank')->count();
+// Should return 0 after running script
 ```
+
+**Production Deployment:**
+- Script can be run via SSH: `php assign_ranks_to_users.php`
+- Or via Hostinger File Manager PHP terminal
+- Or via scheduled cron job for continuous synchronization
+- Safe to run multiple times - will only update users who need it
 
 #### 1.4 Seeders Update (Day 1, Afternoon)
 
@@ -868,8 +835,9 @@ echo "\nPhase 1 Test Completed!\n";
 ```
 
 **Checklist**:
-- [ ] All migrations run successfully (including rank assignment migration)
-- [ ] **Existing users with Starter package are assigned Starter rank**
+- [ ] All migrations run successfully (4 rank system migrations)
+- [ ] **`assign_ranks_to_users.php` script executed successfully**
+- [ ] **Existing users with packages are assigned correct ranks**
 - [ ] Packages have rank fields populated
 - [ ] Users can have rank assigned
 - [ ] Rank relationships work (user → package)

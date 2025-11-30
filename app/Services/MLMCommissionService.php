@@ -15,6 +15,18 @@ use Illuminate\Support\Facades\Log;
 class MLMCommissionService
 {
     /**
+     * Rank comparison service for rank-aware MLM commissions
+     */
+    protected RankComparisonService $rankComparison;
+
+    /**
+     * Constructor
+     */
+    public function __construct(RankComparisonService $rankComparison)
+    {
+        $this->rankComparison = $rankComparison;
+    }
+    /**
      * Process MLM commissions for a completed order
      *
      * @param Order $order
@@ -51,12 +63,39 @@ class MLMCommissionService
 
                 // Traverse upline up to max levels
                 while ($currentUser && $level <= $maxLevels) {
+                    // CRITICAL: Check network active status BEFORE rank comparison
                     if (!$currentUser->isNetworkActive()) {
+                        Log::info('Upline skipped: Not network active', [
+                            'upline_id' => $currentUser->id,
+                            'level' => $level,
+                            'network_status' => $currentUser->network_status,
+                        ]);
                         $currentUser = $currentUser->sponsor;
                         continue; // Skip to the next sponsor
                     }
                     
-                    $commission = MlmSetting::getCommissionForLevel($package->id, $level);
+                    // Apply rank-aware commission calculation (only for active users)
+                    $commission = $this->rankComparison->getEffectiveCommission(
+                        $currentUser,  // upline (already verified as active)
+                        $buyer,        // buyer
+                        $level
+                    );
+
+                    $explanation = $this->rankComparison->getCommissionExplanation(
+                        $currentUser,
+                        $buyer,
+                        $level
+                    );
+
+                    Log::info('Rank-Aware Commission Calculated (Active User)', [
+                        'upline_id' => $currentUser->id,
+                        'buyer_id' => $buyer->id,
+                        'level' => $level,
+                        'upline_network_status' => $currentUser->network_status, // Should be 'active'
+                        'rule_applied' => $explanation['rule'],
+                        'commission' => $commission,
+                        'explanation' => $explanation['explanation'],
+                    ]);
 
                     if ($commission > 0) {
                         // Multiply commission by quantity if ordering multiple of same package
@@ -312,10 +351,28 @@ class MLMCommissionService
             $maxLevels = $package->max_mlm_levels ?? 5;
 
             while ($currentUser && $level <= $maxLevels) {
-                $commission = MlmSetting::getCommissionForLevel($package->id, $level);
+                // Skip inactive users
+                if (!$currentUser->isNetworkActive()) {
+                    $currentUser = $currentUser->sponsor;
+                    $level++;
+                    continue;
+                }
+
+                // Use rank-aware commission calculation
+                $commission = $this->rankComparison->getEffectiveCommission(
+                    $currentUser,
+                    $buyer,
+                    $level
+                );
 
                 if ($commission > 0) {
                     $totalCommission = $commission * $orderItem->quantity;
+
+                    $explanation = $this->rankComparison->getCommissionExplanation(
+                        $currentUser,
+                        $buyer,
+                        $level
+                    );
 
                     $allBreakdowns[] = [
                         'level' => $level,
@@ -325,7 +382,10 @@ class MLMCommissionService
                         'commission' => $totalCommission,
                         'package_id' => $package->id,
                         'package_name' => $package->name,
-                        'quantity' => $orderItem->quantity
+                        'quantity' => $orderItem->quantity,
+                        'rank_rule' => $explanation['rule'] ?? null,
+                        'upline_rank' => $explanation['upline_rank'] ?? null,
+                        'buyer_rank' => $explanation['buyer_rank'] ?? null,
                     ];
                 }
 

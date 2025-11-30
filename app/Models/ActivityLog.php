@@ -101,7 +101,7 @@ class ActivityLog extends Model
         ?string $packageName = null
     ): self {
         return self::createLog(
-            type: 'mlm_commission',
+            type: 'mlm',
             event: 'commission_earned',
             message: sprintf(
                 '%s earned ₱%s Level %d commission from %s\'s order #%s',
