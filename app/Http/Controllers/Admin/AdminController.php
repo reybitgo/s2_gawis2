@@ -273,7 +273,7 @@ class AdminController extends Controller
     public function users(Request $request)
     {
         $perPage = $this->getPerPage($request, 15);
-        $users = User::with(['roles', 'wallet'])->paginate($perPage)->appends($request->query());
+        $users = User::with(['roles', 'wallet', 'rankPackage'])->paginate($perPage)->appends($request->query());
 
         $breadcrumbs = [
             ['title' => 'Management'],

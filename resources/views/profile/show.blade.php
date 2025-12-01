@@ -492,6 +492,132 @@
         </div>
         @endif
 
+        <!-- Rank Information Card -->
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white d-flex align-items-center">
+                <svg class="icon icon-lg me-2">
+                    <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-star') }}"></use>
+                </svg>
+                <strong>My Rank</strong>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-3">
+                    <h3 class="text-info mb-1">
+                        <svg class="icon icon-xl me-2">
+                            <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-badge') }}"></use>
+                        </svg>
+                        {{ $user->getRankName() }}
+                    </h3>
+                    @if($user->rankPackage)
+                        <p class="text-muted mb-1"><small>{{ $user->rankPackage->name }}</small></p>
+                        <p class="text-muted mb-0"><small>Since: {{ $user->rank_updated_at?->format('M d, Y') ?? 'N/A' }}</small></p>
+                    @else
+                        <p class="text-muted"><small>Purchase a package to get ranked</small></p>
+                    @endif
+                </div>
+                
+                @php
+                    $rankService = app(\App\Services\RankAdvancementService::class);
+                    $progress = $rankService->getRankAdvancementProgress($user);
+                @endphp
+                
+                @if($progress['can_advance'])
+                    <hr>
+                    <h6 class="mb-3">Next Rank: <span class="text-primary">{{ $progress['next_rank'] }}</span></h6>
+                    
+                    <div class="mb-2">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span><small>Progress</small></span>
+                            <span class="fw-bold"><small>{{ $progress['sponsors_count'] }} / {{ $progress['required_sponsors'] }}</small></span>
+                        </div>
+                        <div class="progress" style="height: 20px;">
+                            <div class="progress-bar {{ $progress['is_eligible'] ? 'bg-success' : 'bg-primary' }}" 
+                                 role="progressbar" 
+                                 style="width: {{ $progress['progress_percentage'] }}%"
+                                 aria-valuenow="{{ $progress['progress_percentage'] }}"
+                                 aria-valuemin="0"
+                                 aria-valuemax="100">
+                                <small>{{ number_format($progress['progress_percentage'], 0) }}%</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    @if($progress['is_eligible'])
+                        <div class="alert alert-success mt-3 mb-0">
+                            <small><strong>Congratulations!</strong> You're eligible for rank advancement to {{ $progress['next_rank'] }}!</small>
+                        </div>
+                    @else
+                        <p class="text-muted mt-3 mb-0">
+                            <small>Sponsor <strong>{{ $progress['remaining_sponsors'] }} more</strong> 
+                            {{ $progress['current_rank'] }}-rank user{{ $progress['remaining_sponsors'] > 1 ? 's' : '' }} to advance to {{ $progress['next_rank'] }}</small>
+                        </p>
+                    @endif
+                @else
+                    @if($user->rankPackage)
+                        <hr>
+                        <div class="alert alert-info mb-0">
+                            <small><strong>Top Rank!</strong> You've reached the highest rank.</small>
+                        </div>
+                    @endif
+                @endif
+            </div>
+            
+            @if($user->rankAdvancements->count() > 0)
+                <div class="card-footer">
+                    <h6 class="mb-3">Rank History</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th><small>Date</small></th>
+                                    <th><small>From</small></th>
+                                    <th><small>To</small></th>
+                                    <th><small>Type</small></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($user->rankAdvancements->take(5) as $advancement)
+                                    <tr>
+                                        <td><small>{{ $advancement->created_at->format('M d, Y') }}</small></td>
+                                        <td>
+                                            <span class="badge bg-secondary">
+                                                <small>{{ $advancement->from_rank ?? 'None' }}</small>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-success">
+                                                <small>{{ $advancement->to_rank }}</small>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            @if($advancement->advancement_type === 'sponsorship_reward')
+                                                <span class="badge bg-primary" title="Earned by sponsoring {{ $advancement->sponsors_count }} users">
+                                                    <small>Reward</small>
+                                                </span>
+                                            @elseif($advancement->advancement_type === 'purchase')
+                                                <span class="badge bg-info">
+                                                    <small>Purchase</small>
+                                                </span>
+                                            @else
+                                                <span class="badge bg-warning">
+                                                    <small>Admin</small>
+                                                </span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                    @if($user->rankAdvancements->count() > 5)
+                        <div class="text-center mt-2">
+                            <small class="text-muted">Showing 5 of {{ $user->rankAdvancements->count() }} advancements</small>
+                        </div>
+                    @endif
+                </div>
+            @endif
+        </div>
+
         <!-- Account Security Card -->
         <div class="card">
             <div class="card-header d-flex align-items-center">

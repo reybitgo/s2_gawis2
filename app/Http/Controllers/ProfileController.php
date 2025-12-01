@@ -13,8 +13,12 @@ class ProfileController extends Controller
      */
     public function show(Request $request)
     {
+        $user = $request->user()->load(['rankPackage', 'rankAdvancements' => function($query) {
+            $query->orderBy('created_at', 'desc')->limit(5);
+        }]);
+        
         return view('profile.show', [
-            'user' => $request->user(),
+            'user' => $user,
         ]);
     }
 

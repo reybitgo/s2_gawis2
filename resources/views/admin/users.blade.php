@@ -108,7 +108,8 @@
                 <thead class="table-light">
                     <tr>
                         <th scope="col">User</th>
-                        <th scope="col">Email</th>
+                        <th scope="col">Income</th>
+                        <th scope="col">Rank</th>
                         <th scope="col">Roles</th>
                         <th scope="col">Status</th>
                         <th scope="col">Created</th>
@@ -130,21 +131,25 @@
                                 </div>
                             </td>
                             <td>
-                                <div class="fw-semibold">{{ $user->email }}</div>
-                                @if($user->email_verified_at)
-                                    <div class="text-success small">
-                                        <svg class="icon me-1">
-                                            <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-check') }}"></use>
-                                        </svg>
-                                        Verified
+                                @php
+                                    $withdrawableBalance = $user->wallet?->withdrawable_balance ?? 0;
+                                @endphp
+                                @if($withdrawableBalance > 0)
+                                    <div class="fw-semibold text-success">
+                                        ₱{{ number_format($withdrawableBalance, 2) }}
                                     </div>
                                 @else
-                                    <div class="text-danger small">
-                                        <svg class="icon me-1">
-                                            <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-x') }}"></use>
-                                        </svg>
-                                        Not Verified
-                                    </div>
+                                    <div class="text-muted">₱0.00</div>
+                                @endif
+                            </td>
+                            <td>
+                                @if($user->rankPackage)
+                                    <span class="badge bg-info" title="Rank Order: {{ $user->rankPackage->rank_order }}">
+                                        {{ $user->current_rank }}
+                                    </span>
+                                    <div class="text-muted small mt-1">{{ $user->rankPackage->name }}</div>
+                                @else
+                                    <span class="badge bg-secondary">Unranked</span>
                                 @endif
                             </td>
                             <td>
