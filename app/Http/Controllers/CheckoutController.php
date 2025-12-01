@@ -9,6 +9,7 @@ use App\Services\WalletPaymentService;
 use App\Services\InputSanitizationService;
 use App\Services\FraudDetectionService;
 use App\Services\MonthlyQuotaService;
+use App\Services\RankAdvancementService;
 use App\Jobs\ProcessMLMCommissions;
 use App\Jobs\ProcessUnilevelBonusesJob;
 use App\Models\Product;
@@ -25,19 +26,22 @@ class CheckoutController extends Controller
     protected InputSanitizationService $sanitizationService;
     protected FraudDetectionService $fraudDetectionService;
     protected MonthlyQuotaService $quotaService;
+    protected RankAdvancementService $rankAdvancementService;
 
     public function __construct(
         CartService $cartService,
         WalletPaymentService $walletPaymentService,
         InputSanitizationService $sanitizationService,
         FraudDetectionService $fraudDetectionService,
-        MonthlyQuotaService $quotaService
+        MonthlyQuotaService $quotaService,
+        RankAdvancementService $rankAdvancementService
     ) {
         $this->cartService = $cartService;
         $this->walletPaymentService = $walletPaymentService;
         $this->sanitizationService = $sanitizationService;
         $this->fraudDetectionService = $fraudDetectionService;
         $this->quotaService = $quotaService;
+        $this->rankAdvancementService = $rankAdvancementService;
     }
 
     /**
@@ -366,6 +370,44 @@ class CheckoutController extends Controller
                     'sponsor_id' => $order->user->sponsor_id ?? null,
                     'mlm_packages' => $mlmPackageNames
                 ]);
+
+                // PHASE 3: Rank System - Update buyer's rank and check sponsor for advancement
+                // Check if any order items contain rankable packages
+                $hasRankablePackage = $order->orderItems->contains(function($orderItem) {
+                    return $orderItem->package && $orderItem->package->is_rankable;
+                });
+
+                if ($hasRankablePackage) {
+                    // Update buyer's rank based on highest package purchased
+                    $order->user->updateRank();
+
+                    Log::info('User rank updated after package purchase', [
+                        'user_id' => $order->user_id,
+                        'username' => $order->user->username,
+                        'new_rank' => $order->user->fresh()->current_rank,
+                        'order_id' => $order->id,
+                    ]);
+
+                    // Track sponsorship and check if sponsor is eligible for rank advancement
+                    if ($order->user->sponsor) {
+                        $advancementTriggered = $this->rankAdvancementService->trackSponsorship(
+                            $order->user->sponsor,
+                            $order->user->fresh() // Use fresh() to get updated rank
+                        );
+
+                        if ($advancementTriggered) {
+                            Log::info('Sponsor rank advancement triggered after downline package purchase', [
+                                'sponsor_id' => $order->user->sponsor_id,
+                                'sponsor_username' => $order->user->sponsor->username,
+                                'new_rank' => $order->user->sponsor->fresh()->current_rank,
+                                'downline_id' => $order->user_id,
+                                'downline_username' => $order->user->username,
+                                'downline_rank' => $order->user->fresh()->current_rank,
+                                'order_id' => $order->id,
+                            ]);
+                        }
+                    }
+                }
             }
 
             // Process Unilevel bonuses immediately (sync) if order contains products

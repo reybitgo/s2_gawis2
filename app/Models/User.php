@@ -447,11 +447,25 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Get count of same-rank sponsors
+     * BACKWARD COMPATIBLE: Counts both tracked AND legacy referrals
      */
     public function getSameRankSponsorsCount(): int
     {
-        return $this->directSponsorsTracked()
-            ->where('sponsored_user_rank_at_time', $this->current_rank)
+        // Tracked sponsorships
+        $trackedCount = $this->directSponsorsTracked()
+            ->where('counted_for_rank', $this->current_rank)
             ->count();
+        
+        // Legacy sponsorships (not yet tracked)
+        $legacyCount = User::where('sponsor_id', $this->id)
+            ->where('current_rank', $this->current_rank)
+            ->whereNotIn('id', function($query) {
+                $query->select('sponsored_user_id')
+                      ->from('direct_sponsors_tracker')
+                      ->where('user_id', $this->id);
+            })
+            ->count();
+        
+        return $trackedCount + $legacyCount;
     }
 }
