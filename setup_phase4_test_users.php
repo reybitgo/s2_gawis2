@@ -10,6 +10,7 @@ use App\Models\Wallet;
 use App\Models\RankAdvancement;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Role;
 
 echo "=== Setting Up Phase 4 Test Users ===\n\n";
 
@@ -31,8 +32,69 @@ echo "  - Bronze (ID: {$bronze->id}, requires {$bronze->required_direct_sponsors
 
 // Clean up existing test users
 echo "Cleaning up existing test users...\n";
-DB::table('users')->where('username', 'LIKE', 'test_%')->orWhere('username', 'LIKE', 'referral_%')->delete();
+
+// First, get all test user IDs
+$testUserIds = DB::table('users')
+    ->where(function($query) {
+        $query->where('username', 'LIKE', 'test_%')
+              ->orWhere('username', 'LIKE', 'referral_%');
+    })
+    ->pluck('id')
+    ->toArray();
+
+// Delete related records first
+if (!empty($testUserIds)) {
+    DB::table('rank_advancements')->whereIn('user_id', $testUserIds)->delete();
+    DB::table('wallets')->whereIn('user_id', $testUserIds)->delete();
+}
+
+// Also clean up orphaned wallets for user IDs that might not exist anymore
+// This handles cases where users were deleted but wallets remained
+DB::table('wallets')
+    ->whereNotIn('user_id', function($query) {
+        $query->select('id')->from('users');
+    })
+    ->delete();
+
+// Finally, delete the users
+if (!empty($testUserIds)) {
+    DB::table('users')
+        ->where(function($query) {
+            $query->where('username', 'LIKE', 'test_%')
+                  ->orWhere('username', 'LIKE', 'referral_%');
+        })
+        ->delete();
+}
+
 echo "✓ Cleanup complete\n\n";
+
+// Ensure member role exists
+$memberRole = Role::firstOrCreate(['name' => 'member']);
+if (!$memberRole->hasPermissionTo('deposit_funds')) {
+    $memberRole->givePermissionTo([
+        'deposit_funds',
+        'transfer_funds',
+        'withdraw_funds',
+        'view_transactions',
+        'profile_update'
+    ]);
+}
+echo "✓ Member role ready\n\n";
+
+// Check for existing users to use as sponsor
+echo "Checking for existing users...\n";
+$existingSponsor = User::where('username', 'NOT LIKE', 'test_%')
+    ->where('username', 'NOT LIKE', 'referral_%')
+    ->orderBy('id', 'desc')
+    ->first();
+
+$defaultSponsorId = $existingSponsor ? $existingSponsor->id : null;
+
+if ($defaultSponsorId) {
+    echo "✓ Found existing user (ID: {$defaultSponsorId}, Username: {$existingSponsor->username}) - Will use as sponsor for test users\n\n";
+} else {
+    echo "ℹ No existing users found - Test users will be created without sponsors\n\n";
+}
 
 // Test User 1: Unranked User (no package purchased)
 echo "1. Creating Unranked User...\n";
@@ -42,9 +104,12 @@ $unranked = User::create([
     'email' => 'test_unranked@test.com',
     'password' => Hash::make('password'),
     'email_verified_at' => now(),
+    'sponsor_id' => $defaultSponsorId,
 ]);
-Wallet::create(['user_id' => $unranked->id, 'balance' => 0]);
-echo "   ✓ Username: test_unranked | Password: password\n\n";
+// Assign member role for wallet permissions
+$unranked->assignRole('member');
+// Wallet is automatically created by User model's created event
+echo "   ✓ Username: test_unranked | Password: password" . ($defaultSponsorId ? " | Sponsor: {$existingSponsor->username}" : "") . "\n\n";
 
 // Test User 2: Starter Rank (0% progress - no sponsors)
 echo "2. Creating Starter User (0% progress)...\n";
@@ -58,9 +123,13 @@ $starterZero = User::create([
     'rank_package_id' => $starter->id,
     'rank_updated_at' => now()->subDays(5),
     'network_status' => 'active',
+    'sponsor_id' => $defaultSponsorId,
 ]);
-Wallet::create(['user_id' => $starterZero->id, 'balance' => 0, 'withdrawable_balance' => 0]);
-echo "   ✓ Username: test_starter_0 | Password: password\n\n";
+// Assign member role for wallet permissions
+$starterZero->assignRole('member');
+// Refresh to load the wallet relationship created by User model event
+$starterZero->refresh();
+echo "   ✓ Username: test_starter_0 | Password: password" . ($defaultSponsorId ? " | Sponsor: {$existingSponsor->username}" : "") . "\n\n";
 
 // Test User 3: Starter Rank (60% progress - 3/5 sponsors)
 echo "3. Creating Starter User (60% progress)...\n";
@@ -74,12 +143,17 @@ $starterSixty = User::create([
     'rank_package_id' => $starter->id,
     'rank_updated_at' => now()->subDays(10),
     'network_status' => 'active',
+    'sponsor_id' => $defaultSponsorId,
 ]);
-Wallet::create(['user_id' => $starterSixty->id, 'balance' => 500.00, 'withdrawable_balance' => 250.50]);
+// Assign member role for wallet permissions
+$starterSixty->assignRole('member');
+// Refresh to load the wallet, then update balances
+$starterSixty->refresh();
+$starterSixty->wallet->update(['mlm_balance' => 500.00, 'withdrawable_balance' => 250.50]);
 
 // Create 3 referrals for 60% progress
 for ($i = 1; $i <= 3; $i++) {
-    User::create([
+    $referral = User::create([
         'username' => "referral_60_{$i}",
         'fullname' => "Referral {$i}",
         'email' => "referral_60_{$i}@test.com",
@@ -88,8 +162,9 @@ for ($i = 1; $i <= 3; $i++) {
         'current_rank' => 'Starter',
         'rank_package_id' => $starter->id,
     ]);
+    $referral->assignRole('member');
 }
-echo "   ✓ Username: test_starter_60 | Password: password | Income: ₱250.50 | Referrals: 3\n\n";
+echo "   ✓ Username: test_starter_60 | Password: password | Income: ₱250.50 | Referrals: 3" . ($defaultSponsorId ? " | Sponsor: {$existingSponsor->username}" : "") . "\n\n";
 
 // Test User 4: Starter Rank (100% progress - 5/5 sponsors, eligible)
 echo "4. Creating Starter User (100% eligible)...\n";
@@ -103,12 +178,17 @@ $starterEligible = User::create([
     'rank_package_id' => $starter->id,
     'rank_updated_at' => now()->subDays(15),
     'network_status' => 'active',
+    'sponsor_id' => $defaultSponsorId,
 ]);
-Wallet::create(['user_id' => $starterEligible->id, 'balance' => 1500.00, 'withdrawable_balance' => 1234.56]);
+// Assign member role for wallet permissions
+$starterEligible->assignRole('member');
+// Refresh to load the wallet, then update balances
+$starterEligible->refresh();
+$starterEligible->wallet->update(['mlm_balance' => 1500.00, 'withdrawable_balance' => 1234.56]);
 
 // Create 5 referrals for 100% progress
 for ($i = 1; $i <= 5; $i++) {
-    User::create([
+    $referral = User::create([
         'username' => "referral_eligible_{$i}",
         'fullname' => "Referral {$i}",
         'email' => "referral_eligible_{$i}@test.com",
@@ -117,8 +197,9 @@ for ($i = 1; $i <= 5; $i++) {
         'current_rank' => 'Starter',
         'rank_package_id' => $starter->id,
     ]);
+    $referral->assignRole('member');
 }
-echo "   ✓ Username: test_starter_eligible | Password: password | Income: ₱1,234.56 | Referrals: 5\n\n";
+echo "   ✓ Username: test_starter_eligible | Password: password | Income: ₱1,234.56 | Referrals: 5" . ($defaultSponsorId ? " | Sponsor: {$existingSponsor->username}" : "") . "\n\n";
 
 // Test User 5: Newbie Rank (with advancement history)
 echo "5. Creating Newbie User (with history)...\n";
@@ -132,8 +213,13 @@ $newbieUser = User::create([
     'rank_package_id' => $newbie->id,
     'rank_updated_at' => now()->subDays(3),
     'network_status' => 'active',
+    'sponsor_id' => $defaultSponsorId,
 ]);
-Wallet::create(['user_id' => $newbieUser->id, 'balance' => 5000.00, 'withdrawable_balance' => 3456.78]);
+// Assign member role for wallet permissions
+$newbieUser->assignRole('member');
+// Refresh to load the wallet, then update balances
+$newbieUser->refresh();
+$newbieUser->wallet->update(['mlm_balance' => 5000.00, 'withdrawable_balance' => 3456.78]);
 
 // Create advancement history
 RankAdvancement::create([
@@ -160,7 +246,7 @@ RankAdvancement::create([
 
 // Create 2 referrals for Newbie (2/8 progress)
 for ($i = 1; $i <= 2; $i++) {
-    User::create([
+    $referral = User::create([
         'username' => "referral_newbie_{$i}",
         'fullname' => "Newbie Referral {$i}",
         'email' => "referral_newbie_{$i}@test.com",
@@ -169,8 +255,9 @@ for ($i = 1; $i <= 2; $i++) {
         'current_rank' => 'Newbie',
         'rank_package_id' => $newbie->id,
     ]);
+    $referral->assignRole('member');
 }
-echo "   ✓ Username: test_newbie | Password: password | Income: ₱3,456.78 | Referrals: 2 | History: 2\n\n";
+echo "   ✓ Username: test_newbie | Password: password | Income: ₱3,456.78 | Referrals: 2 | History: 2" . ($defaultSponsorId ? " | Sponsor: {$existingSponsor->username}" : "") . "\n\n";
 
 // Test User 6: Bronze Rank (Top Rank - no next rank)
 echo "6. Creating Bronze User (Top Rank)...\n";
@@ -184,8 +271,13 @@ $bronzeUser = User::create([
     'rank_package_id' => $bronze->id,
     'rank_updated_at' => now()->subDays(1),
     'network_status' => 'active',
+    'sponsor_id' => $defaultSponsorId,
 ]);
-Wallet::create(['user_id' => $bronzeUser->id, 'balance' => 20000.00, 'withdrawable_balance' => 12345.67]);
+// Assign member role for wallet permissions
+$bronzeUser->assignRole('member');
+// Refresh to load the wallet, then update balances
+$bronzeUser->refresh();
+$bronzeUser->wallet->update(['mlm_balance' => 20000.00, 'withdrawable_balance' => 12345.67]);
 
 // Create advancement history (multiple advancements)
 RankAdvancement::create([
@@ -222,7 +314,7 @@ RankAdvancement::create([
     'created_at' => now()->subDays(1),
 ]);
 
-echo "   ✓ Username: test_bronze | Password: password | Income: ₱12,345.67 | History: 3\n\n";
+echo "   ✓ Username: test_bronze | Password: password | Income: ₱12,345.67 | History: 3" . ($defaultSponsorId ? " | Sponsor: {$existingSponsor->username}" : "") . "\n\n";
 
 echo "=== Test Users Created Successfully ===\n\n";
 

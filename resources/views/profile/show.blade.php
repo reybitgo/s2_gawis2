@@ -463,8 +463,25 @@
             </div>
             <div class="card-body">
                 <div class="text-center">
-                    <h4 class="text-success">{{ currency($user->wallet->balance) }}</h4>
-                    <p class="text-body-secondary">Current Balance</p>
+                    <h4 class="text-success">{{ currency($user->wallet->total_balance) }}</h4>
+                    <p class="text-body-secondary">Total Available Balance</p>
+                    <small class="text-muted">
+                        Withdrawable: {{ currency($user->wallet->withdrawable_balance) }} | 
+                        Purchase: {{ currency($user->wallet->purchase_balance) }}
+                    </small>
+                </div>
+                <hr>
+                <div class="row text-center">
+                    <div class="col-6">
+                        <div class="border-end">
+                            <div class="fs-6 fw-semibold text-info">{{ currency($user->wallet->mlm_balance) }}</div>
+                            <div class="text-uppercase text-body-secondary" style="font-size: 0.7rem;">MLM Earned</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="fs-6 fw-semibold text-primary">{{ currency($user->wallet->unilevel_balance) }}</div>
+                        <div class="text-uppercase text-body-secondary" style="font-size: 0.7rem;">Unilevel Earned</div>
+                    </div>
                 </div>
                 <hr>
                 <div class="row text-center">

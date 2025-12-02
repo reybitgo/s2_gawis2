@@ -122,10 +122,10 @@
                             <td>
                                 <div class="d-flex align-items-center">
                                     <div class="avatar me-3 bg-primary">
-                                        <span class="text-white">{{ strtoupper(substr($user->fullname ?? $user->username, 0, 2)) }}</span>
+                                        <span class="text-white">{{ strtoupper(substr($user->username, 0, 2)) }}</span>
                                     </div>
                                     <div>
-                                        <div class="fw-semibold">{{ $user->fullname ?? $user->username }}</div>
+                                        <div class="fw-semibold">{{ $user->username }}</div>
                                         <div class="text-body-secondary">ID: {{ $user->id }}</div>
                                     </div>
                                 </div>

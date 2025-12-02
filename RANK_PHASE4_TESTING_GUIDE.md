@@ -6,6 +6,12 @@ This guide provides step-by-step instructions to thoroughly test Phase 4 (UI Int
 
 **Estimated Testing Time**: 45-60 minutes
 
+## 🚀 Important: Synchronous Rank Advancement
+
+**Rank advancement is SYNCHRONOUS** - it happens instantly when a user purchases a package. No scheduled tasks or cron jobs are needed. When a user's 5th referral purchases a Starter package, the sponsor is **immediately promoted** to Newbie in the same request.
+
+See `SYNCHRONOUS_RANK_ADVANCEMENT.md` for complete details.
+
 ---
 
 ## Table of Contents
@@ -84,11 +90,25 @@ php artisan serve
 
 ## Test Environment Preparation
 
+### Migrate Legacy Users (If Applicable)
+
+If you have existing users who purchased packages before Phase 4:
+
+```bash
+php migrate_legacy_rank_data.php
+```
+
+This one-time script:
+- Finds users with purchased packages but no rank data
+- Updates their `current_rank`, `rank_package_id`, `rank_updated_at`
+- Creates rank advancement history records
+- See `LEGACY_RANK_MIGRATION.md` for details
+
 ### Create Test Users with Different Scenarios
 
 Run this script to create test data:
 
-**File**: `setup_phase4_test_users.php`
+**File**: `setup_phase4_test_users.php` (provided in project root)
 
 ```php
 <?php
@@ -328,6 +348,16 @@ Run the script:
 php setup_phase4_test_users.php
 ```
 
+**What the script does:**
+- Creates 6 test users with different rank scenarios
+- Creates 10 referral users for testing sponsor relationships
+- Assigns 'member' role to all users (for wallet permissions)
+- Links test users to an existing sponsor (if available)
+- Sets up wallet balances with withdrawable amounts
+- Creates rank advancement history for testing
+
+**Note:** Test users will be linked to your most recently created user as sponsor (or no sponsor if none exist).
+
 ---
 
 ## User Profile View Tests
@@ -349,6 +379,8 @@ php setup_phase4_test_users.php
 - [ ] No progress bar visible
 - [ ] No "Next Rank" section
 - [ ] No rank history table
+- [ ] Wallet Operations menu visible in sidebar (user has member role)
+- [ ] Wallet Information card shows ₱0.00 Total Available Balance
 
 **Screenshot**: Capture for documentation
 
@@ -373,6 +405,8 @@ php setup_phase4_test_users.php
 - [ ] Progress bar is blue color
 - [ ] Message shows: "Sponsor 5 more Starter-rank users to advance to Newbie"
 - [ ] No rank history (user just started)
+- [ ] Wallet Operations menu visible in sidebar
+- [ ] Wallet shows ₱0.00 Total Available Balance with breakdown
 
 **Screenshot**: Capture for documentation
 
@@ -397,13 +431,18 @@ php setup_phase4_test_users.php
 - [ ] Progress bar text shows "60%"
 - [ ] Progress bar is blue color (not green yet)
 - [ ] Message shows: "Sponsor 2 more Starter-rank users to advance to Newbie"
-- [ ] Wallet shows: ₱250.50 in withdrawable balance
+- [ ] Wallet Operations menu visible in sidebar
+- [ ] Wallet Information card shows:
+  - Total Available Balance: ₱250.50
+  - Breakdown: Withdrawable: ₱250.50 | Purchase: ₱0.00
+  - MLM Earned: ₱500.00 (lifetime tracker)
+  - Unilevel Earned: ₱0.00
 
 **Screenshot**: Capture for documentation
 
 ---
 
-### Test 4: Starter Rank - 100% Eligible
+### Test 4: Auto-Advanced User (Was Starter 100%, Now Newbie)
 
 **Steps**:
 1. Logout
@@ -413,16 +452,25 @@ php setup_phase4_test_users.php
 3. Navigate to Profile
 
 **Expected Results**:
-- [ ] Rank badge displays "Starter"
-- [ ] "Next Rank: Newbie" displayed
-- [ ] Progress bar shows: "5 / 5"
-- [ ] Progress bar at 100% (fully filled)
-- [ ] Progress bar text shows "100%"
-- [ ] **Progress bar is GREEN color** (eligible state)
-- [ ] Green success alert displayed
-- [ ] Alert text: "Congratulations! You're eligible for rank advancement to Newbie!"
-- [ ] No "Sponsor X more" message (already eligible)
-- [ ] Wallet shows: ₱1,234.56 in withdrawable balance
+- [ ] **Rank badge displays "Newbie"** (automatically advanced!)
+- [ ] Shows appropriate package name (Professional Package)
+- [ ] Shows "Since: [recent date]" (when advancement occurred)
+- [ ] "Next Rank: Bronze" displayed
+- [ ] Progress bar shows: "0 / 8" (starting fresh towards Bronze)
+- [ ] Progress bar at 0%
+- [ ] Progress bar is blue color
+- [ ] Message shows: "Sponsor 8 more Newbie-rank users to advance to Bronze"
+- [ ] Wallet Operations menu visible
+- [ ] Wallet Information shows:
+  - Total Available Balance: ₱1,234.56
+  - Breakdown: Withdrawable: ₱1,234.56 | Purchase: ₱0.00
+  - MLM Earned: ₱1,500.00 (lifetime tracker)
+- [ ] **Rank History section visible**
+- [ ] History shows advancement from Starter → Newbie
+- [ ] Advancement type: "Reward" badge (blue)
+- [ ] Shows: "Earned by sponsoring 5 users"
+
+**Important Note**: This user was originally at 100% progress (5/5 sponsors). The system automatically advanced them to Newbie when we ran the processing script. This demonstrates **synchronous rank advancement** - in production, this happens instantly when the 5th referral purchases a package.
 
 **Screenshot**: Capture for documentation
 
@@ -483,8 +531,39 @@ php setup_phase4_test_users.php
    - Row 3: None → Starter | Purchase
 - [ ] All badges color-coded correctly
 - [ ] Dates in descending order
+- [ ] Wallet Operations menu visible
+- [ ] Wallet shows: ₱12,345.67 Total Available Balance
 
 **Screenshot**: Capture for documentation
+
+---
+
+### Test 6b: Verify Synchronous Advancement
+
+**Purpose**: Confirm rank advancement happens immediately when requirements are met
+
+**Steps**:
+1. Check recent logs:
+```bash
+# View recent rank advancements
+php artisan tinker
+>>> App\Models\RankAdvancement::latest()->first()
+```
+
+**Expected Results**:
+- [ ] Shows recent advancement records
+- [ ] `advancement_type` is "sponsorship_reward"
+- [ ] `sponsors_count` matches requirements (5, 8, or 10)
+- [ ] `system_paid_amount` shows package price
+- [ ] `created_at` timestamp shows when advancement occurred
+
+**Manual Test** (Optional):
+```bash
+# Simulate a purchase triggering advancement
+php test_synchronous_advancement.php
+```
+
+This demonstrates that when a user buys a package, their sponsor is checked and advanced immediately if eligible.
 
 ---
 
@@ -982,11 +1061,13 @@ echo "Test users cleaned up\n";
 - Check `required_direct_sponsors` is not 0 in database
 - Verify `getSameRankSponsorsCount()` returns integer
 
-### Issue 3: Income shows ₱0.00 for all users
+### Issue 3: Income shows ₱0.00 for users with balance
 
 **Solution**:
 - Check wallet relationship loaded: `User::with('wallet')`
 - Verify `withdrawable_balance` column exists in wallets table
+- Check if using correct attribute: `$user->wallet->total_balance` or `$user->wallet->withdrawable_balance`
+- Profile page should show: Total Available Balance (withdrawable + purchase)
 
 ### Issue 4: Rank history not showing
 
@@ -1001,6 +1082,22 @@ echo "Test users cleaned up\n";
 - Check CoreUI assets are loaded correctly
 - Verify SVG sprite path is correct
 - Inspect browser console for 404 errors
+
+### Issue 6: Wallet Operations menu not visible
+
+**Solution**:
+- Check user has 'member' role assigned
+- Run: `php verify_test_user_roles.php`
+- Ensure user has permissions: deposit_funds, transfer_funds, withdraw_funds, view_transactions
+- If missing, assign role: `$user->assignRole('member')`
+
+### Issue 7: User shows 100% progress instead of being advanced
+
+**Solution**:
+- This means synchronous advancement didn't trigger yet
+- In production, advancement happens when package is purchased
+- For testing, manually process: `php artisan rank:process-advancements --user-id=[ID]`
+- Or run: `php process_pending_rank_advancements.php`
 
 ---
 
@@ -1070,21 +1167,124 @@ Signature: _____________
 
 ---
 
+## Additional Verification Scripts
+
+### Verify Test User Roles
+```bash
+php verify_test_user_roles.php
+```
+Checks that test users have member role and wallet permissions.
+
+### Verify Synchronous Advancement
+```bash
+php test_synchronous_advancement.php
+```
+Demonstrates immediate advancement when requirements are met.
+
+### Process Pending Advancements
+```bash
+php process_pending_rank_advancements.php
+```
+Checks all ranked users and advances eligible ones (one-time for legacy data).
+
+### Demo Instant Advancement
+```bash
+php demo_instant_advancement.php
+```
+Full demonstration of synchronous advancement with timing information.
+
+---
+
+## Production Deployment Notes
+
+### No Scheduled Tasks Required
+
+**Important:** Rank advancement is fully synchronous. You do NOT need to:
+- ❌ Set up cron jobs
+- ❌ Configure Laravel scheduler
+- ❌ Run queue workers for rank advancement
+
+The system automatically advances users **instantly** when they meet requirements during package purchase.
+
+### What to Deploy
+
+**Required Files:**
+- All Phase 4 view updates (profile, admin table)
+- RankAdvancementService (already in place)
+- UserObserver updates (tracks sponsorships)
+- CheckoutController updates (triggers advancement)
+
+**Optional Files (for troubleshooting only):**
+- ProcessRankAdvancements command
+- Manual advancement scripts
+
+**Configuration:**
+- No additional configuration needed
+- System works out of the box
+
+### Post-Deployment Verification
+
+```bash
+# Check recent advancements in production
+php artisan tinker
+>>> App\Models\RankAdvancement::latest()->take(5)->get()
+
+# Verify a specific user's rank
+>>> App\Models\User::find(123)->current_rank
+
+# Check advancement logs
+tail -f storage/logs/laravel.log | grep "Rank"
+```
+
+---
+
+## Key Documentation References
+
+- **SYNCHRONOUS_RANK_ADVANCEMENT.md** - How instant advancement works
+- **RANK_ADVANCEMENT_SUMMARY.md** - Complete system overview
+- **LEGACY_RANK_MIGRATION.md** - Migrating existing users
+- **RANK_ADVANCEMENT_AUTOMATION.md** - Technical documentation
+
+---
+
 ## Next Steps
 
 **If all tests pass**:
 ✅ Proceed to Phase 5 (Admin Configuration Interface)
 ✅ Deploy Phase 4 to production
+✅ Migrate legacy users (if applicable): `php migrate_legacy_rank_data.php`
 ✅ Document any customizations made during testing
+✅ Verify synchronous advancement is working in production
 
 **If tests fail**:
 ❌ Review failed tests
 ❌ Fix identified issues
 ❌ Re-test affected areas
 ❌ Update documentation
+❌ Check logs for detailed error messages
+
+---
+
+## Testing Checklist Summary
+
+Before marking Phase 4 as complete:
+
+- [ ] All 24 core tests passed
+- [ ] Synchronous advancement verified (users advance instantly)
+- [ ] Legacy users migrated (if applicable)
+- [ ] Test users have member role and wallet permissions
+- [ ] Wallet Information shows combined balance correctly
+- [ ] Test users linked to sponsors properly
+- [ ] No console errors in any browser
+- [ ] Mobile responsive layouts work
+- [ ] Performance within acceptable thresholds
+- [ ] Documentation updated and accurate
+- [ ] Ready for production deployment
 
 ---
 
 **Testing Complete!** 🎉
 
-This comprehensive guide ensures Phase 4 is thoroughly tested and production-ready before moving forward.
+This comprehensive guide ensures Phase 4 is thoroughly tested and production-ready. The synchronous rank advancement system provides instant gratification for users - they see their promotions the moment they earn them!
+
+**Key Achievement:** Users are promoted **immediately** when they meet requirements - no delays, no scheduled tasks, just instant results! ⚡

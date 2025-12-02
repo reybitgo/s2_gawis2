@@ -4,6 +4,7 @@ namespace App\Observers;
 
 use App\Models\User;
 use App\Services\NotificationService;
+use App\Services\RankAdvancementService;
 
 class UserObserver
 {
@@ -14,6 +15,16 @@ class UserObserver
     {
         // Send new user registration notification
         NotificationService::notifyNewUserRegistration($user);
+        
+        // If user has a sponsor and a rank, track sponsorship and check for advancement
+        if ($user->sponsor_id && $user->current_rank) {
+            $sponsor = User::find($user->sponsor_id);
+            
+            if ($sponsor && $sponsor->current_rank) {
+                $rankService = app(RankAdvancementService::class);
+                $rankService->trackSponsorship($sponsor, $user);
+            }
+        }
     }
 
     /**
