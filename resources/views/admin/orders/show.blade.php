@@ -205,16 +205,22 @@
                             </thead>
                             <tbody>
                                 @foreach($order->orderItems as $item)
+                                    @php
+                                        $snapshot = $item->package_snapshot ?? [];
+                                        $name = $snapshot['name'] ?? $item->package?->name ?? 'Package';
+                                        $imageUrl = $snapshot['image_url'] ?? $item->package?->image_url ?? '/images/package-placeholder.svg';
+                                        $description = $snapshot['short_description'] ?? $item->package?->short_description ?? null;
+                                    @endphp
                                     <tr>
                                         <td>
                                             <div class="d-flex align-items-center">
-                                                <img src="{{ $item->package_snapshot['image_url'] ?? '/images/package-placeholder.svg' }}"
-                                                     alt="{{ $item->package_snapshot['name'] }}"
+                                                <img src="{{ $imageUrl }}"
+                                                     alt="{{ $name }}"
                                                      class="rounded me-3" style="width: 50px; height: 50px; object-fit: cover;">
                                                 <div>
-                                                    <strong>{{ $item->package_snapshot['name'] }}</strong>
-                                                    @if($item->package_snapshot['short_description'])
-                                                        <div class="text-muted small">{{ $item->package_snapshot['short_description'] }}</div>
+                                                    <strong>{{ $name }}</strong>
+                                                    @if($description)
+                                                        <div class="text-muted small">{{ $description }}</div>
                                                     @endif
                                                 </div>
                                             </div>

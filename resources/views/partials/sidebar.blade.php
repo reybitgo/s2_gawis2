@@ -189,6 +189,42 @@
                 </ul>
             </li>
             @endif
+
+            <!-- Rank System -->
+            <li class="nav-group">
+                <a class="nav-link nav-group-toggle{{ Request::routeIs('admin.ranks.*') ? ' active' : '' }}" href="#">
+                    <svg class="nav-icon">
+                        <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-star') }}"></use>
+                    </svg>
+                    <span>Rank System</span>
+                </a>
+                <ul class="nav-group-items compact">
+                    <li class="nav-item">
+                        <a class="nav-link{{ Request::routeIs('admin.ranks.index') ? ' active' : '' }}" href="{{ route('admin.ranks.index') }}">
+                            <span class="nav-icon">
+                                <span class="nav-icon-bullet"></span>
+                            </span>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link{{ Request::routeIs('admin.ranks.configure') ? ' active' : '' }}" href="{{ route('admin.ranks.configure') }}">
+                            <span class="nav-icon">
+                                <span class="nav-icon-bullet"></span>
+                            </span>
+                            Configure Ranks
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link{{ Request::routeIs('admin.ranks.advancements') ? ' active' : '' }}" href="{{ route('admin.ranks.advancements') }}">
+                            <span class="nav-icon">
+                                <span class="nav-icon-bullet"></span>
+                            </span>
+                            Advancement History
+                        </a>
+                    </li>
+                </ul>
+            </li>
         @endif
         @endauth
 

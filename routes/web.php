@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\AdminOrderController;
 use App\Http\Controllers\Admin\AdminSettingsController;
 use App\Http\Controllers\Admin\AdminMlmSettingsController;
 use App\Http\Controllers\Admin\AdminUnilevelSettingsController;
+use App\Http\Controllers\Admin\AdminRankController;
 use App\Http\Controllers\Member\WalletController;
 use App\Http\Controllers\Member\UserActivityController;
 use App\Http\Controllers\Member\GenealogyController;
@@ -284,6 +285,15 @@ Route::middleware(['auth', 'conditional.verified', 'enforce.2fa', 'role:admin'])
             ->name('packages.update-quota');
         Route::get('/reports', [\App\Http\Controllers\Admin\MonthlyQuotaController::class, 'reports'])->name('reports');
         Route::get('/reports/user/{user}', [\App\Http\Controllers\Admin\MonthlyQuotaController::class, 'userReport'])->name('reports.user');
+    });
+
+    // Rank Management Routes (Phase 5: Rank System)
+    Route::prefix('ranks')->name('ranks.')->group(function () {
+        Route::get('/', [AdminRankController::class, 'index'])->name('index');
+        Route::get('/configure', [AdminRankController::class, 'configure'])->name('configure');
+        Route::post('/configure', [AdminRankController::class, 'updateConfiguration'])->name('update-configuration');
+        Route::get('/advancements', [AdminRankController::class, 'advancements'])->name('advancements');
+        Route::post('/manual-advance/{user}', [AdminRankController::class, 'manualAdvance'])->name('manual-advance');
     });
 });
 

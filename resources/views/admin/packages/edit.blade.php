@@ -3,7 +3,7 @@
 @section('title', 'Edit Package')
 
 @section('content')
-<div class="container-fluid">
+<div class="container-fluid pb-5">
     <div class="row">
         <div class="col-12">
             <div class="card">
@@ -284,6 +284,43 @@
                                         </div>
                                     @else
                                         <div class="form-text">Enable multi-level marketing commission structure for this package</div>
+                                    @endif
+                                </div>
+
+                                @php
+                                    // Check if any users have this rank
+                                    $hasUsersWithRank = $package->is_rankable && \App\Models\User::where('rank_package_id', $package->id)->exists();
+                                @endphp
+
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="is_rankable" name="is_rankable" value="1"
+                                               {{ old('is_rankable', $package->is_rankable) ? 'checked' : '' }}
+                                               {{ $hasUsersWithRank ? 'disabled' : '' }}>
+                                        <label class="form-check-label" for="is_rankable">
+                                            <svg class="icon me-1">
+                                                <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-star') }}"></use>
+                                            </svg>
+                                            Rankable Package
+                                        </label>
+                                    </div>
+                                    @if($hasUsersWithRank)
+                                        <div class="form-text text-warning">
+                                            <svg class="icon me-1">
+                                                <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-lock-locked') }}"></use>
+                                            </svg>
+                                            Cannot disable ranking - {{ \App\Models\User::where('rank_package_id', $package->id)->count() }} user(s) currently have this rank
+                                        </div>
+                                    @else
+                                        <div class="form-text">
+                                            Enable this package for rank advancement system. 
+                                            @if($package->is_rankable)
+                                                <span class="text-success">✓ Enabled</span> - Configure rank settings at 
+                                                <a href="{{ route('admin.ranks.configure') }}" class="text-decoration-underline">Rank Configuration</a>
+                                            @else
+                                                Once enabled and users achieve this rank, it cannot be disabled.
+                                            @endif
+                                        </div>
                                     @endif
                                 </div>
 

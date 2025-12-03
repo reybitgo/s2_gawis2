@@ -22,6 +22,106 @@
     </div>
 </div>
 
+<!-- Current Rank Display -->
+@if(!$user->hasRole('admin'))
+<div class="card mb-4 border-primary shadow-sm">
+    <div class="card-body">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <div class="d-flex align-items-center">
+                    <div class="me-4">
+                        <svg class="icon icon-3xl text-warning">
+                            <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-star') }}"></use>
+                        </svg>
+                    </div>
+                    <div>
+                        <h6 class="text-muted mb-1">Your Current Rank</h6>
+                        @if($user->current_rank)
+                            <h3 class="mb-1">
+                                <span class="badge bg-gradient-success fs-5 px-3 py-2">
+                                    <svg class="icon me-1">
+                                        <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-star') }}"></use>
+                                    </svg>
+                                    {{ $user->current_rank }}
+                                </span>
+                            </h3>
+                            @if($user->rankPackage)
+                                <p class="text-muted mb-0">
+                                    <strong>{{ $user->rankPackage->name }}</strong> 
+                                    <span class="text-body-secondary">(₱{{ number_format($user->rankPackage->price, 2) }})</span>
+                                </p>
+                                @if($user->rank_updated_at)
+                                    <small class="text-body-secondary">
+                                        <svg class="icon icon-sm">
+                                            <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-clock') }}"></use>
+                                        </svg>
+                                        Achieved {{ $user->rank_updated_at->diffForHumans() }}
+                                    </small>
+                                @endif
+                            @endif
+                        @else
+                            <h4 class="mb-1">
+                                <span class="badge bg-secondary fs-6 px-3 py-2">No Rank Yet</span>
+                            </h4>
+                            <p class="text-muted mb-0">Purchase a rank package to get started and earn commissions</p>
+                        @endif
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                @if($user->rankPackage && $user->rankPackage->nextRankPackage)
+                    <div class="mb-2">
+                        <small class="text-muted d-block mb-1">Next Rank</small>
+                        <span class="badge bg-info-gradient text-white">
+                            {{ $user->rankPackage->nextRankPackage->rank_name }}
+                        </span>
+                    </div>
+                    @if($user->rankPackage->required_direct_sponsors)
+                        @php
+                            $qualifiedSponsors = $user->referrals()
+                                ->where('rank_package_id', $user->rank_package_id)
+                                ->where('network_status', 'active')
+                                ->count();
+                            $required = $user->rankPackage->required_direct_sponsors;
+                            $percentage = $required > 0 ? min(100, ($qualifiedSponsors / $required) * 100) : 0;
+                        @endphp
+                        <div class="mb-2">
+                            <small class="text-muted d-block mb-1">
+                                Qualified Sponsors: {{ $qualifiedSponsors }}/{{ $required }}
+                            </small>
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar {{ $qualifiedSponsors >= $required ? 'bg-success' : 'bg-primary' }}" 
+                                     role="progressbar" 
+                                     style="width: {{ $percentage }}%"
+                                     aria-valuenow="{{ $qualifiedSponsors }}" 
+                                     aria-valuemin="0" 
+                                     aria-valuemax="{{ $required }}">
+                                </div>
+                            </div>
+                        </div>
+                        @if($qualifiedSponsors >= $required)
+                            <span class="badge bg-success">
+                                <svg class="icon icon-sm">
+                                    <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-check') }}"></use>
+                                </svg>
+                                Ready to Advance!
+                            </span>
+                        @endif
+                    @endif
+                @elseif($user->current_rank)
+                    <div class="text-center p-3 bg-light rounded">
+                        <svg class="icon icon-xl text-warning mb-2">
+                            <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-trophy') }}"></use>
+                        </svg>
+                        <p class="mb-0 small text-muted"><strong>Top Rank!</strong><br>You've reached the highest rank</p>
+                    </div>
+                @endif
+            </div>
+        </div>
+    </div>
+</div>
+@endif
+
 <!-- Wallet Overview Cards -->
 <div class="row g-3 mb-4">
     <!-- Current Balance -->

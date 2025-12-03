@@ -181,10 +181,60 @@
                     @endif
                 </div>
             </div>
+        </div>
+    </div>
 
-            <!-- Danger Zone -->
-            @unless($user->hasRole('admin'))
-                <div class="card border-warning">
+    <!-- Action Cards Row -->
+    @unless($user->hasRole('admin'))
+        <div class="row">
+            <!-- Rank Management -->
+            <div class="col-lg-6 mb-4">
+                <div class="card border-primary h-100">
+                    <div class="card-header bg-primary bg-opacity-10">
+                        <h5 class="mb-0 text-primary">
+                            <svg class="icon me-2">
+                                <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-star') }}"></use>
+                            </svg>
+                            Rank Management
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <div class="text-muted small">Current Rank</div>
+                            <div>
+                                @if($user->current_rank)
+                                    <span class="badge bg-success fs-6">{{ $user->current_rank }}</span>
+                                    @if($user->rankPackage)
+                                        <div class="text-muted small mt-1">{{ $user->rankPackage->name }} (₱{{ number_format($user->rankPackage->price, 2) }})</div>
+                                    @endif
+                                @else
+                                    <span class="badge bg-secondary">No Rank</span>
+                                    <div class="text-muted small mt-1">User has not purchased a rank package yet</div>
+                                @endif
+                            </div>
+                        </div>
+
+                        @if($user->rank_updated_at)
+                            <div class="mb-3">
+                                <div class="text-muted small">Last Rank Update</div>
+                                <div class="text-muted small">{{ $user->rank_updated_at->diffForHumans() }}</div>
+                            </div>
+                        @endif
+
+                        <button type="button" class="btn btn-primary w-100" data-coreui-toggle="modal" data-coreui-target="#manualAdvanceModal">
+                            <svg class="icon me-2">
+                                <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-arrow-circle-top') }}"></use>
+                            </svg>
+                            Manual Rank Advance
+                        </button>
+                        <p class="text-muted small mt-2 mb-0">Manually advance this user to a higher rank. System will create the order automatically.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Account Actions -->
+            <div class="col-lg-6 mb-4">
+                <div class="card border-warning h-100">
                     <div class="card-header bg-warning bg-opacity-10">
                         <h5 class="mb-0 text-warning">
                             <svg class="icon me-2">
@@ -213,9 +263,9 @@
                         @endif
                     </div>
                 </div>
-            @endunless
+            </div>
         </div>
-    </div>
+    @endunless
 </div>
 
 <!-- Suspend Confirmation Modal -->
@@ -262,6 +312,78 @@
                 <button type="button" class="btn btn-secondary" data-coreui-dismiss="modal">Cancel</button>
                 <button type="button" class="btn btn-success" id="confirmActivateBtn">Activate User</button>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Manual Rank Advance Modal -->
+<div class="modal fade" id="manualAdvanceModal" tabindex="-1" aria-labelledby="manualAdvanceModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary bg-opacity-10">
+                <h5 class="modal-title text-primary" id="manualAdvanceModalLabel">
+                    <svg class="icon me-2">
+                        <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-arrow-circle-top') }}"></use>
+                    </svg>
+                    Manual Rank Advance
+                </h5>
+                <button type="button" class="btn-close" data-coreui-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="manualAdvanceForm" action="{{ route('admin.ranks.manual-advance', $user) }}" method="POST">
+                @csrf
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        <svg class="icon me-2">
+                            <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-info') }}"></use>
+                        </svg>
+                        <small>This will create a system-funded order for the selected package and update the user's rank automatically.</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Current Rank</label>
+                        <div>
+                            @if($user->current_rank)
+                                <span class="badge bg-success">{{ $user->current_rank }}</span>
+                            @else
+                                <span class="badge bg-secondary">No Rank</span>
+                            @endif
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="to_package_id" class="form-label">Advance to Package <span class="text-danger">*</span></label>
+                        <select name="to_package_id" id="to_package_id" class="form-select" required>
+                            <option value="">Select a package...</option>
+                            @php
+                                $rankablePackages = \App\Models\Package::rankable()->orderedByRank()->get();
+                            @endphp
+                            @foreach($rankablePackages as $package)
+                                @if(!$user->current_rank || $package->rank_order > ($user->rankPackage->rank_order ?? 0))
+                                    <option value="{{ $package->id }}">
+                                        {{ $package->name }} - {{ $package->rank_name }} (₱{{ number_format($package->price, 2) }})
+                                    </option>
+                                @endif
+                            @endforeach
+                        </select>
+                        <small class="text-muted">Only shows packages with higher rank than current</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="notes" class="form-label">Notes (Optional)</label>
+                        <textarea name="notes" id="notes" class="form-control" rows="3" placeholder="Reason for manual advancement..."></textarea>
+                        <small class="text-muted">This will be recorded in the advancement history</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-coreui-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <svg class="icon me-2">
+                            <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-check') }}"></use>
+                        </svg>
+                        Advance Rank
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

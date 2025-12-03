@@ -47,6 +47,7 @@ class AdminPackageController extends Controller
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'is_active' => 'boolean',
             'is_mlm_package' => 'boolean',
+            'is_rankable' => 'boolean',
             'sort_order' => 'integer|min:0',
             'features' => 'nullable|array',
             'features.*' => 'nullable|string|max:255',
@@ -92,6 +93,7 @@ class AdminPackageController extends Controller
         // Handle checkbox values (unchecked checkboxes are not submitted)
         $validated['is_active'] = $request->has('is_active');
         $validated['is_mlm_package'] = $request->has('is_mlm_package');
+        $validated['is_rankable'] = $request->has('is_rankable');
 
         Package::create($validated);
 
@@ -144,6 +146,7 @@ class AdminPackageController extends Controller
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'is_active' => 'boolean',
             'is_mlm_package' => 'boolean',
+            'is_rankable' => 'boolean',
             'sort_order' => 'integer|min:0',
             'features' => 'nullable|array',
             'features.*' => 'nullable|string|max:255',
@@ -200,6 +203,15 @@ class AdminPackageController extends Controller
             $validated['is_mlm_package'] = $package->is_mlm_package;
         } else {
             $validated['is_mlm_package'] = $request->has('is_mlm_package');
+        }
+
+        // Prevent disabling rank status if users have this rank
+        $hasUsersWithRank = $package->is_rankable && \App\Models\User::where('rank_package_id', $package->id)->exists();
+        if ($hasUsersWithRank) {
+            // Keep the original rankable status - cannot be disabled
+            $validated['is_rankable'] = $package->is_rankable;
+        } else {
+            $validated['is_rankable'] = $request->has('is_rankable');
         }
 
         $package->update($validated);

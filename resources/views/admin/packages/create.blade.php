@@ -3,7 +3,7 @@
 @section('title', 'Create Package')
 
 @section('content')
-<div class="container-fluid">
+<div class="container-fluid pb-5">
     <div class="row">
         <div class="col-12">
             <div class="card">
@@ -200,6 +200,20 @@
                                         </label>
                                     </div>
                                     <div class="form-text">Enable multi-level marketing commission structure for this package</div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="is_rankable" name="is_rankable" value="1"
+                                               {{ old('is_rankable', false) ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="is_rankable">
+                                            <svg class="icon me-1">
+                                                <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-star') }}"></use>
+                                            </svg>
+                                            Rankable Package
+                                        </label>
+                                    </div>
+                                    <div class="form-text">Enable this package for rank advancement system. Once enabled and users achieve this rank, it cannot be disabled.</div>
                                 </div>
 
                                 <div class="card">
