@@ -353,6 +353,25 @@ class CheckoutController extends Controller
                 // Activate the user's network status
                 $order->user->activateNetwork();
 
+                // PHASE 3: Rank System - Update buyer's rank BEFORE commission processing
+                // This is critical because RankComparisonService requires both upline and buyer to have ranks
+                $hasRankablePackage = $order->orderItems->contains(function($orderItem) {
+                    return $orderItem->package && $orderItem->package->is_rankable;
+                });
+
+                if ($hasRankablePackage) {
+                    // Update buyer's rank based on highest package purchased
+                    $order->user->updateRank();
+
+                    Log::info('User rank updated before MLM commission processing', [
+                        'user_id' => $order->user_id,
+                        'username' => $order->user->username,
+                        'new_rank' => $order->user->fresh()->current_rank,
+                        'order_id' => $order->id,
+                    ]);
+                }
+
+                // Now process MLM commissions with buyer's updated rank
                 ProcessMLMCommissions::dispatchSync($order);
 
                 $mlmPackageNames = $order->orderItems
@@ -367,45 +386,28 @@ class CheckoutController extends Controller
                     'order_number' => $order->order_number,
                     'buyer_id' => $order->user_id,
                     'buyer_username' => $order->user->username ?? 'unknown',
+                    'buyer_rank' => $order->user->fresh()->current_rank ?? 'None',
                     'sponsor_id' => $order->user->sponsor_id ?? null,
                     'mlm_packages' => $mlmPackageNames
                 ]);
 
-                // PHASE 3: Rank System - Update buyer's rank and check sponsor for advancement
-                // Check if any order items contain rankable packages
-                $hasRankablePackage = $order->orderItems->contains(function($orderItem) {
-                    return $orderItem->package && $orderItem->package->is_rankable;
-                });
+                // Track sponsorship and check if sponsor is eligible for rank advancement
+                if ($hasRankablePackage && $order->user->sponsor) {
+                    $advancementTriggered = $this->rankAdvancementService->trackSponsorship(
+                        $order->user->sponsor,
+                        $order->user->fresh() // Use fresh() to get updated rank
+                    );
 
-                if ($hasRankablePackage) {
-                    // Update buyer's rank based on highest package purchased
-                    $order->user->updateRank();
-
-                    Log::info('User rank updated after package purchase', [
-                        'user_id' => $order->user_id,
-                        'username' => $order->user->username,
-                        'new_rank' => $order->user->fresh()->current_rank,
-                        'order_id' => $order->id,
-                    ]);
-
-                    // Track sponsorship and check if sponsor is eligible for rank advancement
-                    if ($order->user->sponsor) {
-                        $advancementTriggered = $this->rankAdvancementService->trackSponsorship(
-                            $order->user->sponsor,
-                            $order->user->fresh() // Use fresh() to get updated rank
-                        );
-
-                        if ($advancementTriggered) {
-                            Log::info('Sponsor rank advancement triggered after downline package purchase', [
-                                'sponsor_id' => $order->user->sponsor_id,
-                                'sponsor_username' => $order->user->sponsor->username,
-                                'new_rank' => $order->user->sponsor->fresh()->current_rank,
-                                'downline_id' => $order->user_id,
-                                'downline_username' => $order->user->username,
-                                'downline_rank' => $order->user->fresh()->current_rank,
-                                'order_id' => $order->id,
-                            ]);
-                        }
+                    if ($advancementTriggered) {
+                        Log::info('Sponsor rank advancement triggered after downline package purchase', [
+                            'sponsor_id' => $order->user->sponsor_id,
+                            'sponsor_username' => $order->user->sponsor->username,
+                            'new_rank' => $order->user->sponsor->fresh()->current_rank,
+                            'downline_id' => $order->user_id,
+                            'downline_username' => $order->user->username,
+                            'downline_rank' => $order->user->fresh()->current_rank,
+                            'order_id' => $order->id,
+                        ]);
                     }
                 }
             }
