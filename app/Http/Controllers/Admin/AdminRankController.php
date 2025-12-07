@@ -24,7 +24,10 @@ class AdminRankController extends Controller
      */
     public function index()
     {
-        $packages = Package::rankable()->orderedByRank()->get();
+        $packages = Package::rankable()
+            ->orderBy('rank_order', 'asc')
+            ->orderBy('id', 'asc')
+            ->get();
         
         $stats = [
             'total_ranked_users' => User::whereNotNull('current_rank')->count(),
@@ -54,7 +57,10 @@ class AdminRankController extends Controller
      */
     public function configure()
     {
-        $packages = Package::rankable()->orderedByRank()->get();
+        $packages = Package::rankable()
+            ->orderBy('rank_order', 'asc')
+            ->orderBy('id', 'asc')
+            ->get();
         
         $breadcrumbs = [
             ['title' => 'Admin Dashboard', 'url' => route('admin.dashboard')],
