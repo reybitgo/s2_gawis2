@@ -167,7 +167,7 @@
     <section id="pricing" class="py-5">
         <div class="container">
             <div class="text-center mb-5">
-                <h2 class="display-3 fw-bold mb-3">The Gawis Package</h2>
+                <h2 class="display-3 fw-bold mb-3">Gawis Packages</h2>
                 <p class="lead text-muted mb-4">Your first step to financial wellness.</p>
             </div>
 
