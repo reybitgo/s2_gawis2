@@ -45,34 +45,20 @@
                                     <div class="col-md-8">
                                         <div class="mb-3">
                                             <label for="name" class="form-label">Package Name <span class="text-danger">*</span></label>
-                                            @php
-                                                // Check if package is part of rank system
-                                                $isRankPackage = $package->rank_name && $package->is_mlm_package && $package->mlmSettings()->exists();
-                                            @endphp
                                             <input type="text" class="form-control @error('name') is-invalid @enderror"
-                                                   id="name" name="name" value="{{ old('name', $package->name) }}" 
-                                                   {{ $isRankPackage ? 'readonly' : '' }} required>
-                                            @if($isRankPackage)
-                                                <div class="form-text text-warning">
-                                                    <strong>🔒 Locked:</strong> Package name cannot be changed because it's associated with rank "{{ $package->rank_name }}" and has MLM bonuses configured.
-                                                    <br>
-                                                    <small>Changing the name would break rank system integrity and MLM commission calculations.</small>
+                                                   id="name" name="name" value="{{ old('name', $package->name) }}" required>
+                                            @if($package->rank_name)
+                                                <div class="form-text text-info">
+                                                    <svg class="icon me-1">
+                                                        <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-info') }}"></use>
+                                                    </svg>
+                                                    This package is associated with rank "{{ $package->rank_name }}". 
+                                                    Changing the display name is safe - the rank name is managed separately at 
+                                                    <a href="{{ route('admin.ranks.configure') }}" class="text-decoration-underline">Rank Configuration</a>.
                                                 </div>
                                             @else
                                                 <div class="form-text text-muted">
-                                                    @if(!$package->rank_name)
-                                                        <span class="badge bg-secondary">Not a rank package</span> 
-                                                    @endif
-                                                    @if(!$package->is_mlm_package)
-                                                        <span class="badge bg-secondary">Not MLM enabled</span>
-                                                    @endif
-                                                    @if($package->is_mlm_package && !$package->mlmSettings()->exists())
-                                                        <span class="badge bg-warning">MLM bonuses not configured</span>
-                                                    @endif
-                                                    @if($package->rank_name || $package->is_mlm_package || !$package->mlmSettings()->exists())
-                                                        <br>
-                                                    @endif
-                                                    This package is not yet fully part of the rank system. You can still change the name.
+                                                    Display name for this package. Can be changed anytime.
                                                 </div>
                                             @endif
                                             @error('name')

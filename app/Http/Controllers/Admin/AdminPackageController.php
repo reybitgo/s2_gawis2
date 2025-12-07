@@ -113,28 +113,6 @@ class AdminPackageController extends Controller
 
     public function update(Request $request, Package $package)
     {
-        // CRITICAL: Prevent name changes for rank-associated MLM packages
-        $isRankPackage = $package->rank_name 
-                        && $package->is_mlm_package 
-                        && $package->mlmSettings()->exists();
-        
-        if ($isRankPackage && $request->name !== $package->name) {
-            \Log::warning('Attempted to change rank package name (blocked)', [
-                'admin_id' => auth()->id(),
-                'package_id' => $package->id,
-                'old_name' => $package->name,
-                'attempted_name' => $request->name,
-                'rank' => $package->rank_name,
-            ]);
-            
-            return back()->withErrors([
-                'name' => sprintf(
-                    'Package name cannot be changed because it is associated with rank "%s" and has MLM bonuses configured. This would break the rank system and MLM commission calculations.',
-                    $package->rank_name
-                )
-            ])->withInput();
-        }
-        
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'slug' => 'nullable|string|max:255|unique:packages,slug,' . $package->id,
