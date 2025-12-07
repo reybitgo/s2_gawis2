@@ -190,7 +190,15 @@ The Newbie Package is your bridge from beginner to business owner. Make the leap
 
 ---
 
-### Package Features (One-Liners)
+### Top 5 Package Features
+
+1. **68% Commission Boost** - Jump from ₱400 to ₱675 total earning potential
+2. **₱300 Direct Commission** - 50% higher than Starter's ₱200 per referral
+3. **Triple Level 2 Earnings** - ₱150 from downline success vs. ₱50 at Starter
+4. **6-Referral ROI** - Recover your ₱1,798 investment faster than Starter
+5. **1 Star Advancement Path** - 16 sponsors unlocks ₱1,500 commission potential
+
+### All Package Features (Complete List)
 
 1. **68% Commission Increase** - Earn ₱675 instead of ₱400 per package sale
 2. **Enhanced Level 2 Earnings** - Triple your downline commission from ₱50 to ₱150
@@ -299,7 +307,15 @@ At 1 Star, you're no longer building a side income—you're architecting a legac
 
 ---
 
-### Package Features (One-Liners)
+### Top 5 Package Features
+
+1. **₱800 Level 1 Commission** - 4× Starter and 2.7× Newbie direct earnings
+2. **₱1,500 Total Potential** - 275% more than Newbie's ₱675 per sale
+3. **5-Referral ROI** - Fastest investment recovery in the rank system
+4. **Elite Leadership Recognition** - Top 5% network marketer status
+5. **Six-Figure Career Path** - Commission structure supports full-time income
+
+### All Package Features (Complete List)
 
 1. **₱800 Direct Commission** - 300% more than Starter, 167% more than Newbie
 2. **₱1,500 Total Earning Potential** - Equivalent to 3 Newbie or 4 Starter package sales
@@ -430,7 +446,15 @@ Most network marketing millionaires in ANY company achieved it between the equiv
 
 ---
 
-### Package Features (One-Liners)
+### Top 5 Package Features
+
+1. **₱1,200 Level 1 Commission** - 6× Starter earning power per direct referral
+2. **₱800 Level 2 Domination** - Equals 1 Star's total Level 1 commission
+3. **₱2,440 Total Potential** - One sale = most people's weekly paycheck
+4. **Expert Network Status** - Top 5% recognition, industry authority
+5. **Millionaire Pathway** - Historical rank where MLM millionaires are born
+
+### All Package Features (Complete List)
 
 1. **₱1,200 Level 1 Powerhouse** - 500% more than Starter, leads industry in commission rates
 2. **₱800 Level 2 Domination** - Your downline's success pays more than most people's direct sales
@@ -589,7 +613,15 @@ And that's CONSERVATIVE. Many 3 Star executives achieve 100+ monthly organizatio
 
 ---
 
-### Package Features (One-Liners)
+### Top 5 Package Features
+
+1. **₱1,600 Level 1 Power** - 8× Starter's direct commission per referral
+2. **₱1,440 Level 2 Excellence** - Exceeds 1 Star's total ₱1,500 potential
+3. **₱4,840 Total Wealth** - Nearly double 2 Star's ₱2,440 earning capacity
+4. **Executive Status** - Top 1% network marketer, industry leader recognition
+5. **Multi-Six-Figure Baseline** - ₱250K-500K monthly income infrastructure
+
+### All Package Features (Complete List)
 
 1. **₱1,600 Level 1 Supremacy** - Highest direct commission in GAWIS, instant wealth per referral
 2. **₱1,440 Level 2 Dynasty Builder** - Your downline's success guarantees YOUR executive income
@@ -792,7 +824,15 @@ But unlike those investments, 4 Star package generates FASTER ROI (8 referrals),
 
 ---
 
-### Package Features (One-Liners)
+### Top 5 Package Features
+
+1. **₱2,500 Level 1 Mastery** - 12.5× Starter, one sale = monthly housing payment
+2. **₱2,140 Level 2 Automation** - Exceeds 2 Star's total ₱2,440 by ₱300
+3. **₱7,440 Total System** - 54% more than 3 Star's ₱4,840 potential
+4. **Presidential Authority** - Top 0.1% network marketer, industry icon status
+5. **Seven-Figure Standard** - ₱1M+ annual income becomes expected baseline
+
+### All Package Features (Complete List)
 
 1. **₱2,500 Level 1 Mastery** - One sale = one month's housing payment, industry-leading direct commission
 2. **₱2,140 Level 2 Millionaire Maker** - Automatic wealth generation from downline Level 1 success
@@ -1060,7 +1100,15 @@ Are you ready to build your organization?
 
 ---
 
-### Package Features (One-Liners)
+### Top 5 Package Features
+
+1. **₱6,400 Level 1 SUPREMACY** - 32× Starter, one sale = average Filipino monthly salary
+2. **₱5,280 Level 2 AUTOMATION** - Exceeds 3 Star's entire ₱4,840 total by ₱440
+3. **₱18,280 Total DOMINANCE** - 146% more than 4 Star, ultimate commission ceiling
+4. **Imperial Status** - Network marketing legend, historic achievement, top 0.01%
+5. **Eight-Figure Reality** - ₱10M-100M+ annual income achievable and sustainable
+
+### All Package Features (Complete List)
 
 1. **₱6,400 Level 1 SUPREMACY** - One sale = average Filipino monthly salary, highest commission in industry
 2. **₱5,280 Level 2 ORGANIZATION AUTOMATION** - Exceeds 3 Star total potential, automatic millionaire-making machine
