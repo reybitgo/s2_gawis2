@@ -97,7 +97,15 @@ Your journey to financial independence begins with a single decision. The Starte
 
 ---
 
-### Package Features (One-Liners)
+### Top 5 Package Features
+
+1. **5-Level Commission Cascade** - Earn ₱400 per sale from your network depth
+2. **Lowest Entry Barrier** - Just ₱1,000 to start your financial freedom journey
+3. **Automatic Rank Advancement** - Clear path to Newbie rank with 16 sponsors
+4. **Instant Wallet Credits** - Real-time commission deposits, no waiting
+5. **Lifetime Passive Income** - Build once, earn forever from your organization
+
+### All Package Features (Complete List)
 
 1. **5-Level Commission Cascade** - Earn from your network up to 5 levels deep
 2. **Automatic Rank Advancement** - Sponsor 16 members to unlock Newbie rank and higher commissions
