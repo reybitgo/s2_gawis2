@@ -233,6 +233,19 @@
                                     @enderror
                                 </div>
 
+                                <div class="card mb-3">
+                                    <div class="card-header">
+                                        <h6 class="card-title mb-0">Current Image</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <img src="{{ $package->image_url }}" alt="{{ $package->name }}" class="img-fluid rounded mb-2">
+                                        <div id="image-preview" class="mb-3" style="display: none;">
+                                            <h6>New Image Preview:</h6>
+                                            <img id="preview-img" src="" alt="Preview" class="img-fluid rounded">
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <div class="mb-3">
                                     <label for="sort_order" class="form-label">Sort Order</label>
                                     <input type="number" min="0" class="form-control @error('sort_order') is-invalid @enderror"
@@ -308,19 +321,6 @@
                                             @endif
                                         </div>
                                     @endif
-                                </div>
-
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h6 class="card-title mb-0">Current Image</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <img src="{{ $package->image_url }}" alt="{{ $package->name }}" class="img-fluid rounded mb-2">
-                                        <div id="image-preview" class="mb-3" style="display: none;">
-                                            <h6>New Image Preview:</h6>
-                                            <img id="preview-img" src="" alt="Preview" class="img-fluid rounded">
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                         </div>

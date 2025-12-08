@@ -23,6 +23,7 @@ class FrontendController extends Controller
         $topProducts = Product::select('products.*', DB::raw('SUM(order_items.quantity) as total_sold'))
             ->join('order_items', 'products.id', '=', 'order_items.product_id')
             ->where('products.deleted_at', null)
+            ->where('products.is_active', 1)
             ->groupBy($groupByColumns)
             ->orderByDesc('total_sold')
             ->with('unilevelSettings')
@@ -33,6 +34,7 @@ class FrontendController extends Controller
 
         if ($remainingCount > 0) {
             $otherProducts = Product::whereNotIn('id', $soldProductIds)
+                ->where('is_active', 1)
                 ->orderBy('created_at', 'desc')
                 ->limit($remainingCount)
                 ->with('unilevelSettings')
