@@ -73,6 +73,9 @@ class DatabaseResetSeeder extends Seeder
         // Step 9: Update network status for existing users
         $this->updateNetworkStatusForExistingUsers();
 
+        // Step 10: Ensure rank system is properly configured
+        $this->ensureRankSystemConfiguration();
+
         $this->command->info('✅ Database reset completed successfully!');
         $this->command->info('👤 Admin: admin / admin@gawisherbal.com / Admin123!@#');
         $this->command->info('👤 Member: member / member@gawisherbal.com / Member123!@#');
@@ -83,6 +86,8 @@ class DatabaseResetSeeder extends Seeder
         $this->command->info('↩️  Return requests cleared (ready for new returns)');
         $this->command->info('🔗 Referral clicks cleared (ready for new tracking)');
         $this->command->info('📊 Activity logs cleared (fresh audit trail)');
+        $this->command->info('🏆 Rank advancements cleared (fresh rank progression tracking)');
+        $this->command->info('👥 Direct sponsors tracker cleared (fresh sponsorship tracking)');
         $this->command->info('🔢 User IDs reset to sequential (1, 2)');
         $this->command->info('📍 Complete profile data for admin and member');
         $this->command->info('');
@@ -94,6 +99,25 @@ class DatabaseResetSeeder extends Seeder
         $this->command->info('  ✅ Complete Return & Refund System');
         $this->command->info('  ✅ Package Management with Inventory Tracking');
         $this->command->info('  ✅ Order Analytics Dashboard');
+        $this->command->info('');
+        $this->command->info('🏆 Ranking System Features:');
+        $this->command->info('  ✅ Automatic Rank Advancement System');
+        $this->command->info('    • Real-time advancement on sponsorship milestones');
+        $this->command->info('    • Hourly scheduled processing for all users');
+        $this->command->info('    • System-funded rank reward packages');
+        $this->command->info('    • Direct sponsors tracking (persistent & accurate)');
+        $this->command->info('    • Rank-aware commission calculations');
+        $this->command->info('    • Complete advancement history & audit trail');
+        $this->command->info('    • Network status auto-activation on rank advancement');
+        $this->command->info('    • Backward compatible with legacy sponsorships');
+        $this->command->info('  ✅ Admin Rank Management Interface');
+        $this->command->info('    • Rank system dashboard with statistics');
+        $this->command->info('    • Visual rank distribution charts (Chart.js)');
+        $this->command->info('    • Configurable rank requirements & progression');
+        $this->command->info('    • Advancement history with filters & search');
+        $this->command->info('    • Manual rank advancement capability');
+        $this->command->info('    • Rank packages: Starter → Newbie → Bronze → Silver → Gold');
+        $this->command->info('    • Access: /admin/ranks');
         $this->command->info('');
         $this->command->info('💰 MLM System Features:');
         $this->command->info('  ✅ Core MLM Package & Registration');
@@ -228,6 +252,14 @@ class DatabaseResetSeeder extends Seeder
         // Clear wallets
         DB::table('wallets')->truncate();
         $this->command->info('✅ Cleared all wallets');
+
+        // Clear rank advancement history (foreign key dependency on users and orders)
+        DB::table('rank_advancements')->truncate();
+        $this->command->info('✅ Cleared all rank advancement history');
+
+        // Clear direct sponsors tracker (foreign key dependency on users)
+        DB::table('direct_sponsors_tracker')->truncate();
+        $this->command->info('✅ Cleared all direct sponsors tracking');
 
         // Clear users
         DB::table('users')->truncate();
@@ -742,5 +774,87 @@ class DatabaseResetSeeder extends Seeder
         }
 
         $this->command->info('✅ Network status updated for existing users.');
+    }
+
+    /**
+     * Ensure rank system is properly configured and ready
+     */
+    private function ensureRankSystemConfiguration(): void
+    {
+        $this->command->newLine();
+        $this->command->info('🏆 Verifying Rank System Configuration...');
+
+        // Check for rank system migrations
+        $rankAdvancementsMigration = DB::table('migrations')
+            ->where('migration', 'like', '%create_rank_advancements_table%')
+            ->first();
+
+        $directSponsorsMigration = DB::table('migrations')
+            ->where('migration', 'like', '%create_direct_sponsors_tracker_table%')
+            ->first();
+
+        if ($rankAdvancementsMigration && $directSponsorsMigration) {
+            $this->command->info('✅ Rank system migrations detected');
+
+            // Verify the actual tables exist
+            try {
+                $hasRankAdvancements = DB::getSchemaBuilder()->hasTable('rank_advancements');
+                $hasDirectSponsors = DB::getSchemaBuilder()->hasTable('direct_sponsors_tracker');
+
+                if ($hasRankAdvancements && $hasDirectSponsors) {
+                    $this->command->info('✅ Verified: All rank system tables present');
+                    $this->command->info('  • rank_advancements (advancement history & audit trail)');
+                    $this->command->info('  • direct_sponsors_tracker (sponsorship counting)');
+                } else {
+                    $this->command->warn('⚠️  Rank migrations exist but tables missing - run: php artisan migrate');
+                }
+            } catch (\Exception $e) {
+                $this->command->warn('⚠️  Could not verify rank tables: ' . $e->getMessage());
+            }
+
+            // Check for rankable packages
+            try {
+                $rankablePackages = Package::where('is_rankable', true)->count();
+                
+                if ($rankablePackages > 0) {
+                    $this->command->info("✅ Found {$rankablePackages} rankable packages configured");
+                    
+                    // List rank packages
+                    $packages = Package::where('is_rankable', true)
+                        ->orderBy('rank_order')
+                        ->get(['rank_name', 'rank_order', 'required_direct_sponsors']);
+                    
+                    $this->command->info('');
+                    $this->command->info('📋 Rank Progression:');
+                    foreach ($packages as $package) {
+                        $sponsors = $package->required_direct_sponsors ?? 0;
+                        $this->command->info("  {$package->rank_order}. {$package->rank_name} (Requires: {$sponsors} sponsors)");
+                    }
+                } else {
+                    $this->command->warn('⚠️  No rankable packages found - configure via /admin/ranks/configure');
+                }
+            } catch (\Exception $e) {
+                $this->command->warn('⚠️  Could not verify rankable packages: ' . $e->getMessage());
+            }
+
+            // Rank Advancement Information
+            $this->command->newLine();
+            $this->command->info('📌 Rank Advancement System:');
+            $this->command->info('  ✅  Automatic advancement on reaching sponsorship milestones');
+            $this->command->info('  ✅  Scheduled processing: php artisan schedule:run (runs hourly)');
+            $this->command->info('  ✅  Manual command: php artisan rank:process-advancements');
+            $this->command->info('  ✅  Admin interface: /admin/ranks');
+            $this->command->newLine();
+            $this->command->info('  ℹ️  Optional: Set up cron job for automatic processing:');
+            $this->command->info('     * * * * * cd /path/to/project && php artisan schedule:run >> /dev/null 2>&1');
+        } else {
+            $this->command->warn('⚠️  Rank system migrations NOT found');
+            $this->command->warn('     Run: php artisan migrate');
+            $this->command->warn('     Expected migrations:');
+            $this->command->warn('       - *_create_rank_advancements_table.php');
+            $this->command->warn('       - *_create_direct_sponsors_tracker_table.php');
+        }
+
+        $this->command->newLine();
     }
 }
