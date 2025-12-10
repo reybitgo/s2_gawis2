@@ -13,7 +13,9 @@ class PackageController extends Controller
 
     public function index(Request $request)
     {
-        $query = Package::active()->available()->ordered();
+        // Only show Starter package - other packages are obtainable through rank advancement
+        $query = Package::active()->available()->ordered()
+            ->where('rank_name', 'Starter');
 
         if ($request->has('search')) {
             $search = $request->get('search');
@@ -53,7 +55,8 @@ class PackageController extends Controller
 
     public function show(Package $package)
     {
-        if (!$package->is_active) {
+        // Only allow viewing Starter package - other packages are obtainable through rank advancement
+        if (!$package->is_active || $package->rank_name !== 'Starter') {
             abort(404);
         }
 

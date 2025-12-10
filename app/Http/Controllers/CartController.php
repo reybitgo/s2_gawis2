@@ -47,6 +47,14 @@ class CartController extends Controller
             ], 404);
         }
 
+        // Only allow adding Starter package - other packages are obtainable through rank advancement
+        if ($package->rank_name !== 'Starter') {
+            return response()->json([
+                'success' => false,
+                'message' => 'This package can only be obtained through rank advancement.'
+            ], 403);
+        }
+
         if (!$package->isAvailable()) {
             return response()->json([
                 'success' => false,
