@@ -196,19 +196,16 @@
                                     @php
                                         // Map rank names to star/badge icons
                                         $rankIcons = [
-                                            'Newbie' => '<i class="fas fa-badge-check text-primary" style="font-size: 2.5rem;"></i>',
-                                            '1 Star' => '<i class="fas fa-star text-warning"></i>',
-                                            '2 Star' => '<i class="fas fa-star text-warning"></i> <i class="fas fa-star text-warning"></i>',
-                                            '3 Star' => '<i class="fas fa-star text-warning"></i> <i class="fas fa-star text-warning"></i> <i class="fas fa-star text-warning"></i>',
-                                            '4 Star' => '<i class="fas fa-star text-warning"></i> <i class="fas fa-star text-warning"></i> <i class="fas fa-star text-warning"></i> <i class="fas fa-star text-warning"></i>',
-                                            '5 Star' => '<i class="fas fa-star text-warning"></i> <i class="fas fa-star text-warning"></i> <i class="fas fa-star text-warning"></i> <i class="fas fa-star text-warning"></i> <i class="fas fa-star text-warning"></i>',
+                                            'Newbie' => '<i class="fas fa-certificate text-primary" style="font-size: 3rem;"></i>',
+                                            '1 Star' => '<i class="fas fa-star text-warning" style="font-size: 2.5rem;"></i>',
+                                            '2 Star' => '<i class="fas fa-star text-warning" style="font-size: 2.5rem;"></i> <i class="fas fa-star text-warning" style="font-size: 2.5rem;"></i>',
+                                            '3 Star' => '<i class="fas fa-star text-warning" style="font-size: 2.5rem;"></i> <i class="fas fa-star text-warning" style="font-size: 2.5rem;"></i> <i class="fas fa-star text-warning" style="font-size: 2.5rem;"></i>',
+                                            '4 Star' => '<i class="fas fa-star text-warning" style="font-size: 2.5rem;"></i> <i class="fas fa-star text-warning" style="font-size: 2.5rem;"></i> <i class="fas fa-star text-warning" style="font-size: 2.5rem;"></i> <i class="fas fa-star text-warning" style="font-size: 2.5rem;"></i>',
+                                            '5 Star' => '<i class="fas fa-star text-warning" style="font-size: 2.5rem;"></i> <i class="fas fa-star text-warning" style="font-size: 2.5rem;"></i> <i class="fas fa-star text-warning" style="font-size: 2.5rem;"></i> <i class="fas fa-star text-warning" style="font-size: 2.5rem;"></i> <i class="fas fa-star text-warning" style="font-size: 2.5rem;"></i>',
                                         ];
-                                        $icon = $rankIcons[$package->rank_name] ?? '<i class="fas fa-award text-success" style="font-size: 2.5rem;"></i>';
+                                        $icon = $rankIcons[$package->rank_name] ?? '<i class="fas fa-award text-success" style="font-size: 3rem;"></i>';
                                     @endphp
-                                    <div style="font-size: 2rem;">
-                                        {!! $icon !!}
-                                    </div>
-                                    <small class="text-muted d-block mt-2">Earn through rank advancement</small>
+                                    {!! $icon !!}
                                 @endif
                             </div>
                             @if (isset($package->meta_data['features']))
