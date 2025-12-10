@@ -185,7 +185,7 @@
                             @endif
                         </div>
                         <div class="card-body p-4">
-                            <div class="pricing-price">
+                            <div class="pricing-price" style="min-height: 60px; display: flex; align-items: center; justify-content: center;">
                                 @if ($package->rank_name === 'Starter')
                                     {{ $package->getFormattedPriceAttribute() }}
                                 @else
