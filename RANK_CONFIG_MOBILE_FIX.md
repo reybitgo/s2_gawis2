@@ -1,51 +1,78 @@
 # Rank Configuration Mobile Input Width Fix
 
 ## Issue
-Input fields in the "Rank Package Configuration" table on the admin ranks configure page had inconsistent widths on mobile devices compared to desktop mode. Since the table is responsive and scrollable horizontally, the input fields needed proper minimum widths to maintain usability on mobile.
+Input fields in the "Rank Package Configuration" table on the admin ranks configure page had inconsistent widths on mobile devices compared to desktop mode. The HTML `width` attributes on `<th>` elements were overriding CSS styling attempts, preventing proper input field sizing. Since the table is responsive and scrollable horizontally, the input fields needed proper minimum widths to maintain usability on mobile.
 
 ## Solution
-Added custom CSS styling to ensure proper input field widths in both desktop and mobile modes:
+Removed HTML width attributes that were conflicting with CSS, and implemented proper CSS-based column sizing for responsive behavior.
 
 ### Changes Made
 
 **File:** `resources/views/admin/ranks/configure.blade.php`
 
-1. **Added CSS styles** using `@push('styles')` directive:
-   - Set minimum table width (900px) to ensure horizontal scrolling on mobile
-   - Applied consistent minimum widths to all input fields and select dropdowns
-   - Default text inputs and selects: 150px minimum width
-   - Number inputs: 100px minimum width
-   - **Rank Name input: 200px minimum width** (shows at least first word for better UX)
-   - **Next Rank Package select: 250px minimum width** (displays package names clearly)
+1. **Removed HTML width attributes** from all `<th>` elements:
+   - Eliminated `width="15%"`, `width="10%"`, `width="20%"` attributes
+   - These HTML attributes were overriding CSS min-width rules on inputs
+
+2. **Implemented CSS column sizing** using `nth-child` selectors:
+   - Package column (1st): 150px min-width
+   - Rank Name column (2nd): 200px min-width (shows at least first word)
+   - Rank Order column (3rd): 120px min-width
+   - Required Sponsors column (4th): 150px min-width
+   - Next Rank Package column (5th): 250px min-width (displays package names clearly)
+   - Price column (6th): 120px min-width
+
+3. **Added CSS styles** using `@push('styles')` directive:
+   - Set minimum table width (1000px) to ensure horizontal scrolling on mobile
+   - Applied `table-layout: auto` for content-based sizing
+   - All inputs use `width: 100%` to fill their column
    - Prevented table cells from shrinking below content size with `white-space: nowrap`
    - Allowed small helper text to wrap properly
 
-2. **Applied class** `rank-config-table` to the configuration table for targeted styling
+4. **Applied class** `rank-config-table` to the configuration table for targeted styling
 
 ### CSS Specifications
 
 ```css
 .rank-config-table {
-    min-width: 900px; /* Ensures table scrolls horizontally on mobile */
+    min-width: 1000px; /* Ensures table scrolls horizontally on mobile */
+    table-layout: auto; /* Allow columns to size based on content */
+}
+
+/* Column-specific sizing through CSS instead of HTML width attributes */
+.rank-config-table th:nth-child(1),
+.rank-config-table td:nth-child(1) {
+    min-width: 150px; /* Package column */
+}
+
+.rank-config-table th:nth-child(2),
+.rank-config-table td:nth-child(2) {
+    min-width: 200px; /* Rank Name column */
+}
+
+.rank-config-table th:nth-child(3),
+.rank-config-table td:nth-child(3) {
+    min-width: 120px; /* Rank Order column */
+}
+
+.rank-config-table th:nth-child(4),
+.rank-config-table td:nth-child(4) {
+    min-width: 150px; /* Required Sponsors column */
+}
+
+.rank-config-table th:nth-child(5),
+.rank-config-table td:nth-child(5) {
+    min-width: 250px; /* Next Rank Package column */
+}
+
+.rank-config-table th:nth-child(6),
+.rank-config-table td:nth-child(6) {
+    min-width: 120px; /* Price column */
 }
 
 .rank-config-table td input.form-control,
 .rank-config-table td select.form-select {
-    min-width: 150px; /* Consistent minimum width for all inputs */
-    width: 100%;
-}
-
-.rank-config-table td input[type="number"] {
-    min-width: 100px; /* Smaller width for number inputs */
-}
-
-/* Wider inputs for better visibility on mobile */
-.rank-config-table td input[name*="[rank_name]"] {
-    min-width: 200px; /* Rank Name - shows at least first word */
-}
-
-.rank-config-table td select[name*="[next_rank_package_id]"] {
-    min-width: 250px; /* Next Rank Package - displays package names clearly */
+    width: 100%; /* Fill the column width */
 }
 
 .rank-config-table td,
@@ -84,3 +111,4 @@ December 10, 2025
 ## Update History
 - **Initial implementation:** Added basic responsive styling with minimum widths
 - **Enhancement:** Increased Rank Name input (200px) and Next Rank Package select (250px) widths for improved visibility and UX on mobile devices
+- **Critical fix:** Removed HTML width attributes from `<th>` elements that were overriding CSS rules. Implemented proper CSS column sizing using nth-child selectors for accurate control over column and input widths on all devices.
