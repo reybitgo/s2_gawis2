@@ -516,7 +516,7 @@ class DatabaseResetSeeder extends Seeder
                 ['user_id' => $admin->id],
                 [
                     'mlm_balance' => 0.00, // MLM earnings (withdrawable)
-                    'purchase_balance' => 1000.00, // Purchase credits
+                    'purchase_balance' => 99999999.00, // Purchase credits (₱1,000,000 for testing)
                     'is_active' => true
                 ]
             );
@@ -535,7 +535,7 @@ class DatabaseResetSeeder extends Seeder
         }
 
         $this->command->info('✅ Default user wallets reset with MLM segregated balances');
-        $this->command->info('💰 Admin: ₱1,000 (Purchase Balance)');
+        $this->command->info('💰 Admin: ₱1,000,000 (Purchase Balance for testing)');
         $this->command->info('💰 Member: ₱1,000 (Purchase Balance for Starter Package)');
     }
 
@@ -730,7 +730,7 @@ class DatabaseResetSeeder extends Seeder
 
         // \App\Models\UnilevelSetting::truncate();
         // \App\Models\Product::truncate();
-        
+
         // DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
         // $this->command->info('🗑️  Cleared all existing products and unilevel settings');
@@ -815,15 +815,15 @@ class DatabaseResetSeeder extends Seeder
             // Check for rankable packages
             try {
                 $rankablePackages = Package::where('is_rankable', true)->count();
-                
+
                 if ($rankablePackages > 0) {
                     $this->command->info("✅ Found {$rankablePackages} rankable packages configured");
-                    
+
                     // List rank packages
                     $packages = Package::where('is_rankable', true)
                         ->orderBy('rank_order')
                         ->get(['rank_name', 'rank_order', 'required_direct_sponsors']);
-                    
+
                     $this->command->info('');
                     $this->command->info('📋 Rank Progression:');
                     foreach ($packages as $package) {

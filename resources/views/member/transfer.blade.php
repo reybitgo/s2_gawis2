@@ -91,11 +91,39 @@
                 <strong>Quick Amounts</strong>
             </div>
             <div class="card-body">
-                <div class="d-grid gap-2 d-md-flex justify-content-md-center">
-                    @foreach([10, 25, 50, 100, 250, 500, 1000] as $quickAmount)
-                        @if($wallet->purchase_balance >= $quickAmount)
-                            <button type="button" class="btn btn-outline-primary" onclick="setAmount({{ $quickAmount }})">
-                                {{ currency_symbol() }}{{ $quickAmount }}
+                <div class="d-flex flex-wrap gap-2 justify-content-center">
+                    @php
+                        // Dynamic quick amounts based on user and balance
+                        if (Auth::id() === 1) {
+                            // Admin: Full range
+                            $quickAmounts = [10, 25, 50, 100, 250, 500, 1000, 5000, 10000, 50000, 100000];
+                        } else {
+                            // Regular users: Dynamic based on balance and transfer limit
+                            $balance = $wallet->purchase_balance;
+                            $maxTransfer = min($balance, 10000);
+                            
+                            if ($balance < 100) {
+                                // Low balance: Small increments
+                                $quickAmounts = [10, 25, 50];
+                            } elseif ($balance < 500) {
+                                // Medium-low balance
+                                $quickAmounts = [10, 25, 50, 100, 250];
+                            } elseif ($balance < 1000) {
+                                // Medium balance
+                                $quickAmounts = [10, 50, 100, 250, 500];
+                            } elseif ($balance < 5000) {
+                                // High balance: Include 1000
+                                $quickAmounts = [50, 100, 250, 500, 1000, 2500];
+                            } else {
+                                // Very high balance: Include all up to 10000
+                                $quickAmounts = [100, 250, 500, 1000, 2500, 5000, 10000];
+                            }
+                        }
+                    @endphp
+                    @foreach($quickAmounts as $quickAmount)
+                        @if($wallet->purchase_balance >= $quickAmount && $quickAmount <= (Auth::id() === 1 ? $wallet->purchase_balance : min($wallet->purchase_balance, 10000)))
+                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="setAmount({{ $quickAmount }})">
+                                {{ currency_symbol() }}{{ number_format($quickAmount, 0) }}
                             </button>
                         @endif
                     @endforeach
@@ -172,12 +200,12 @@
                                 <div class="input-group">
                                     <span class="input-group-text">{{ currency_symbol() }}</span>
                                     <input type="number" name="amount" id="amount" class="form-control"
-                                           placeholder="0.00" min="1" max="{{ min($wallet->purchase_balance, 10000) }}" step="0.01" required
+                                           placeholder="0.00" min="1" max="{{ Auth::id() === 1 ? $wallet->purchase_balance : min($wallet->purchase_balance, 10000) }}" step="0.01" required
                                            value="{{ old('amount') }}">
                                     <span class="input-group-text">{{ currency_code() }}</span>
                                 </div>
                                 <div class="form-text">
-                                    Minimum: {{ currency(1) }} | Maximum: {{ currency(min($wallet->purchase_balance, 10000)) }}
+                                    Minimum: {{ currency(1) }} | Maximum: {{ Auth::id() === 1 ? currency($wallet->purchase_balance) : currency(min($wallet->purchase_balance, 10000)) }}
                                 </div>
                             </div>
                         </div>

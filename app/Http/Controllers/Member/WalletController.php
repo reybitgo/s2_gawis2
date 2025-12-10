@@ -155,13 +155,17 @@ class WalletController extends Controller
     {
         $this->authorize('transfer_funds');
 
+        $sender = Auth::user();
+
+        // Remove transfer limits for admin (user ID 1)
+        $maxAmount = ($sender->id === 1) ? PHP_INT_MAX : 10000;
+
         $request->validate([
             'recipient_identifier' => 'required|string|max:255',
-            'amount' => 'required|numeric|min:1|max:10000',
+            'amount' => 'required|numeric|min:1|max:' . $maxAmount,
             'note' => 'nullable|string|max:255',
         ]);
 
-        $sender = Auth::user();
         $senderWallet = $sender->getOrCreateWallet();
 
         // Find recipient by email or username
