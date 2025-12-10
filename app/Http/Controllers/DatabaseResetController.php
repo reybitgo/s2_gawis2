@@ -35,6 +35,17 @@ class DatabaseResetController extends Controller
         }
 
         try {
+            // Increase execution time and memory limits for hosting environments
+            @ini_set('max_execution_time', 300); // 5 minutes
+            @ini_set('memory_limit', '512M');
+            
+            // Disable output buffering to prevent timeouts
+            if (function_exists('apache_setenv')) {
+                @apache_setenv('no-gzip', '1');
+            }
+            @ini_set('zlib.output_compression', 0);
+            @ini_set('implicit_flush', 1);
+            
             // Log the reset action
             Log::info('Database reset initiated', [
                 'user_id' => Auth::id(),
@@ -113,17 +124,37 @@ class DatabaseResetController extends Controller
             Log::error('Database reset failed', [
                 'user_id' => Auth::id(),
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
             ]);
+
+            // More detailed error message for debugging
+            $errorMessage = 'Database reset failed: ' . $e->getMessage();
+            
+            // Check if it's a timeout error
+            if (strpos($e->getMessage(), 'Maximum execution time') !== false) {
+                $errorMessage = 'Database reset timed out. Please contact your hosting provider to increase PHP execution time limit or try resetting via command line: php artisan db:seed --class=DatabaseResetSeeder';
+            }
+            
+            // Check if it's a memory error
+            if (strpos($e->getMessage(), 'memory') !== false) {
+                $errorMessage = 'Database reset ran out of memory. Please contact your hosting provider to increase PHP memory limit or try resetting via command line: php artisan db:seed --class=DatabaseResetSeeder';
+            }
 
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Database reset failed: ' . $e->getMessage()
+                    'message' => $errorMessage,
+                    'error_details' => [
+                        'message' => $e->getMessage(),
+                        'file' => $e->getFile(),
+                        'line' => $e->getLine()
+                    ]
                 ], 500);
             }
 
-            return back()->with('error', 'Database reset failed: ' . $e->getMessage());
+            return back()->with('error', $errorMessage);
         }
     }
 

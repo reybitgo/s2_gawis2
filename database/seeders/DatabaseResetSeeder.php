@@ -24,6 +24,10 @@ class DatabaseResetSeeder extends Seeder
      */
     public function run(): void
     {
+        // Increase execution time limit for hosting environments
+        @ini_set('max_execution_time', 300); // 5 minutes
+        @ini_set('memory_limit', '512M');
+
         $this->command->info('🔄 Starting database reset...');
         $this->command->newLine();
 
@@ -193,22 +197,39 @@ class DatabaseResetSeeder extends Seeder
     {
         $this->command->info('🗑️  Clearing all data for testing environment...');
 
-        // Disable foreign key checks for proper truncation
-        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        try {
+            // Disable foreign key checks for proper truncation
+            DB::statement('SET FOREIGN_KEY_CHECKS=0;');
 
-        $tables = DB::select('SHOW TABLES');
-        foreach ($tables as $table) {
-            $table_array = (array)$table;
-            $table_name = $table_array[key($table_array)];
-            if ($table_name !== 'migrations') {
-                DB::table($table_name)->truncate();
+            $tables = DB::select('SHOW TABLES');
+            foreach ($tables as $table) {
+                $table_array = (array)$table;
+                $table_name = $table_array[key($table_array)];
+                if ($table_name !== 'migrations') {
+                    // Use DELETE instead of TRUNCATE for better compatibility
+                    DB::table($table_name)->delete();
+                    
+                    // Reset auto-increment
+                    try {
+                        DB::statement("ALTER TABLE `{$table_name}` AUTO_INCREMENT = 1");
+                    } catch (\Exception $e) {
+                        // Some tables may not have auto-increment, ignore errors
+                    }
+                }
             }
+
+            // Re-enable foreign key checks
+            DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+
+            $this->command->info('✅ Cleared all tables for testing environment');
+
+        } catch (\Exception $e) {
+            // Re-enable foreign key checks even if an error occurs
+            DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+            
+            $this->command->error('❌ Error during data clearing: ' . $e->getMessage());
+            throw $e;
         }
-
-        // Re-enable foreign key checks
-        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
-
-        $this->command->info('✅ Cleared all tables for testing environment');
     }
 
     /**
@@ -218,64 +239,88 @@ class DatabaseResetSeeder extends Seeder
     {
         $this->command->info('🗑️  Clearing user transactions and orders (preserving system settings, users, roles, and permissions)...');
 
-        // Disable foreign key checks for proper truncation
-        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        try {
+            // Disable foreign key checks for proper truncation
+            DB::statement('SET FOREIGN_KEY_CHECKS=0;');
 
-        // Clear activity logs (audit trail - can be fully reset)
-        DB::table('activity_logs')->truncate();
-        $this->command->info('✅ Cleared all activity logs (audit trail reset)');
+            // Use DELETE instead of TRUNCATE for better compatibility with hosting environments
+            // TRUNCATE requires higher privileges and may be blocked
+            
+            // Clear activity logs (audit trail - can be fully reset)
+            DB::table('activity_logs')->delete();
+            $this->command->info('✅ Cleared all activity logs (audit trail reset)');
 
-        // Clear referral clicks first (foreign key dependency on users)
-        DB::table('referral_clicks')->truncate();
-        $this->command->info('✅ Cleared all referral clicks');
+            // Clear referral clicks first (foreign key dependency on users)
+            DB::table('referral_clicks')->delete();
+            $this->command->info('✅ Cleared all referral clicks');
 
-        // Clear return requests (foreign key dependency on orders)
-        DB::table('return_requests')->truncate();
-        $this->command->info('✅ Cleared all return requests');
+            // Clear return requests (foreign key dependency on orders)
+            DB::table('return_requests')->delete();
+            $this->command->info('✅ Cleared all return requests');
 
-        // Clear order status histories (foreign key dependency on orders)
-        DB::table('order_status_histories')->truncate();
-        $this->command->info('✅ Cleared all order status histories');
+            // Clear order status histories (foreign key dependency on orders)
+            DB::table('order_status_histories')->delete();
+            $this->command->info('✅ Cleared all order status histories');
 
-        // Clear order items (foreign key dependency on orders)
-        DB::table('order_items')->truncate();
-        $this->command->info('✅ Cleared all order items');
+            // Clear order items (foreign key dependency on orders)
+            DB::table('order_items')->delete();
+            $this->command->info('✅ Cleared all order items');
 
-        // Clear orders
-        DB::table('orders')->truncate();
-        $this->command->info('✅ Cleared all orders');
+            // Clear orders
+            DB::table('orders')->delete();
+            $this->command->info('✅ Cleared all orders');
 
-        // Clear transactions (all of them)
-        DB::table('transactions')->truncate();
-        $this->command->info('✅ Cleared all transactions');
+            // Clear transactions (all of them)
+            DB::table('transactions')->delete();
+            $this->command->info('✅ Cleared all transactions');
 
-        // Clear wallets
-        DB::table('wallets')->truncate();
-        $this->command->info('✅ Cleared all wallets');
+            // Clear wallets
+            DB::table('wallets')->delete();
+            $this->command->info('✅ Cleared all wallets');
 
-        // Clear rank advancement history (foreign key dependency on users and orders)
-        DB::table('rank_advancements')->truncate();
-        $this->command->info('✅ Cleared all rank advancement history');
+            // Clear rank advancement history (foreign key dependency on users and orders)
+            DB::table('rank_advancements')->delete();
+            $this->command->info('✅ Cleared all rank advancement history');
 
-        // Clear direct sponsors tracker (foreign key dependency on users)
-        DB::table('direct_sponsors_tracker')->truncate();
-        $this->command->info('✅ Cleared all direct sponsors tracking');
+            // Clear direct sponsors tracker (foreign key dependency on users)
+            DB::table('direct_sponsors_tracker')->delete();
+            $this->command->info('✅ Cleared all direct sponsors tracking');
 
-        // Clear users
-        DB::table('users')->truncate();
-        $this->command->info('✅ Cleared all users');
+            // Clear users
+            DB::table('users')->delete();
+            $this->command->info('✅ Cleared all users');
 
-        // Re-enable foreign key checks
-        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+            // Reset auto-increment counters manually (since DELETE doesn't reset them)
+            DB::statement('ALTER TABLE activity_logs AUTO_INCREMENT = 1');
+            DB::statement('ALTER TABLE referral_clicks AUTO_INCREMENT = 1');
+            DB::statement('ALTER TABLE return_requests AUTO_INCREMENT = 1');
+            DB::statement('ALTER TABLE order_status_histories AUTO_INCREMENT = 1');
+            DB::statement('ALTER TABLE order_items AUTO_INCREMENT = 1');
+            DB::statement('ALTER TABLE orders AUTO_INCREMENT = 1');
+            DB::statement('ALTER TABLE transactions AUTO_INCREMENT = 1');
+            DB::statement('ALTER TABLE wallets AUTO_INCREMENT = 1');
+            DB::statement('ALTER TABLE rank_advancements AUTO_INCREMENT = 1');
+            DB::statement('ALTER TABLE direct_sponsors_tracker AUTO_INCREMENT = 1');
+            DB::statement('ALTER TABLE users AUTO_INCREMENT = 1');
 
-        // NOTE: We deliberately preserve:
-        // - system_settings table
-        // - roles table
-        // - permissions table
-        // - role_has_permissions table (role-permission relationships)
+            // Re-enable foreign key checks
+            DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-        // Auto-increment counters are automatically reset by TRUNCATE
-        $this->command->info('✅ Auto-increment counters reset for all cleared tables');
+            // NOTE: We deliberately preserve:
+            // - system_settings table
+            // - roles table
+            // - permissions table
+            // - role_has_permissions table (role-permission relationships)
+
+            $this->command->info('✅ Auto-increment counters reset for all cleared tables');
+
+        } catch (\Exception $e) {
+            // Re-enable foreign key checks even if an error occurs
+            DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+            
+            $this->command->error('❌ Error during data clearing: ' . $e->getMessage());
+            throw $e;
+        }
     }
 
     /**
@@ -641,29 +686,21 @@ class DatabaseResetSeeder extends Seeder
         $this->command->info('🧹 Clearing all caches...');
 
         try {
-            // Clear application cache
-            \Illuminate\Support\Facades\Artisan::call('cache:clear');
-            $this->command->info('  ✅ Application cache cleared');
-
-            // Clear config cache
-            \Illuminate\Support\Facades\Artisan::call('config:clear');
-            $this->command->info('  ✅ Configuration cache cleared');
-
-            // Clear route cache
-            \Illuminate\Support\Facades\Artisan::call('route:clear');
-            $this->command->info('  ✅ Route cache cleared');
-
-            // Clear view cache
-            \Illuminate\Support\Facades\Artisan::call('view:clear');
-            $this->command->info('  ✅ View cache cleared');
-
-            // Clear compiled classes
-            \Illuminate\Support\Facades\Artisan::call('clear-compiled');
-            $this->command->info('  ✅ Compiled classes cleared');
+            // Use optimize:clear for faster execution (single command instead of multiple)
+            \Illuminate\Support\Facades\Artisan::call('optimize:clear');
+            $this->command->info('  ✅ All caches cleared (config, route, view, compiled)');
 
             $this->command->newLine();
         } catch (\Exception $e) {
             $this->command->warn('⚠️  Some caches could not be cleared: ' . $e->getMessage());
+            
+            // Fallback: try manual cache clearing
+            try {
+                Cache::flush();
+                $this->command->info('  ✅ Cache flushed manually');
+            } catch (\Exception $fallbackError) {
+                $this->command->warn('⚠️  Manual cache flush failed: ' . $fallbackError->getMessage());
+            }
         }
     }
 
