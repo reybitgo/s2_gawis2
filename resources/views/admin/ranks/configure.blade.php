@@ -3,6 +3,37 @@
 @section('title', 'Configure Ranks')
 @section('page-title', 'Configure Rank Requirements')
 
+@push('styles')
+<style>
+    /* Ensure proper input widths in mobile mode for rank configuration table */
+    .rank-config-table {
+        min-width: 900px; /* Ensures table scrolls horizontally on mobile */
+    }
+    
+    .rank-config-table td input.form-control,
+    .rank-config-table td select.form-select {
+        min-width: 150px; /* Consistent minimum width for all inputs */
+        width: 100%;
+    }
+    
+    .rank-config-table td input[type="number"] {
+        min-width: 100px; /* Smaller width for number inputs */
+    }
+    
+    /* Ensure table cells don't shrink below content size */
+    .rank-config-table td,
+    .rank-config-table th {
+        white-space: nowrap;
+    }
+    
+    .rank-config-table td small {
+        white-space: normal; /* Allow small text to wrap */
+        display: block;
+        margin-top: 4px;
+    }
+</style>
+@endpush
+
 @section('content')
 <!-- Page Header -->
 <div class="card mb-4">
@@ -39,7 +70,7 @@
         </div>
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-bordered">
+                <table class="table table-bordered rank-config-table">
                     <thead class="table-light">
                         <tr>
                             <th width="15%">Package</th>
