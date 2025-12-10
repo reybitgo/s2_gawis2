@@ -7,27 +7,44 @@
 <style>
     /* Ensure proper input widths in mobile mode for rank configuration table */
     .rank-config-table {
-        min-width: 900px; /* Ensures table scrolls horizontally on mobile */
+        min-width: 1000px; /* Ensures table scrolls horizontally on mobile */
+        table-layout: auto; /* Allow columns to size based on content */
+    }
+    
+    /* Column-specific sizing through CSS instead of HTML width attributes */
+    .rank-config-table th:nth-child(1),
+    .rank-config-table td:nth-child(1) {
+        min-width: 150px; /* Package column */
+    }
+    
+    .rank-config-table th:nth-child(2),
+    .rank-config-table td:nth-child(2) {
+        min-width: 200px; /* Rank Name column */
+    }
+    
+    .rank-config-table th:nth-child(3),
+    .rank-config-table td:nth-child(3) {
+        min-width: 120px; /* Rank Order column */
+    }
+    
+    .rank-config-table th:nth-child(4),
+    .rank-config-table td:nth-child(4) {
+        min-width: 150px; /* Required Sponsors column */
+    }
+    
+    .rank-config-table th:nth-child(5),
+    .rank-config-table td:nth-child(5) {
+        min-width: 250px; /* Next Rank Package column */
+    }
+    
+    .rank-config-table th:nth-child(6),
+    .rank-config-table td:nth-child(6) {
+        min-width: 120px; /* Price column */
     }
     
     .rank-config-table td input.form-control,
     .rank-config-table td select.form-select {
-        min-width: 150px; /* Consistent minimum width for all inputs */
         width: 100%;
-    }
-    
-    .rank-config-table td input[type="number"] {
-        min-width: 100px; /* Smaller width for number inputs */
-    }
-    
-    /* Wider inputs for Rank Name to see at least the first word */
-    .rank-config-table td input[name*="[rank_name]"] {
-        min-width: 200px;
-    }
-    
-    /* Wider select for Next Rank Package dropdown to show package names */
-    .rank-config-table td select[name*="[next_rank_package_id]"] {
-        min-width: 250px;
     }
     
     /* Ensure table cells don't shrink below content size */
@@ -83,12 +100,12 @@
                 <table class="table table-bordered rank-config-table">
                     <thead class="table-light">
                         <tr>
-                            <th width="15%">Package</th>
-                            <th width="15%">Rank Name <span class="text-danger">*</span></th>
-                            <th width="10%">Rank Order <span class="text-danger">*</span></th>
-                            <th width="15%">Required Sponsors <span class="text-danger">*</span></th>
-                            <th width="20%">Next Rank Package</th>
-                            <th width="10%">Price</th>
+                            <th>Package</th>
+                            <th>Rank Name <span class="text-danger">*</span></th>
+                            <th>Rank Order <span class="text-danger">*</span></th>
+                            <th>Required Sponsors <span class="text-danger">*</span></th>
+                            <th>Next Rank Package</th>
+                            <th>Price</th>
                         </tr>
                     </thead>
                     <tbody>
