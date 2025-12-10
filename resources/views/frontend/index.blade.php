@@ -182,13 +182,9 @@
                                 <div class="pricing-icon">
                                     <i class="fas fa-seedling"></i>
                                 </div>
-                                <h3 class="pricing-title">{{ $package->name }}</h3>
                             @endif
                         </div>
                         <div class="card-body p-4">
-                            @if ($package->image_path && strpos($package->image_url, 'package-placeholder.svg') === false)
-                                <h3 class="pricing-title text-center">{{ $package->name }}</h3>
-                            @endif
                             <div class="pricing-price">
                                 @if ($package->rank_name === 'Starter')
                                     {{ $package->getFormattedPriceAttribute() }}
