@@ -20,6 +20,16 @@
         min-width: 100px; /* Smaller width for number inputs */
     }
     
+    /* Wider inputs for Rank Name to see at least the first word */
+    .rank-config-table td input[name*="[rank_name]"] {
+        min-width: 200px;
+    }
+    
+    /* Wider select for Next Rank Package dropdown to show package names */
+    .rank-config-table td select[name*="[next_rank_package_id]"] {
+        min-width: 250px;
+    }
+    
     /* Ensure table cells don't shrink below content size */
     .rank-config-table td,
     .rank-config-table th {
