@@ -192,7 +192,7 @@
                                     @php
                                         // Map rank names to star/badge icons
                                         $rankIcons = [
-                                            'Newbie' => '<i class="fas fa-certificate text-primary" style="font-size: 3rem;"></i>',
+                                            'Newbie' => '<i class="fas fa-certificate" style="font-size: 3rem; color: #669933;"></i>',
                                             '1 Star' => '<i class="fas fa-star text-warning" style="font-size: 2.5rem;"></i>',
                                             '2 Star' => '<i class="fas fa-star text-warning" style="font-size: 2.5rem;"></i> <i class="fas fa-star text-warning" style="font-size: 2.5rem;"></i>',
                                             '3 Star' => '<i class="fas fa-star text-warning" style="font-size: 2.5rem;"></i> <i class="fas fa-star text-warning" style="font-size: 2.5rem;"></i> <i class="fas fa-star text-warning" style="font-size: 2.5rem;"></i>',
