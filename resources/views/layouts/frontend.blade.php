@@ -13,12 +13,33 @@
         <meta name="author" content="Gawis" />
         <!-- Page Title -->
         <title>Gawis iHerbal - Financial Wellness</title>
-        <!-- Favicon Icon -->
-        <link
-            rel="shortcut icon"
-            type="image/x-icon"
-            href="{{ asset('frontend/images/favicon.png') }}?v={{ time() }}"
-        />
+        <!-- Favicon -->
+        <link rel="shortcut icon" type="image/x-icon" href="{{ asset('frontend/images/favicon.png') }}?v={{ time() }}" />
+
+        <!-- PWA Meta Tags -->
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+        <meta name="apple-mobile-web-app-title" content="Gawis iHerbal">
+        <meta name="theme-color" content="#669933">
+
+        <!-- PWA Manifest -->
+        <link rel="manifest" href="{{ asset('manifest.json') }}">
+
+        <!-- Apple Touch Icons -->
+        <link rel="apple-touch-icon" href="{{ asset('icons/apple-touch-icon.png') }}">
+        <link rel="apple-touch-icon" sizes="152x152" href="{{ asset('icons/icon-152x152.png') }}">
+        <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('icons/apple-touch-icon.png') }}">
+
+        <!-- Icon Sizes (All Available Sizes) -->
+        <link rel="icon" type="image/png" sizes="72x72" href="{{ asset('icons/icon-72x72.png') }}">
+        <link rel="icon" type="image/png" sizes="96x96" href="{{ asset('icons/icon-96x96.png') }}">
+        <link rel="icon" type="image/png" sizes="128x128" href="{{ asset('icons/icon-128x128.png') }}">
+        <link rel="icon" type="image/png" sizes="144x144" href="{{ asset('icons/icon-144x144.png') }}">
+        <link rel="icon" type="image/png" sizes="152x152" href="{{ asset('icons/icon-152x152.png') }}">
+        <link rel="icon" type="image/png" sizes="192x192" href="{{ asset('icons/icon-192x192.png') }}">
+        <link rel="icon" type="image/png" sizes="384x384" href="{{ asset('icons/icon-384x384.png') }}">
+        <link rel="icon" type="image/png" sizes="512x512" href="{{ asset('icons/icon-512x512.png') }}">
         <!-- Google Fonts Css-->
         <link rel="preconnect" href="https://fonts.googleapis.com/" />
         <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />

@@ -9,22 +9,23 @@
 1. Go to: https://realfavicongenerator.net/
 2. Upload: `public/frontend/images/favicon.png`
 3. Configure settings:
-   - ✅ iOS: Enable "Add a solid color background" (white or #669933)
-   - ✅ Android: Check "Use a distinct icon for Android Chrome"
-   - ✅ Windows: Set tile color to #669933
+    - ✅ iOS: Enable "Add a solid color background" (white or #669933)
+    - ✅ Android: Check "Use a distinct icon for Android Chrome"
+    - ✅ Windows: Set tile color to #669933
 4. Click "Generate your Favicons and HTML code"
 5. Download the package
 6. Create folder: `public/icons/`
 7. Extract ALL PNG files to `public/icons/`
 8. Keep these specific files:
-   - `android-chrome-192x192.png` → rename to `icon-192x192.png`
-   - `android-chrome-512x512.png` → rename to `icon-512x512.png`
-   - `apple-touch-icon.png` (keep as is)
-   - Generate other sizes (72, 96, 128, 144, 152, 384) if missing
+    - `android-chrome-192x192.png` → rename to `icon-192x192.png`
+    - `android-chrome-512x512.png` → rename to `icon-512x512.png`
+    - `apple-touch-icon.png` (keep as is)
+    - Generate other sizes (72, 96, 128, 144, 152, 384) if missing
 
 #### Option B: Manual Resize (If you have image editor)
 
 If favicon.png is already good quality:
+
 1. Open in Photoshop/GIMP/Paint.NET
 2. Resize to each size: 72, 96, 128, 144, 152, 192, 384, 512
 3. Export as PNG with transparency
@@ -36,57 +37,57 @@ Create file: `public/manifest.json`
 
 ```json
 {
-  "name": "Gawis iHerbal - Financial Wellness",
-  "short_name": "Gawis",
-  "description": "Your path to financial wellness",
-  "start_url": "/",
-  "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#669933",
-  "icons": [
-    {
-      "src": "/icons/icon-72x72.png",
-      "sizes": "72x72",
-      "type": "image/png"
-    },
-    {
-      "src": "/icons/icon-96x96.png",
-      "sizes": "96x96",
-      "type": "image/png"
-    },
-    {
-      "src": "/icons/icon-128x128.png",
-      "sizes": "128x128",
-      "type": "image/png"
-    },
-    {
-      "src": "/icons/icon-144x144.png",
-      "sizes": "144x144",
-      "type": "image/png"
-    },
-    {
-      "src": "/icons/icon-152x152.png",
-      "sizes": "152x152",
-      "type": "image/png"
-    },
-    {
-      "src": "/icons/icon-192x192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/icons/icon-384x384.png",
-      "sizes": "384x384",
-      "type": "image/png"
-    },
-    {
-      "src": "/icons/icon-512x512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    }
-  ]
+    "name": "Gawis iHerbal",
+    "short_name": "Gawis",
+    "description": "Your path to financial wellness",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#669933",
+    "icons": [
+        {
+            "src": "/icons/icon-72x72.png",
+            "sizes": "72x72",
+            "type": "image/png"
+        },
+        {
+            "src": "/icons/icon-96x96.png",
+            "sizes": "96x96",
+            "type": "image/png"
+        },
+        {
+            "src": "/icons/icon-128x128.png",
+            "sizes": "128x128",
+            "type": "image/png"
+        },
+        {
+            "src": "/icons/icon-144x144.png",
+            "sizes": "144x144",
+            "type": "image/png"
+        },
+        {
+            "src": "/icons/icon-152x152.png",
+            "sizes": "152x152",
+            "type": "image/png"
+        },
+        {
+            "src": "/icons/icon-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/icons/icon-384x384.png",
+            "sizes": "384x384",
+            "type": "image/png"
+        },
+        {
+            "src": "/icons/icon-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ]
 }
 ```
 
@@ -95,11 +96,13 @@ Create file: `public/manifest.json`
 Edit: `resources/views/layouts/frontend.blade.php`
 
 **Find this line (around line 20):**
+
 ```blade
 <link rel="shortcut icon" type="image/x-icon" href="{{ asset('frontend/images/favicon.png') }}?v={{ time() }}" />
 ```
 
 **Replace with these lines:**
+
 ```blade
 <!-- Favicon -->
 <link rel="shortcut icon" type="image/x-icon" href="{{ asset('frontend/images/favicon.png') }}?v={{ time() }}" />
@@ -119,8 +122,14 @@ Edit: `resources/views/layouts/frontend.blade.php`
 <link rel="apple-touch-icon" sizes="152x152" href="{{ asset('icons/icon-152x152.png') }}">
 <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('icons/apple-touch-icon.png') }}">
 
-<!-- Icon Sizes -->
+<!-- Icon Sizes (All Available Sizes) -->
+<link rel="icon" type="image/png" sizes="72x72" href="{{ asset('icons/icon-72x72.png') }}">
+<link rel="icon" type="image/png" sizes="96x96" href="{{ asset('icons/icon-96x96.png') }}">
+<link rel="icon" type="image/png" sizes="128x128" href="{{ asset('icons/icon-128x128.png') }}">
+<link rel="icon" type="image/png" sizes="144x144" href="{{ asset('icons/icon-144x144.png') }}">
+<link rel="icon" type="image/png" sizes="152x152" href="{{ asset('icons/icon-152x152.png') }}">
 <link rel="icon" type="image/png" sizes="192x192" href="{{ asset('icons/icon-192x192.png') }}">
+<link rel="icon" type="image/png" sizes="384x384" href="{{ asset('icons/icon-384x384.png') }}">
 <link rel="icon" type="image/png" sizes="512x512" href="{{ asset('icons/icon-512x512.png') }}">
 ```
 
@@ -131,22 +140,24 @@ Edit: `resources/views/layouts/frontend.blade.php`
 ### Test on Mobile Device
 
 1. **Android (Chrome):**
-   - Visit: https://s2.gawisherbal.com/
-   - Tap menu (⋮) → "Install app" or "Add to Home screen"
-   - ✅ Icon should now appear correctly (not blank!)
-   - Launch from home screen to verify
+
+    - Visit: https://s2.gawisherbal.com/
+    - Tap menu (⋮) → "Install app" or "Add to Home screen"
+    - ✅ Icon should now appear correctly (not blank!)
+    - Launch from home screen to verify
 
 2. **iPhone (Safari):**
-   - Visit: https://s2.gawisherbal.com/
-   - Tap Share (□↑) → "Add to Home Screen"
-   - ✅ Icon should appear correctly
-   - Launch from home screen
+
+    - Visit: https://s2.gawisherbal.com/
+    - Tap Share (□↑) → "Add to Home Screen"
+    - ✅ Icon should appear correctly
+    - Launch from home screen
 
 3. **Desktop Chrome (Testing):**
-   - Open DevTools (F12)
-   - Go to "Application" tab
-   - Click "Manifest" - verify all icons load
-   - Check for errors in console
+    - Open DevTools (F12)
+    - Go to "Application" tab
+    - Click "Manifest" - verify all icons load
+    - Check for errors in console
 
 ---
 
@@ -161,15 +172,16 @@ Get-ChildItem -Name
 ```
 
 Should show:
-- icon-72x72.png
-- icon-96x96.png
-- icon-128x128.png
-- icon-144x144.png
-- icon-152x152.png
-- icon-192x192.png
-- icon-384x384.png
-- icon-512x512.png
-- apple-touch-icon.png
+
+-   icon-72x72.png
+-   icon-96x96.png
+-   icon-128x128.png
+-   icon-144x144.png
+-   icon-152x152.png
+-   icon-192x192.png
+-   icon-384x384.png
+-   icon-512x512.png
+-   apple-touch-icon.png
 
 ---
 
@@ -178,29 +190,34 @@ Should show:
 ### Still Seeing Blank Icon?
 
 1. **Clear browser cache:**
-   - Mobile: Clear site data in browser settings
-   - Desktop: Hard refresh (Ctrl+Shift+R)
+
+    - Mobile: Clear site data in browser settings
+    - Desktop: Hard refresh (Ctrl+Shift+R)
 
 2. **Remove old home screen icon:**
-   - Delete the existing blank icon
-   - Re-add after clearing cache
+
+    - Delete the existing blank icon
+    - Re-add after clearing cache
 
 3. **Check icon files:**
-   - Visit directly: `https://s2.gawisherbal.com/icons/icon-192x192.png`
-   - Should load the icon, not 404
+
+    - Visit directly: `https://s2.gawisherbal.com/icons/icon-192x192.png`
+    - Should load the icon, not 404
 
 4. **Validate manifest:**
-   - Visit: `https://s2.gawisherbal.com/manifest.json`
-   - Should show JSON, not error
+    - Visit: `https://s2.gawisherbal.com/manifest.json`
+    - Should show JSON, not error
 
 ### Icons Not Loading?
 
 **Possible causes:**
-- Files not in correct folder
-- Typo in manifest.json paths
-- Server not serving PNG files correctly
+
+-   Files not in correct folder
+-   Typo in manifest.json paths
+-   Server not serving PNG files correctly
 
 **Quick fix:**
+
 ```bash
 # Make sure icons folder exists and is readable
 cd C:\laragon\www\s2_gawis2\public
@@ -235,15 +252,16 @@ After completing Steps 1-3:
 
 ## Time Required
 
-- **Minimum (fix blank icon):** 20-30 minutes
-  - Generate icons: 10 min
-  - Create manifest: 5 min
-  - Update layout: 5 min
-  - Test: 5-10 min
+-   **Minimum (fix blank icon):** 20-30 minutes
 
-- **Full PWA (with service worker):** 1-2 hours
-  - Includes offline functionality
-  - Requires additional testing
+    -   Generate icons: 10 min
+    -   Create manifest: 5 min
+    -   Update layout: 5 min
+    -   Test: 5-10 min
+
+-   **Full PWA (with service worker):** 1-2 hours
+    -   Includes offline functionality
+    -   Requires additional testing
 
 ---
 
@@ -261,6 +279,7 @@ git commit -m "Add PWA support with manifest and proper icons for home screen in
 ## Questions?
 
 Refer to:
-- Full plan: `PWA_IMPLEMENTATION_PLAN.md`
-- PWA Builder: https://www.pwabuilder.com/
-- Icon Generator: https://realfavicongenerator.net/
+
+-   Full plan: `PWA_IMPLEMENTATION_PLAN.md`
+-   PWA Builder: https://www.pwabuilder.com/
+-   Icon Generator: https://realfavicongenerator.net/
