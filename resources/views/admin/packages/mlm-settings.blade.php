@@ -109,10 +109,6 @@
                                 </tfoot>
                             </table>
                         </div>
-
-                        <div class="alert alert-warning mt-3">
-                            <strong>⚠️ Important:</strong> Total commission should not exceed 40% of package price (₱{{ number_format($package->price * 0.40, 2) }}) to maintain 60% company profit margin.
-                        </div>
                     </div>
                     <div class="card-footer">
                         <button type="submit" class="btn btn-primary">
@@ -163,7 +159,6 @@
                     <ul class="small">
                         <li>Level 1 typically earns highest commission (direct referrals)</li>
                         <li>Levels 2-5 usually have equal commissions</li>
-                        <li>Total must stay within 40% of package price</li>
                         <li>Changes apply to new purchases only</li>
                     </ul>
                 </div>
@@ -218,16 +213,6 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('sidebar-commission-percent').textContent = commissionPercent.toFixed(2) + '% of price';
         document.getElementById('sidebar-company-profit').textContent = '₱' + companyProfit.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
         document.getElementById('sidebar-profit-percent').textContent = profitMargin.toFixed(2) + '% margin';
-
-        // Validation warning
-        const totalRow = document.getElementById('total-commission-amount').closest('tr');
-        if (total > packagePrice * 0.40) {
-            totalRow.classList.add('table-danger');
-            document.getElementById('total-commission-amount').classList.add('text-danger');
-        } else {
-            totalRow.classList.remove('table-danger');
-            document.getElementById('total-commission-amount').classList.remove('text-danger');
-        }
     }
 
     // Listen to input changes

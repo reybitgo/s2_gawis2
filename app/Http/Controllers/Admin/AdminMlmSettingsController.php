@@ -63,18 +63,6 @@ class AdminMlmSettingsController extends Controller
             })
             ->sum('commission_amount');
 
-        $maxCommission = $package->price * 0.40;
-
-        if ($totalCommission > $maxCommission) {
-            return back()->withErrors([
-                'total_commission' => sprintf(
-                    'Total MLM commission (₱%s) exceeds 40%% of package price (₱%s)',
-                    number_format($totalCommission, 2),
-                    number_format($maxCommission, 2)
-                )
-            ])->withInput();
-        }
-
         DB::beginTransaction();
         try {
             foreach ($request->settings as $setting) {
