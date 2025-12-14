@@ -207,7 +207,28 @@
                             @if (isset($package->meta_data['features']))
                             <ul class="pricing-features">
                                 @foreach ($package->meta_data['features'] as $feature)
-                                    <li><i class="fas fa-check-circle"></i> {{ $feature }}</li>
+                                    @php
+                                        // Replace hardcoded commission amounts with actual database values
+                                        $displayFeature = $feature;
+                                        if ($package->is_mlm_package && $package->mlmSettings->isNotEmpty()) {
+                                            // Match pattern like "₱1,200 Level 1 Commission" or "₱800 Level 2 SUPREMACY" or "₱6,400 Level 1 ELITE"
+                                            // Pattern captures: amount and level number, keeps everything after "Level X"
+                                            if (preg_match('/₱[\d,.]+ Level (\d+)/', $feature, $matches)) {
+                                                $level = (int)$matches[1];
+                                                $setting = $package->mlmSettings->firstWhere('level', $level);
+                                                if ($setting && $setting->is_active) {
+                                                    // Replace the amount but keep all the wording after the amount
+                                                    $displayFeature = preg_replace(
+                                                        '/₱[\d,.]+/',
+                                                        currency($setting->commission_amount),
+                                                        $feature,
+                                                        1
+                                                    );
+                                                }
+                                            }
+                                        }
+                                    @endphp
+                                    <li><i class="fas fa-check-circle"></i> {{ $displayFeature }}</li>
                                 @endforeach
                             </ul>
                             @endif
