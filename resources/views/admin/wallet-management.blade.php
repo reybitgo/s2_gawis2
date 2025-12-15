@@ -418,13 +418,7 @@
 
             <!-- Pagination -->
             <div class="card-footer">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div class="text-muted">
-                        Showing {{ $allTransactions->firstItem() ?? 0 }} to {{ $allTransactions->lastItem() ?? 0 }}
-                        of {{ $allTransactions->total() }} transactions
-                    </div>
-                    {{ $allTransactions->links('vendor.pagination.coreui') }}
-                </div>
+                {{ $allTransactions->links('vendor.pagination.coreui') }}
             </div>
         @else
             <div class="text-center py-5">
