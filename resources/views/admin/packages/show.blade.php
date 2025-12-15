@@ -8,16 +8,24 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="card-title mb-0">Package Details: {{ $package->name }}</h5>
-                        <div class="btn-group">
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
+                        <div>
+                            <svg class="icon me-2">
+                                <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-info') }}"></use>
+                            </svg>
+                            <strong>Package Details: {{ $package->name }}</strong>
+                            <small class="text-body-secondary ms-2 d-none d-md-inline">
+                                View and manage package information
+                            </small>
+                        </div>
+                        <div class="d-flex gap-2 flex-wrap">
                             <a href="{{ route('admin.packages.edit', $package) }}" class="btn btn-primary">
                                 <svg class="icon me-2">
                                     <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-pencil') }}"></use>
                                 </svg>
                                 Edit
                             </a>
-                            <a href="{{ route('admin.packages.index') }}" class="btn btn-outline-secondary">
+                            <a href="{{ route('admin.packages.index') }}" class="btn btn-secondary">
                                 <svg class="icon me-2">
                                     <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-arrow-left') }}"></use>
                                 </svg>
@@ -267,4 +275,165 @@
         </div>
     </div>
 </div>
+
+<!-- Bottom spacing for better visual layout -->
+<div class="pb-5"></div>
+
 @endsection
+
+@push('styles')
+<style>
+/* Pagination improvements - prevent overflow */
+.card-footer {
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+.card-footer nav {
+    min-width: fit-content;
+}
+
+.pagination {
+    flex-wrap: wrap;
+    margin-bottom: 0;
+}
+
+.pagination .page-item {
+    margin: 2px;
+}
+
+.pagination .page-link {
+    min-width: 32px;
+    text-align: center;
+}
+
+/* Mobile responsiveness improvements */
+@media (max-width: 767.98px) {
+    .card-header {
+        padding: 1rem;
+    }
+    
+    .card-header h4, .card-header h5 {
+        font-size: 1.1rem;
+    }
+    
+    /* Make list items more mobile-friendly */
+    .card-body {
+        padding: 0.75rem;
+    }
+    
+    /* Adjust statistics cards on mobile */
+    .row.g-3 {
+        gap: 0.5rem !important;
+    }
+    
+    .card-body.pb-0 {
+        padding: 0.75rem !important;
+    }
+    
+    .fs-4 {
+        font-size: 1.25rem !important;
+    }
+    
+    /* Button improvements */
+    .btn-sm {
+        padding: 0.375rem 0.5rem;
+        font-size: 0.875rem;
+    }
+    
+    /* Pagination on mobile */
+    .card-footer {
+        padding: 0.75rem;
+    }
+    
+    .pagination .page-item .page-link {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+        min-width: 28px;
+    }
+    
+    /* Hide some pagination numbers on mobile */
+    .pagination .page-item:not(.active):not(:first-child):not(:last-child):not(:nth-child(2)):not(:nth-last-child(2)) {
+        display: none;
+    }
+}
+
+@media (max-width: 575.98px) {
+    /* Extra small screens */
+    /* Hide verbose text on mobile */
+    .d-none-xs {
+        display: none !important;
+    }
+    
+    /* More aggressive pagination hiding on very small screens */
+    .pagination .page-item:not(.active):not(:first-child):not(:last-child):not(:nth-child(2)):not(:nth-last-child(2)) {
+        display: none;
+    }
+    
+    /* Make pagination info smaller */
+    .card-footer small {
+        font-size: 0.75rem;
+    }
+}
+
+/* Prevent card header from overflowing */
+.card-header {
+    overflow: hidden;
+}
+
+.card-header > div {
+    min-width: 0;
+}
+
+/* Prevent card footer from overflowing */
+.card-footer {
+    overflow-x: auto;
+}
+
+/* Improve badge visibility */
+.badge {
+    font-size: 0.75rem;
+    padding: 0.35em 0.65em;
+}
+
+/* Gradient backgrounds for stats cards */
+.bg-primary-gradient {
+    background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+}
+
+.bg-success-gradient {
+    background: linear-gradient(135deg, #198754 0%, #157347 100%);
+}
+
+.bg-danger-gradient {
+    background: linear-gradient(135deg, #dc3545 0%, #b02a37 100%);
+}
+
+.bg-warning-gradient {
+    background: linear-gradient(135deg, #ffc107 0%, #ffb300 100%);
+}
+
+.bg-info-gradient {
+    background: linear-gradient(135deg, #0dcaf0 0%, #0baccc 100%);
+}
+
+/* Scrollbar styling for pagination overflow */
+.card-footer::-webkit-scrollbar {
+    height: 6px;
+}
+
+.card-footer::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.card-footer::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+}
+
+.card-footer::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+</style>
+@endpush
