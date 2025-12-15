@@ -22,9 +22,9 @@
     <div class="card mb-4">
         <div class="card-body">
             <form action="{{ route('admin.returns.index') }}" method="GET" class="row g-3">
-                <div class="col-md-3">
-                    <label class="form-label">Status</label>
-                    <select name="status" class="form-select">
+                <div class="col-md-3 col-sm-6 col-12">
+                    <label class="form-label small">Status</label>
+                    <select name="status" class="form-select form-select-sm">
                         <option value="">All Statuses</option>
                         <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>Pending Review</option>
                         <option value="approved" {{ request('status') === 'approved' ? 'selected' : '' }}>Approved</option>
@@ -32,20 +32,25 @@
                         <option value="completed" {{ request('status') === 'completed' ? 'selected' : '' }}>Completed</option>
                     </select>
                 </div>
-                <div class="col-md-6">
-                    <label class="form-label">Search</label>
-                    <input type="text" name="search" class="form-control"
+                <div class="col-md-6 col-12">
+                    <label class="form-label small">Search</label>
+                    <input type="text" name="search" class="form-control form-control-sm"
                            placeholder="Order number, customer name or email..."
                            value="{{ request('search') }}">
                 </div>
-                <div class="col-md-3 d-flex align-items-end">
-                    <button type="submit" class="btn btn-primary me-2">
+                <div class="col-md-3 col-12 d-flex align-items-end gap-2">
+                    <button type="submit" class="btn btn-primary btn-sm flex-grow-1">
                         <svg class="icon me-1">
-                            <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-magnifying-glass') }}"></use>
+                            <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-filter') }}"></use>
                         </svg>
                         Filter
                     </button>
-                    <a href="{{ route('admin.returns.index') }}" class="btn btn-outline-secondary">Clear</a>
+                    <a href="{{ route('admin.returns.index') }}" class="btn btn-outline-secondary btn-sm flex-grow-1">
+                        <svg class="icon me-1">
+                            <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-reload') }}"></use>
+                        </svg>
+                        Clear
+                    </a>
                 </div>
             </form>
         </div>
@@ -54,12 +59,12 @@
     <!-- Return Requests Table -->
     <div class="card">
         <div class="card-header">
-            <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
                 <h5 class="card-title mb-0">Return Requests</h5>
                 <x-per-page-selector :perPage="$perPage" />
             </div>
         </div>
-        <div class="card-body">
+        <div class="card-body p-0">
             @if($returnRequests->count() > 0)
             <div class="table-responsive">
                 <table class="table table-hover align-middle">
@@ -158,12 +163,7 @@
 
             <!-- Pagination -->
             <div class="card-footer">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div class="text-muted">
-                        Showing {{ $returnRequests->firstItem() ?? 0 }} to {{ $returnRequests->lastItem() ?? 0 }} of {{ $returnRequests->total() }} returns
-                    </div>
-                    {{ $returnRequests->appends(request()->query())->links() }}
-                </div>
+                {{ $returnRequests->appends(request()->query())->links('vendor.pagination.coreui') }}
             </div>
 
             <!-- Modals (outside table structure) -->
@@ -419,6 +419,9 @@ Use a trackable shipping method and provide the tracking number. We'll process y
         </div>
     </div>
 </div>
+
+<!-- Bottom spacing for better visual layout -->
+<div class="pb-5"></div>
 @endsection
 
 @push('styles')
@@ -454,11 +457,6 @@ Use a trackable shipping method and provide the tracking number. We'll process y
 
 .table-borderless td {
     padding: 0.375rem 0.5rem;
-}
-
-/* Card body padding */
-.card-body {
-    padding: 1.5rem;
 }
 
 /* Form group spacing in modals */
@@ -528,10 +526,50 @@ Use a trackable shipping method and provide the tracking number. We'll process y
     padding-right: 1.5rem;
 }
 
-/* Table responsive padding fix */
-.table-responsive {
-    margin: -0.5rem;
-    padding: 0.5rem;
+/* Mobile responsiveness improvements */
+@media (max-width: 767.98px) {
+    .card-header {
+        padding: 1rem;
+    }
+    
+    .card-header h5 {
+        font-size: 1.1rem;
+    }
+    
+    /* Improve filter section on mobile */
+    .card-body {
+        padding: 0.75rem;
+    }
+    
+    /* Make table more mobile-friendly */
+    .table-responsive {
+        font-size: 0.875rem;
+    }
+    
+    .table th, .table td {
+        padding: 0.5rem 0.25rem;
+        white-space: nowrap;
+    }
+}
+
+@media (max-width: 575.98px) {
+    /* Extra small screens */
+    .btn-group .btn-sm {
+        padding: 0.375rem 0.5rem;
+    }
+    
+    .btn-group .btn-sm svg.icon {
+        margin-right: 0 !important;
+    }
+}
+
+/* Prevent card header from overflowing */
+.card-header {
+    overflow: hidden;
+}
+
+.card-header > div {
+    min-width: 0;
 }
 </style>
 @endpush

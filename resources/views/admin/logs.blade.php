@@ -44,14 +44,14 @@
     </div>
     <div class="card-body">
         <form method="GET" action="{{ route('admin.logs') }}" class="row g-3">
-            <div class="col-md-4">
-                <label for="search" class="form-label">Search Logs</label>
+            <div class="col-md-5 col-12">
+                <label for="search" class="form-label small">Search Logs</label>
                 <input type="text" name="search" id="search" value="{{ $search }}"
-                    placeholder="Search by message or IP address..." class="form-control">
+                    placeholder="Search by message or IP address..." class="form-control form-control-sm">
             </div>
-            <div class="col-md-3">
-                <label for="type" class="form-label">Log Type</label>
-                <select name="type" id="type" class="form-select">
+            <div class="col-md-3 col-sm-6 col-12">
+                <label for="type" class="form-label small">Log Type</label>
+                <select name="type" id="type" class="form-select form-select-sm">
                     <option value="all" {{ $logType == 'all' ? 'selected' : '' }}>All Types</option>
                     <option value="security" {{ $logType == 'security' ? 'selected' : '' }}>Security</option>
                     <option value="transaction" {{ $logType == 'transaction' ? 'selected' : '' }}>Transaction</option>
@@ -61,9 +61,9 @@
                     <option value="system" {{ $logType == 'system' ? 'selected' : '' }}>System</option>
                 </select>
             </div>
-            <div class="col-md-3">
-                <label for="level" class="form-label">Log Level</label>
-                <select name="level" id="level" class="form-select">
+            <div class="col-md-2 col-sm-6 col-12">
+                <label for="level" class="form-label small">Log Level</label>
+                <select name="level" id="level" class="form-select form-select-sm">
                     <option value="all" {{ $level == 'all' ? 'selected' : '' }}>All Levels</option>
                     <option value="DEBUG" {{ $level == 'DEBUG' ? 'selected' : '' }}>Debug</option>
                     <option value="INFO" {{ $level == 'INFO' ? 'selected' : '' }}>Info</option>
@@ -72,8 +72,18 @@
                     <option value="CRITICAL" {{ $level == 'CRITICAL' ? 'selected' : '' }}>Critical</option>
                 </select>
             </div>
-            <div class="col-md-2 d-flex align-items-end">
-                <button type="submit" class="btn btn-primary w-100">Filter</button>
+            <div class="col-md-2 col-12 d-flex align-items-end gap-2">
+                <button type="submit" class="btn btn-primary btn-sm flex-grow-1">
+                    <svg class="icon me-1">
+                        <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-filter') }}"></use>
+                    </svg>
+                    Filter
+                </button>
+                <a href="{{ route('admin.logs') }}" class="btn btn-outline-secondary btn-sm">
+                    <svg class="icon">
+                        <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-reload') }}"></use>
+                    </svg>
+                </a>
             </div>
         </form>
     </div>
@@ -141,13 +151,13 @@
 <!-- Logs Display -->
 <div class="card">
     <div class="card-header">
-        <div class="d-flex justify-content-between align-items-center">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
             <div>
                 <svg class="icon me-2">
                     <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-list') }}"></use>
                 </svg>
                 <strong>System Activity Log</strong>
-                <small class="text-body-secondary ms-2">
+                <small class="text-body-secondary ms-2 d-none d-md-inline">
                     @if($activityLogs->count() > 0)
                         Showing {{ $activityLogs->firstItem() }} to {{ $activityLogs->lastItem() }} of {{ $activityLogs->total() }} log entries
                     @else
@@ -249,14 +259,7 @@
         <!-- Pagination -->
         @if($activityLogs->hasPages())
             <div class="card-footer">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div class="text-body-secondary small">
-                        Showing {{ $activityLogs->firstItem() }} to {{ $activityLogs->lastItem() }} of {{ $activityLogs->total() }} results
-                    </div>
-                    <div>
-                        {{ $activityLogs->appends(request()->query())->links() }}
-                    </div>
-                </div>
+                {{ $activityLogs->appends(request()->query())->links('vendor.pagination.coreui') }}
             </div>
         @endif
     @else
@@ -560,3 +563,177 @@ function showAlert(message, type = 'success') {
 <!-- Bottom spacing for better visual layout -->
 <div class="pb-5"></div>
 @endsection
+
+@push('styles')
+<style>
+/* Pagination improvements - prevent overflow */
+.card-footer {
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+.card-footer nav {
+    min-width: fit-content;
+}
+
+.pagination {
+    flex-wrap: wrap;
+    margin-bottom: 0;
+}
+
+.pagination .page-item {
+    margin: 2px;
+}
+
+.pagination .page-link {
+    min-width: 32px;
+    text-align: center;
+}
+
+/* Mobile responsiveness improvements */
+@media (max-width: 767.98px) {
+    .card-header {
+        padding: 1rem;
+    }
+    
+    .card-header h4, .card-header h5 {
+        font-size: 1.1rem;
+    }
+    
+    /* Improve filter section on mobile */
+    .card-body {
+        padding: 0.75rem;
+    }
+    
+    /* Make list items more mobile-friendly */
+    .list-group-item {
+        padding: 0.75rem;
+    }
+    
+    .list-group-item h6 {
+        font-size: 0.95rem;
+    }
+    
+    .list-group-item .small {
+        font-size: 0.8rem;
+    }
+    
+    /* Adjust statistics cards on mobile */
+    .row.g-3 {
+        gap: 0.5rem !important;
+    }
+    
+    .card-body.pb-0 {
+        padding: 0.75rem !important;
+    }
+    
+    .fs-4 {
+        font-size: 1.25rem !important;
+    }
+    
+    /* Button improvements */
+    .btn-sm {
+        padding: 0.375rem 0.5rem;
+        font-size: 0.875rem;
+    }
+    
+    /* Pagination on mobile */
+    .card-footer {
+        padding: 0.75rem;
+    }
+    
+    .pagination .page-item .page-link {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+        min-width: 28px;
+    }
+    
+    /* Hide some pagination numbers on mobile */
+    .pagination .page-item:not(.active):not(:first-child):not(:last-child):not(:nth-child(2)):not(:nth-last-child(2)) {
+        display: none;
+    }
+}
+
+@media (max-width: 575.98px) {
+    /* Extra small screens */
+    .list-group-item .d-flex {
+        flex-direction: column;
+    }
+    
+    .list-group-item .gap-3 {
+        gap: 0.5rem !important;
+    }
+    
+    /* Hide verbose text on mobile */
+    .d-none-xs {
+        display: none !important;
+    }
+    
+    /* More aggressive pagination hiding on very small screens */
+    .pagination .page-item:not(.active):not(:first-child):not(:last-child):not(:nth-child(2)):not(:nth-last-child(2)) {
+        display: none;
+    }
+    
+    /* Make pagination info smaller */
+    .card-footer small {
+        font-size: 0.75rem;
+    }
+}
+
+/* Prevent card header from overflowing */
+.card-header {
+    overflow: hidden;
+}
+
+.card-header > div {
+    min-width: 0;
+}
+
+/* Prevent card footer from overflowing */
+.card-footer {
+    overflow-x: auto;
+}
+
+/* Improve badge visibility */
+.badge {
+    font-size: 0.75rem;
+    padding: 0.35em 0.65em;
+}
+
+/* Gradient backgrounds for stats cards */
+.bg-primary-gradient {
+    background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+}
+
+.bg-success-gradient {
+    background: linear-gradient(135deg, #198754 0%, #157347 100%);
+}
+
+.bg-danger-gradient {
+    background: linear-gradient(135deg, #dc3545 0%, #b02a37 100%);
+}
+
+.bg-warning-gradient {
+    background: linear-gradient(135deg, #ffc107 0%, #ffb300 100%);
+}
+
+/* Scrollbar styling for pagination overflow */
+.card-footer::-webkit-scrollbar {
+    height: 6px;
+}
+
+.card-footer::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.card-footer::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+}
+
+.card-footer::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+</style>
+@endpush
