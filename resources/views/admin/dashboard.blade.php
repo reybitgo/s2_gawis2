@@ -7,7 +7,7 @@
 <!-- Welcome Header -->
 <div class="card mb-4">
     <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
             <div>
                 <h4 class="card-title mb-0">
                     <svg class="icon me-2">
@@ -483,6 +483,94 @@
 /* Card header improvements */
 .card-header.bg-white {
     padding: 1.25rem 1.5rem;
+}
+
+/* Mobile responsiveness improvements */
+@media (max-width: 767.98px) {
+    .card-header {
+        padding: 1rem;
+    }
+    
+    .card-body {
+        padding: 0.75rem;
+    }
+    
+    .card-header h4, .card-header h5 {
+        font-size: 1.1rem;
+    }
+    
+    /* Adjust statistics cards on mobile */
+    .row.g-3 {
+        gap: 0.5rem !important;
+    }
+    
+    .card-body.pb-0 {
+        padding: 0.75rem !important;
+    }
+    
+    .fs-4 {
+        font-size: 1.25rem !important;
+    }
+    
+    .fs-6 {
+        font-size: 0.95rem !important;
+    }
+    
+    /* Badge improvements */
+    .badge {
+        font-size: 0.75rem;
+    }
+    
+    /* Avatar improvements */
+    .avatar {
+        width: 35px;
+        height: 35px;
+    }
+}
+
+@media (max-width: 575.98px) {
+    /* Extra small screens */
+    .card-body {
+        padding: 0.5rem;
+    }
+    
+    .fs-4 {
+        font-size: 1.1rem !important;
+    }
+    
+    .fs-6 {
+        font-size: 0.875rem !important;
+    }
+}
+
+/* Prevent card header from overflowing */
+.card-header {
+    overflow: hidden;
+}
+
+.card-header > div {
+    min-width: 0;
+}
+
+/* Gradient backgrounds for stats cards */
+.bg-primary-gradient {
+    background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+}
+
+.bg-success-gradient {
+    background: linear-gradient(135deg, #198754 0%, #157347 100%);
+}
+
+.bg-danger-gradient {
+    background: linear-gradient(135deg, #dc3545 0%, #b02a37 100%);
+}
+
+.bg-warning-gradient {
+    background: linear-gradient(135deg, #ffc107 0%, #ffb300 100%);
+}
+
+.bg-info-gradient {
+    background: linear-gradient(135deg, #0dcaf0 0%, #0baccc 100%);
 }
 </style>
 
