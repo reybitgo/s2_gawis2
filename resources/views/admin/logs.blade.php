@@ -236,16 +236,6 @@
                                             </div>
                                         @endif
                                     </div>
-                                    @if(isset($log['metadata']) && !empty($log['metadata']))
-                                        <div class="mt-1 small text-body-secondary">
-                                            <strong>Additional Info:</strong> {{ is_array($log['metadata']) ? json_encode($log['metadata']) : $log['metadata'] }}
-                                        </div>
-                                    @endif
-                                    @if(isset($log['user_agent']) && strlen($log['user_agent']) > 50)
-                                        <div class="mt-1 small text-body-secondary">
-                                            <strong>User Agent:</strong> {{ Str::limit($log['user_agent'], 100) }}
-                                        </div>
-                                    @endif
                                 </div>
                             </div>
 
@@ -694,11 +684,6 @@ function showAlert(message, type = 'success') {
     /* Hide verbose text on mobile */
     .d-none-xs {
         display: none !important;
-    }
-    
-    /* Hide labels to save space on mobile */
-    .list-group-item .small strong {
-        display: none;
     }
     
     /* More aggressive pagination hiding on very small screens */
