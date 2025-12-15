@@ -62,7 +62,6 @@
                                                         <span class="badge bg-secondary ms-2">Deleted</span>
                                                     @endif
                                                 </div>
-                                                <small class="text-muted">{{ Str::limit($package->short_description, 50) }}</small>
                                             </td>
                                             <td>{{ $package->formatted_price }}</td>
                                             <td>
@@ -96,8 +95,8 @@
                                                     <span class="text-muted">—</span>
                                                 @endif
                                             </td>
-                                            <td>
-                                                <div class="btn-group" role="group">
+                                            <td class="text-nowrap">
+                                                <div class="d-flex gap-1 justify-content-center align-items-center">
                                                     @if(!$package->trashed())
                                                         <a href="{{ route('admin.packages.show', $package) }}"
                                                            class="btn btn-sm btn-outline-info" title="View">
@@ -111,7 +110,7 @@
                                                                 <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-pencil') }}"></use>
                                                             </svg>
                                                         </a>
-                                                        <form method="POST" action="{{ route('admin.packages.toggle-status', $package) }}" class="d-inline">
+                                                        <form method="POST" action="{{ route('admin.packages.toggle-status', $package) }}">
                                                             @csrf
                                                             <button type="submit" class="btn btn-sm btn-outline-{{ $package->is_active ? 'warning' : 'success' }}"
                                                                     title="{{ $package->is_active ? 'Deactivate' : 'Activate' }}">
@@ -390,6 +389,81 @@ function setDeletePackage(packageId, packageName, actionUrl) {
 
 .card-footer::-webkit-scrollbar-thumb:hover {
     background: #555;
+}
+
+/* Action buttons spacing and styling */
+.btn-sm {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+    white-space: nowrap;
+}
+
+.btn-sm .icon {
+    width: 1rem;
+    height: 1rem;
+}
+
+/* Ensure action buttons stay in one line on all screen sizes */
+td .d-flex {
+    flex-wrap: nowrap !important;
+    white-space: nowrap;
+}
+
+/* Keep actions column from wrapping */
+.text-nowrap {
+    white-space: nowrap !important;
+}
+
+/* On smaller screens, make buttons more compact */
+@media (max-width: 991.98px) {
+    table td .d-flex.gap-1 {
+        gap: 0.25rem !important;
+    }
+    
+    table .btn-sm {
+        padding: 0.3rem 0.45rem;
+        font-size: 0;
+        min-width: auto;
+        border-radius: 0.25rem;
+    }
+    
+    table .btn-sm .icon {
+        width: 0.875rem;
+        height: 0.875rem;
+        margin: 0 !important;
+    }
+}
+
+/* For very small screens, make buttons even more compact */
+@media (max-width: 575.98px) {
+    table td .d-flex.gap-1 {
+        gap: 0.2rem !important;
+    }
+    
+    table .btn-sm {
+        padding: 0.25rem 0.4rem;
+        border-radius: 0.2rem;
+    }
+    
+    table .btn-sm .icon {
+        width: 0.8rem;
+        height: 0.8rem;
+    }
+}
+
+/* Ensure table is horizontally scrollable */
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Prevent table cells from collapsing */
+table td {
+    vertical-align: middle;
+}
+
+table td.text-nowrap {
+    min-width: fit-content;
 }
 </style>
 @endpush

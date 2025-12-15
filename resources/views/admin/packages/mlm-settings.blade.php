@@ -6,21 +6,29 @@
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col-md-12">
-            <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
                 <div>
-                    <h2>MLM Settings: {{ $package->name }}</h2>
-                    <p class="text-muted">Configure 5-level commission structure</p>
+                    <svg class="icon me-2">
+                        <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-settings') }}"></use>
+                    </svg>
+                    <strong>MLM Settings: {{ $package->name }}</strong>
+                    <small class="text-body-secondary ms-2 d-none d-md-inline">
+                        Configure 5-level commission structure
+                    </small>
                 </div>
-                <div>
+                <div class="d-flex gap-2 flex-wrap">
                     <a href="{{ route('admin.packages.index') }}" class="btn btn-secondary">
-                        <i class="icon cil-arrow-left"></i> Back to Packages
+                        <svg class="icon me-2">
+                            <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-arrow-left') }}"></use>
+                        </svg>
+                        Back to Packages
                     </a>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="row">
+    <div class="row mt-3">
         <div class="col-md-8">
             <form action="{{ route('admin.packages.mlm.update', $package) }}" method="POST">
                 @csrf
@@ -28,8 +36,14 @@
 
                 <div class="card">
                     <div class="card-header bg-primary text-white">
-                        <strong>Commission Structure</strong>
-                        <span class="float-end">Package Price: ₱{{ number_format($package->price, 2) }}</span>
+                        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
+                            <div>
+                                <strong>Commission Structure</strong>
+                                <small class="text-white-50 ms-2 d-none d-md-inline">
+                                    Package Price: ₱{{ number_format($package->price, 2) }}
+                                </small>
+                            </div>
+                        </div>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
@@ -230,3 +244,14 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 @endsection
+
+@push('styles')
+<style>
+/* Mobile responsiveness */
+@media (max-width: 767.98px) {
+    .col-md-8 .card {
+        margin-bottom: 2rem;
+    }
+}
+</style>
+@endpush
