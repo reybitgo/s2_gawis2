@@ -7,7 +7,7 @@
 <!-- Page Header -->
 <div class="card mb-4">
     <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
             <div>
                 <h4 class="card-title mb-0">
                     <svg class="icon me-2">
@@ -17,7 +17,7 @@
                 </h4>
                 <p class="text-body-secondary mb-0">Monitor and manage user e-wallets</p>
             </div>
-            <div>
+            <div class="d-flex gap-2 flex-wrap">
                 <a href="{{ route('admin.dashboard') }}" class="btn btn-secondary">
                     <svg class="icon me-2">
                         <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-arrow-left') }}"></use>
