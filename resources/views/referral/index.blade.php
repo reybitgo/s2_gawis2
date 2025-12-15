@@ -55,7 +55,7 @@
             <!-- Social Share Buttons -->
             <div class="mt-3">
                 <label class="form-label">Share via Social Media</label>
-                <div class="btn-group" role="group">
+                <div class="d-grid gap-2 d-md-flex">
                     <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode($referralLink) }}"
                        target="_blank"
                        class="btn btn-primary">
@@ -82,27 +82,27 @@
     </div>
 
     <!-- Referral Statistics -->
-    <div class="row">
+    <div class="row g-3">
         <div class="col-md-4">
             <div class="card text-center">
-                <div class="card-body">
-                    <h3 class="text-primary mb-0">{{ $totalClicks }}</h3>
+                <div class="card-body py-4">
+                    <h3 class="text-primary mb-2">{{ $totalClicks }}</h3>
                     <p class="text-muted mb-0">Total Link Clicks</p>
                 </div>
             </div>
         </div>
         <div class="col-md-4">
             <div class="card text-center">
-                <div class="card-body">
-                    <h3 class="text-success mb-0">{{ $directReferrals }}</h3>
+                <div class="card-body py-4">
+                    <h3 class="text-success mb-2">{{ $directReferrals }}</h3>
                     <p class="text-muted mb-0">Direct Referrals</p>
                 </div>
             </div>
         </div>
         <div class="col-md-4">
             <div class="card text-center">
-                <div class="card-body">
-                    <h3 class="text-info mb-0">{{ number_format(($totalClicks > 0 ? ($directReferrals / $totalClicks) * 100 : 0), 1) }}%</h3>
+                <div class="card-body py-4">
+                    <h3 class="text-info mb-2">{{ number_format(($totalClicks > 0 ? ($directReferrals / $totalClicks) * 100 : 0), 1) }}%</h3>
                     <p class="text-muted mb-0">Conversion Rate</p>
                 </div>
             </div>
