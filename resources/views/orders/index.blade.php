@@ -167,22 +167,29 @@
     <!-- Orders List -->
     <div class="card">
         <div class="card-header">
-            <div class="d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
+                <div>
                     <svg class="icon me-2">
                         <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-list') }}"></use>
                     </svg>
-                    Your Orders ({{ $orders->total() }} total)
-                </h5>
-                <div class="d-flex align-items-center">
-                    <div class="dropdown me-2">
+                    <strong>Your Orders</strong>
+                    <small class="text-body-secondary ms-2 d-none d-md-inline">
+                        @if($orders->count() > 0)
+                            Showing {{ $orders->firstItem() }} to {{ $orders->lastItem() }} of {{ $orders->total() }} orders
+                        @else
+                            No orders found matching the current filters
+                        @endif
+                    </small>
+                </div>
+                <div class="d-flex gap-2 flex-wrap align-items-center">
+                    <div class="dropdown">
                         <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-coreui-toggle="dropdown">
                             <svg class="icon me-1">
                                 <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-sort-ascending') }}"></use>
                             </svg>
-                            Sort
+                            <span class="d-none d-sm-inline">Sort</span>
                         </button>
-                        <ul class="dropdown-menu">
+                        <ul class="dropdown-menu dropdown-menu-end">
                             <li><a class="dropdown-item" href="{{ request()->fullUrlWithQuery(['sort_by' => 'created_at', 'sort_direction' => 'desc']) }}">Newest First</a></li>
                             <li><a class="dropdown-item" href="{{ request()->fullUrlWithQuery(['sort_by' => 'created_at', 'sort_direction' => 'asc']) }}">Oldest First</a></li>
                             <li><a class="dropdown-item" href="{{ request()->fullUrlWithQuery(['sort_by' => 'total_amount', 'sort_direction' => 'desc']) }}">Highest Amount</a></li>
@@ -268,5 +275,132 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
+@endpush
+
+@push('styles')
+<style>
+/* Mobile responsiveness improvements */
+@media (max-width: 767.98px) {
+    .card-header {
+        padding: 1rem;
+    }
+    
+    .card-header h4, .card-header h5 {
+        font-size: 1.1rem;
+    }
+    
+    /* Improve filter section on mobile */
+    .card-body {
+        padding: 0.75rem;
+    }
+    
+    /* Make list items more mobile-friendly */
+    .list-group-item {
+        padding: 0.75rem;
+    }
+    
+    .list-group-item h6 {
+        font-size: 0.95rem;
+    }
+    
+    .list-group-item .small {
+        font-size: 0.8rem;
+    }
+    
+    /* Prevent text overflow in order items */
+    .list-group-item .d-flex.flex-grow-1 {
+        overflow: hidden;
+    }
+    
+    .list-group-item .flex-grow-1 {
+        min-width: 0;
+    }
+    
+    .list-group-item h6 {
+        word-wrap: break-word;
+        word-break: break-word;
+        overflow-wrap: break-word;
+    }
+    
+    /* Button improvements */
+    .btn-sm {
+        padding: 0.375rem 0.5rem;
+        font-size: 0.875rem;
+    }
+    
+    /* Statistics cards improvements */
+    .row.g-3 {
+        gap: 0.5rem !important;
+    }
+    
+    /* Pagination on mobile */
+    .card-footer {
+        padding: 0.75rem;
+    }
+}
+
+@media (max-width: 575.98px) {
+    /* Extra small screens */
+    /* Stack main container vertically on very small screens */
+    .list-group-item > .d-flex.justify-content-between {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    /* Keep metadata items horizontal with flex-wrap */
+    .list-group-item .flex-wrap.gap-3 {
+        gap: 0.5rem !important;
+    }
+    
+    /* Stack action buttons */
+    .list-group-item .d-flex.gap-2 {
+        align-self: flex-start;
+        width: 100%;
+    }
+    
+    .list-group-item .btn-sm {
+        font-size: 0.8rem;
+    }
+}
+
+/* Prevent card header from overflowing */
+.card-header {
+    overflow: hidden;
+}
+
+.card-header > div {
+    min-width: 0;
+}
+
+/* Prevent card footer from overflowing */
+.card-footer {
+    overflow-x: auto;
+}
+
+/* Improve badge visibility */
+.badge {
+    font-size: 0.75rem;
+    padding: 0.35em 0.65em;
+}
+
+/* Scrollbar styling for pagination overflow */
+.card-footer::-webkit-scrollbar {
+    height: 6px;
+}
+
+.card-footer::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.card-footer::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+}
+
+.card-footer::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+</style>
 @endpush
 @endsection

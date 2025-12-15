@@ -304,42 +304,59 @@
                     </h5>
                 </div>
                 <div class="card-body p-0">
-                    @foreach($order->orderItems as $item)
-                        <div class="border-bottom p-3">
-                            <div class="d-flex align-items-center">
-                                <img src="{{ $item->package_image_url }}" alt="{{ $item->package_name }}" class="rounded me-3" style="width: 60px; height: 60px; object-fit: cover;">
-                                <div class="flex-grow-1">
-                                    <h6 class="mb-1">{{ $item->package_name }}</h6>
-                                    @if($item->package_description)
-                                        <p class="text-muted small mb-1">{{ Str::limit($item->package_description, 80) }}</p>
-                                    @endif
-                                    <div class="d-flex align-items-center text-sm">
-                                        <span class="me-3">Quantity: <strong>{{ $item->quantity }}</strong></span>
-                                        <span class="me-3">Unit Price: <strong>{{ $item->formatted_unit_price }}</strong></span>
-                                        <span class="text-primary">Points: <strong>{{ number_format($item->total_points_awarded) }}</strong></span>
+                    <div class="list-group list-group-flush">
+                        @foreach($order->orderItems as $item)
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="d-flex flex-grow-1">
+                                        <img src="{{ $item->package_image_url }}" alt="{{ $item->package_name }}" 
+                                             class="rounded me-3" style="width: 60px; height: 60px; object-fit: cover;">
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-1">{{ $item->package_name }}</h6>
+                                            @if($item->package_description)
+                                                <p class="text-body-secondary small mb-2">{{ Str::limit($item->package_description, 80) }}</p>
+                                            @endif
+                                            <div class="d-flex flex-wrap text-body-secondary small gap-3">
+                                                <div class="d-flex align-items-center">
+                                                    <svg class="icon me-1">
+                                                        <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-list') }}"></use>
+                                                    </svg>
+                                                    Qty: <strong class="ms-1">{{ $item->quantity }}</strong>
+                                                </div>
+                                                <div class="d-flex align-items-center">
+                                                    <svg class="icon me-1">
+                                                        <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-wallet') }}"></use>
+                                                    </svg>
+                                                    Unit Price: <strong class="ms-1">{{ $item->formatted_unit_price }}</strong>
+                                                </div>
+                                                <div class="d-flex align-items-center text-warning">
+                                                    <svg class="icon me-1">
+                                                        <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-star') }}"></use>
+                                                    </svg>
+                                                    <strong>{{ number_format($item->total_points_awarded) }}</strong> pts
+                                                </div>
+                                            </div>
+                                            @if($item->package && $item->package->isAvailable())
+                                                <small class="text-success d-block mt-2">
+                                                    <svg class="icon me-1">
+                                                        <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-check') }}"></use>
+                                                    </svg>
+                                                    Still available
+                                                </small>
+                                            @else
+                                                <small class="text-muted d-block mt-2">
+                                                    <svg class="icon me-1">
+                                                        <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-warning') }}"></use>
+                                                    </svg>
+                                                    No longer available
+                                                </small>
+                                            @endif
+                                        </div>
                                     </div>
-                                    @if($item->package && $item->package->isAvailable())
-                                        <small class="text-success">
-                                            <svg class="icon me-1">
-                                                <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-check') }}"></use>
-                                            </svg>
-                                            Still available
-                                        </small>
-                                    @else
-                                        <small class="text-muted">
-                                            <svg class="icon me-1">
-                                                <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-warning') }}"></use>
-                                            </svg>
-                                            No longer available
-                                        </small>
-                                    @endif
-                                </div>
-                                <div class="text-end">
-                                    <div class="fw-bold h6 mb-0">{{ $item->formatted_total_price }}</div>
                                 </div>
                             </div>
-                        </div>
-                    @endforeach
+                        @endforeach
+                    </div>
                 </div>
             </div>
 
@@ -632,6 +649,75 @@
     </div>
 </div>
 @endif
+
+@push('styles')
+<style>
+/* Mobile responsiveness improvements for Order Items */
+@media (max-width: 767.98px) {
+    .list-group-item {
+        padding: 0.75rem;
+    }
+    
+    .list-group-item h6 {
+        font-size: 0.95rem;
+    }
+    
+    .list-group-item .small {
+        font-size: 0.8rem;
+    }
+    
+    /* Prevent text overflow in order items */
+    .list-group-item .d-flex.flex-grow-1 {
+        overflow: hidden;
+    }
+    
+    .list-group-item .flex-grow-1 {
+        min-width: 0;
+    }
+    
+    .list-group-item h6 {
+        word-wrap: break-word;
+        word-break: break-word;
+        overflow-wrap: break-word;
+    }
+    
+    /* Adjust image size on mobile */
+    .list-group-item img {
+        width: 50px !important;
+        height: 50px !important;
+    }
+}
+
+@media (max-width: 575.98px) {
+    /* Extra small screens */
+    /* Keep metadata items horizontal with flex-wrap */
+    .list-group-item .flex-wrap.gap-3 {
+        gap: 0.5rem !important;
+    }
+    
+    /* Reduce image size further on very small screens */
+    .list-group-item img {
+        width: 45px !important;
+        height: 45px !important;
+    }
+}
+
+/* Prevent card from overflowing */
+.card-header {
+    overflow: hidden;
+}
+
+.card-header > div {
+    min-width: 0;
+}
+
+/* Improve badge visibility */
+.badge {
+    font-size: 0.75rem;
+    padding: 0.35em 0.65em;
+}
+</style>
+@endpush
 
 @if($order->canBeCancelled())
 <!-- Cancel Order Modal -->

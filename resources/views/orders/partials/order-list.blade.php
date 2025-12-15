@@ -1,191 +1,152 @@
+<div class="list-group list-group-flush">
 @foreach($orders as $order)
-    <div class="border-bottom p-3 p-md-4">
-        <div class="row align-items-start align-items-md-center g-3">
-            <!-- Order Info -->
-            <div class="col-12 col-md-3">
-                <div class="d-flex align-items-center">
-                    <div class="me-3">
-                        @if($order->isPaid())
-                            <div class="avatar avatar-md bg-success text-white">
-                                <svg class="icon">
-                                    <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-check') }}"></use>
-                                </svg>
-                            </div>
-                        @elseif($order->isCancelled())
-                            <div class="avatar avatar-md bg-secondary text-white">
-                                <svg class="icon">
-                                    <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-x') }}"></use>
-                                </svg>
-                            </div>
-                        @else
-                            <div class="avatar avatar-md bg-warning text-white">
-                                <svg class="icon">
-                                    <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-clock') }}"></use>
-                                </svg>
-                            </div>
-                        @endif
-                    </div>
-                    <div>
-                        <h6 class="mb-1">
+    <div class="list-group-item">
+        <div class="d-flex justify-content-between align-items-start">
+            <div class="d-flex flex-grow-1">
+                <!-- Order Icon/Avatar -->
+                <div class="me-3">
+                    @if($order->isPaid())
+                        <div class="avatar avatar-md bg-success text-white">
+                            <svg class="icon">
+                                <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-check') }}"></use>
+                            </svg>
+                        </div>
+                    @elseif($order->isCancelled())
+                        <div class="avatar avatar-md bg-secondary text-white">
+                            <svg class="icon">
+                                <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-x') }}"></use>
+                            </svg>
+                        </div>
+                    @else
+                        <div class="avatar avatar-md bg-warning text-white">
+                            <svg class="icon">
+                                <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-clock') }}"></use>
+                            </svg>
+                        </div>
+                    @endif
+                </div>
+
+                <!-- Order Content -->
+                <div class="flex-grow-1">
+                    <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center mb-1 gap-2">
+                        <h6 class="mb-0 me-2">
                             <a href="{{ route('orders.show', $order) }}" class="text-decoration-none">
                                 {{ $order->order_number }}
                             </a>
                         </h6>
-                        <small class="text-muted d-block">
-                            {{ $order->created_at->format('M d, Y \a\t g:i A') }}
-                        </small>
-                        <!-- Status badges for mobile -->
-                        <div class="d-md-none mt-2">
-                            <div class="d-flex flex-wrap gap-1">
-                                @if($order->payment_status === 'paid')
-                                    <span class="badge bg-success">Paid</span>
-                                    @if($order->status !== 'completed' && $order->status !== 'paid')
-                                        <span class="{{ $order->status_badge_class }}">{{ ucfirst($order->status) }}</span>
-                                    @endif
-                                @elseif($order->payment_status === 'failed')
-                                    <span class="badge bg-danger">Payment Failed</span>
-                                @elseif($order->payment_status === 'refunded')
-                                    <span class="badge bg-warning">Refunded</span>
-                                @else
+                        <!-- Status Badges -->
+                        <div class="d-flex flex-wrap gap-1">
+                            @if($order->payment_status === 'paid')
+                                <span class="badge bg-success">Paid</span>
+                                @if($order->status !== 'completed' && $order->status !== 'paid')
                                     <span class="{{ $order->status_badge_class }}">{{ ucfirst($order->status) }}</span>
-                                    @if($order->payment_status === 'pending' && $order->status !== 'pending')
-                                        <span class="badge bg-warning">Payment Pending</span>
-                                    @endif
                                 @endif
-                            </div>
+                            @elseif($order->payment_status === 'failed')
+                                <span class="badge bg-danger">Payment Failed</span>
+                            @elseif($order->payment_status === 'refunded')
+                                <span class="badge bg-warning">Refunded</span>
+                            @else
+                                <span class="{{ $order->status_badge_class }}">{{ ucfirst($order->status) }}</span>
+                                @if($order->payment_status === 'pending' && $order->status !== 'pending')
+                                    <span class="badge bg-warning">Payment Pending</span>
+                                @endif
+                            @endif
                         </div>
                     </div>
-                </div>
-            </div>
-
-            <!-- Order Details -->
-            <div class="col-6 col-md-3">
-                <div>
-                    <div class="fw-semibold">{{ currency($order->total_amount) }}</div>
-                    <small class="text-muted d-block">{{ $order->getTotalItemsCount() }} items</small>
-                    @if($order->points_awarded > 0)
-                        <div class="text-warning small">
+                    
+                    <!-- Order Details -->
+                    <div class="d-flex flex-wrap text-body-secondary small gap-3 mb-2">
+                        <div class="d-flex align-items-center">
                             <svg class="icon me-1">
-                                <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-star') }}"></use>
+                                <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-clock') }}"></use>
                             </svg>
-                            {{ number_format($order->points_awarded) }} points
+                            {{ $order->created_at->format('M d, Y g:i A') }}
                         </div>
-                    @endif
-                </div>
-            </div>
-
-            <!-- Status Badges - Desktop Only -->
-            <div class="col-md-3 d-none d-md-block">
-                <div class="d-flex flex-column gap-1">
-                    @if($order->payment_status === 'paid')
-                        <span class="badge bg-success">Paid</span>
-                        @if($order->status !== 'completed' && $order->status !== 'paid')
-                            <span class="{{ $order->status_badge_class }}">{{ ucfirst($order->status) }}</span>
+                        <div class="d-flex align-items-center">
+                            <svg class="icon me-1">
+                                <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-wallet') }}"></use>
+                            </svg>
+                            <span class="fw-semibold">{{ currency($order->total_amount) }}</span>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <svg class="icon me-1">
+                                <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-list') }}"></use>
+                            </svg>
+                            {{ $order->getTotalItemsCount() }} items
+                        </div>
+                        @if($order->points_awarded > 0)
+                            <div class="d-flex align-items-center text-warning">
+                                <svg class="icon me-1">
+                                    <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-star') }}"></use>
+                                </svg>
+                                {{ number_format($order->points_awarded) }} points
+                            </div>
                         @endif
-                    @elseif($order->payment_status === 'failed')
-                        <span class="badge bg-danger">Payment Failed</span>
-                    @elseif($order->payment_status === 'refunded')
-                        <span class="badge bg-warning">Refunded</span>
-                    @else
-                        <span class="{{ $order->status_badge_class }}">{{ ucfirst($order->status) }}</span>
-                        @if($order->payment_status === 'pending' && $order->status !== 'pending')
-                            <span class="badge bg-warning">Payment Pending</span>
-                        @endif
-                    @endif
+                    </div>
                 </div>
             </div>
 
             <!-- Actions -->
-            <div class="col-6 col-md-3">
-                <div class="d-flex gap-1 gap-md-2 justify-content-end flex-wrap">
-                    <!-- View Details -->
-                    <a href="{{ route('orders.show', $order) }}" class="btn btn-outline-primary btn-sm" title="View Details">
+            <div class="d-flex gap-2 flex-wrap ms-2">
+                <!-- View Details -->
+                <a href="{{ route('orders.show', $order) }}" class="btn btn-sm btn-outline-primary" title="View Details">
+                    <svg class="icon me-1">
+                        <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-magnifying-glass') }}"></use>
+                    </svg>
+                    <span class="d-none d-md-inline">Details</span>
+                </a>
+
+                <!-- Dropdown Menu -->
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button"
+                            data-coreui-toggle="dropdown" title="More Actions">
                         <svg class="icon">
-                            <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-magnifying-glass') }}"></use>
+                            <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-options') }}"></use>
                         </svg>
-                    </a>
-
-                    <!-- Reorder -->
-                    @if($order->isPaid() || $order->isCompleted())
-                        <button type="button" class="btn btn-outline-secondary btn-sm" title="Reorder"
-                                data-coreui-toggle="modal" data-coreui-target="#reorderModal{{ $order->id }}">
-                            <svg class="icon">
-                                <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-cart') }}"></use>
-                            </svg>
-                        </button>
-                    @endif
-
-                    <!-- Download Invoice -->
-                    @if($order->isPaid())
-                        <a href="{{ route('orders.invoice', $order) }}" class="btn btn-outline-info btn-sm" title="Download Invoice">
-                            <svg class="icon">
-                                <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-cloud-download') }}"></use>
-                            </svg>
-                        </a>
-                    @endif
-
-                    <!-- Cancel Order -->
-                    @if($order->canBeCancelled())
-                        <button type="button" class="btn btn-outline-danger btn-sm" title="Cancel Order"
-                                data-coreui-toggle="modal" data-coreui-target="#cancelOrderModal{{ $order->id }}">
-                            <svg class="icon">
-                                <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-x') }}"></use>
-                            </svg>
-                        </button>
-                    @endif
-
-                    <!-- Dropdown Menu -->
-                    <div class="dropdown">
-                        <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button"
-                                data-coreui-toggle="dropdown" title="More Actions">
-                            <svg class="icon">
-                                <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-options') }}"></use>
-                            </svg>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end">
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <a class="dropdown-item" href="{{ route('orders.show', $order) }}">
+                                <svg class="icon me-2">
+                                    <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-magnifying-glass') }}"></use>
+                                </svg>
+                                View Details
+                            </a>
+                        </li>
+                        @if($order->isPaid())
                             <li>
-                                <a class="dropdown-item" href="{{ route('orders.show', $order) }}">
+                                <a class="dropdown-item" href="{{ route('orders.invoice', $order) }}">
                                     <svg class="icon me-2">
-                                        <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-magnifying-glass') }}"></use>
+                                        <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-cloud-download') }}"></use>
                                     </svg>
-                                    View Details
+                                    Download Invoice
                                 </a>
                             </li>
-                            @if($order->isPaid())
-                                <li>
-                                    <a class="dropdown-item" href="{{ route('orders.invoice', $order) }}">
-                                        <svg class="icon me-2">
-                                            <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-cloud-download') }}"></use>
-                                        </svg>
-                                        Download Invoice
-                                    </a>
-                                </li>
-                            @endif
-                            @if($order->isPaid() || $order->isCompleted())
-                                <li>
-                                    <button type="button" class="dropdown-item"
-                                            data-coreui-toggle="modal" data-coreui-target="#reorderModal{{ $order->id }}">
-                                        <svg class="icon me-2">
-                                            <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-cart') }}"></use>
-                                        </svg>
-                                        Reorder Items
-                                    </button>
-                                </li>
-                            @endif
-                            @if($order->canBeCancelled())
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <button type="button" class="dropdown-item text-danger"
-                                            data-coreui-toggle="modal" data-coreui-target="#cancelOrderModal{{ $order->id }}">
-                                        <svg class="icon me-2">
-                                            <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-x') }}"></use>
-                                        </svg>
-                                        Cancel Order
-                                    </button>
-                                </li>
-                            @endif
-                        </ul>
-                    </div>
+                        @endif
+                        @if($order->isPaid() || $order->isCompleted())
+                            <li>
+                                <button type="button" class="dropdown-item"
+                                        data-coreui-toggle="modal" data-coreui-target="#reorderModal{{ $order->id }}">
+                                    <svg class="icon me-2">
+                                        <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-cart') }}"></use>
+                                    </svg>
+                                    Reorder Items
+                                </button>
+                            </li>
+                        @endif
+                        @if($order->canBeCancelled())
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <button type="button" class="dropdown-item text-danger"
+                                        data-coreui-toggle="modal" data-coreui-target="#cancelOrderModal{{ $order->id }}">
+                                    <svg class="icon me-2">
+                                        <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-x') }}"></use>
+                                    </svg>
+                                    Cancel Order
+                                </button>
+                            </li>
+                        @endif
+                    </ul>
                 </div>
             </div>
         </div>
@@ -336,3 +297,4 @@
         </div>
     @endif
 @endforeach
+</div>
