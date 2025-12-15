@@ -107,7 +107,7 @@
     <!-- Order Statistics Cards -->
     <div class="row g-3 mb-4">
         @foreach($statusStats as $groupName => $stats)
-        <div class="col-md-2 col-sm-4 col-6">
+        <div class="col-6 col-sm-6 col-md-2">
             <div class="card text-center">
                 <div class="card-body py-3">
                     <div class="text-value-lg text-primary">{{ $stats['count'] }}</div>
@@ -166,7 +166,7 @@
         <div class="card-body border-bottom">
             <form method="GET" id="filtersForm">
                 <div class="row g-3">
-                    <div class="col-md-2 col-sm-6 col-12">
+                    <div class="col-md-2 col-12">
                         <label class="form-label small">Status Group</label>
                         <select name="status_group" class="form-select form-select-sm">
                             <option value="">All Groups</option>
@@ -177,7 +177,7 @@
                             <option value="completed" {{ request('status_group') == 'completed' ? 'selected' : '' }}>Completed</option>
                         </select>
                     </div>
-                    <div class="col-md-2 col-sm-6 col-12">
+                    <div class="col-md-2 col-12">
                         <label class="form-label small">Status</label>
                         <select name="status" class="form-select form-select-sm">
                             <option value="">All Statuses</option>
@@ -186,7 +186,7 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-md-2 col-sm-6 col-12">
+                    <div class="col-md-2 col-12">
                         <label class="form-label small">Delivery Method</label>
                         <select name="delivery_method" class="form-select form-select-sm">
                             <option value="">All Methods</option>
@@ -194,7 +194,7 @@
                             <option value="home_delivery" {{ request('delivery_method') == 'home_delivery' ? 'selected' : '' }}>Home Delivery</option>
                         </select>
                     </div>
-                    <div class="col-md-2 col-sm-6 col-12">
+                    <div class="col-md-2 col-12">
                         <label class="form-label small">Payment Status</label>
                         <select name="payment_status" class="form-select form-select-sm">
                             <option value="">All Payment</option>
@@ -204,11 +204,11 @@
                             <option value="refunded" {{ request('payment_status') == 'refunded' ? 'selected' : '' }}>Refunded</option>
                         </select>
                     </div>
-                    <div class="col-md-2 col-sm-6 col-12">
+                    <div class="col-md-2 col-12">
                         <label class="form-label small">Date From</label>
                         <input type="date" name="date_from" class="form-control form-control-sm" value="{{ request('date_from') }}">
                     </div>
-                    <div class="col-md-2 col-sm-6 col-12">
+                    <div class="col-md-2 col-12">
                         <label class="form-label small">Date To</label>
                         <input type="date" name="date_to" class="form-control form-control-sm" value="{{ request('date_to') }}">
                     </div>
