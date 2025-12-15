@@ -664,13 +664,14 @@ function showAlert(message, type = 'success') {
 
 @media (max-width: 575.98px) {
     /* Extra small screens */
-    /* Stack content vertically on very small screens */
-    .list-group-item > .d-flex {
+    /* Stack main container vertically on very small screens */
+    .list-group-item > .d-flex.justify-content-between {
         flex-direction: column;
         gap: 0.5rem;
     }
     
-    .list-group-item .gap-3 {
+    /* Keep metadata items horizontal with flex-wrap */
+    .list-group-item .flex-wrap.gap-3 {
         gap: 0.5rem !important;
     }
     
