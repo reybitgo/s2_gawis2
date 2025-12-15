@@ -8,16 +8,24 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="card-title mb-0">{{ $product->name }}</h5>
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
                         <div>
-                            <a href="{{ route('admin.products.edit', $product) }}" class="btn btn-primary me-2">
-                                <svg class="icon me-1">
+                            <svg class="icon me-2">
+                                <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-basket') }}"></use>
+                            </svg>
+                            <strong>{{ $product->name }}</strong>
+                            <small class="text-body-secondary ms-2 d-none d-md-inline">
+                                Product details and unilevel commission settings
+                            </small>
+                        </div>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <a href="{{ route('admin.products.edit', $product) }}" class="btn btn-primary">
+                                <svg class="icon me-2">
                                     <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-pencil') }}"></use>
                                 </svg>
                                 Edit Product
                             </a>
-                            <a href="{{ route('admin.products.index') }}" class="btn btn-outline-secondary">
+                            <a href="{{ route('admin.products.index') }}" class="btn btn-secondary">
                                 <svg class="icon me-2">
                                     <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-arrow-left') }}"></use>
                                 </svg>
