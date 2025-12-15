@@ -625,13 +625,12 @@ function showAlert(message, type = 'success') {
     
     .list-group-item .flex-grow-1 {
         min-width: 0;
-        overflow: hidden;
     }
     
     .list-group-item h6 {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+        word-wrap: break-word;
+        word-break: break-word;
+        overflow-wrap: break-word;
     }
     
     /* Adjust statistics cards on mobile */
