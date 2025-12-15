@@ -626,6 +626,22 @@ function showAlert(message, type = 'success') {
         font-size: 0.8rem;
     }
     
+    /* Prevent text overflow in activity items */
+    .list-group-item .d-flex.flex-grow-1 {
+        overflow: hidden;
+    }
+    
+    .list-group-item .flex-grow-1 {
+        min-width: 0;
+        overflow: hidden;
+    }
+    
+    .list-group-item h6 {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    
     /* Adjust statistics cards on mobile */
     .row.g-3 {
         gap: 0.5rem !important;
