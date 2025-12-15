@@ -30,6 +30,75 @@
     right: 0;
     left: auto;
 }
+
+/* Mobile responsiveness improvements */
+@media (max-width: 767.98px) {
+    .card-header {
+        padding: 1rem;
+    }
+    
+    .card-header h5 {
+        font-size: 1.1rem;
+    }
+    
+    /* Stack buttons vertically on very small screens */
+    .btn-toolbar .btn-group {
+        width: 100%;
+    }
+    
+    .btn-toolbar .btn-group .btn {
+        flex: 1;
+    }
+    
+    /* Improve filter section on mobile */
+    .card-body.border-bottom {
+        padding: 0.75rem;
+    }
+    
+    /* Make table more mobile-friendly */
+    .table-responsive {
+        font-size: 0.875rem;
+    }
+    
+    .table th, .table td {
+        padding: 0.5rem 0.25rem;
+        white-space: nowrap;
+    }
+    
+    /* Adjust statistics cards on mobile */
+    .row.g-3 {
+        gap: 0.5rem !important;
+    }
+    
+    .card-body.py-3 {
+        padding: 0.75rem !important;
+    }
+    
+    .text-value-lg {
+        font-size: 1.25rem !important;
+    }
+}
+
+@media (max-width: 575.98px) {
+    /* Extra small screens - hide button text, show only icons */
+    .btn-toolbar .btn-group .btn svg.icon {
+        margin-right: 0 !important;
+    }
+    
+    /* Ensure per-page selector doesn't overflow */
+    .per-page-selector {
+        font-size: 0.875rem;
+    }
+}
+
+/* Prevent card header from overflowing */
+.card-header {
+    overflow: hidden;
+}
+
+.card-header > div {
+    min-width: 0;
+}
 </style>
 @endpush
 
@@ -69,22 +138,22 @@
     <!-- Main Orders Card -->
     <div class="card">
         <div class="card-header">
-            <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
                 <h5 class="card-title mb-0">Orders</h5>
-                <div class="d-flex align-items-center">
-                    <div class="btn-toolbar me-3" role="toolbar">
+                <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center gap-2 w-100 w-md-auto">
+                    <div class="btn-toolbar" role="toolbar">
                         <div class="btn-group" role="group">
                             <button type="button" class="btn btn-outline-primary btn-sm" id="exportBtn">
                                 <svg class="icon me-1">
                                     <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-cloud-download') }}"></use>
                                 </svg>
-                                Export
+                                <span class="d-none d-sm-inline">Export</span>
                             </button>
                             <button type="button" class="btn btn-outline-secondary btn-sm" id="refreshBtn">
                                 <svg class="icon me-1">
                                     <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-reload') }}"></use>
                                 </svg>
-                                Refresh
+                                <span class="d-none d-sm-inline">Refresh</span>
                             </button>
                         </div>
                     </div>
@@ -97,8 +166,8 @@
         <div class="card-body border-bottom">
             <form method="GET" id="filtersForm">
                 <div class="row g-3">
-                    <div class="col-md-2">
-                        <label class="form-label">Status Group</label>
+                    <div class="col-md-2 col-sm-6 col-12">
+                        <label class="form-label small">Status Group</label>
                         <select name="status_group" class="form-select form-select-sm">
                             <option value="">All Groups</option>
                             <option value="pre_fulfillment" {{ request('status_group') == 'pre_fulfillment' ? 'selected' : '' }}>Pre-fulfillment</option>
@@ -108,8 +177,8 @@
                             <option value="completed" {{ request('status_group') == 'completed' ? 'selected' : '' }}>Completed</option>
                         </select>
                     </div>
-                    <div class="col-md-2">
-                        <label class="form-label">Status</label>
+                    <div class="col-md-2 col-sm-6 col-12">
+                        <label class="form-label small">Status</label>
                         <select name="status" class="form-select form-select-sm">
                             <option value="">All Statuses</option>
                             @foreach(\App\Models\Order::getStatusLabels() as $status => $label)
@@ -117,16 +186,16 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-md-2">
-                        <label class="form-label">Delivery Method</label>
+                    <div class="col-md-2 col-sm-6 col-12">
+                        <label class="form-label small">Delivery Method</label>
                         <select name="delivery_method" class="form-select form-select-sm">
                             <option value="">All Methods</option>
                             <option value="office_pickup" {{ request('delivery_method') == 'office_pickup' ? 'selected' : '' }}>Office Pickup</option>
                             <option value="home_delivery" {{ request('delivery_method') == 'home_delivery' ? 'selected' : '' }}>Home Delivery</option>
                         </select>
                     </div>
-                    <div class="col-md-2">
-                        <label class="form-label">Payment Status</label>
+                    <div class="col-md-2 col-sm-6 col-12">
+                        <label class="form-label small">Payment Status</label>
                         <select name="payment_status" class="form-select form-select-sm">
                             <option value="">All Payment</option>
                             <option value="pending" {{ request('payment_status') == 'pending' ? 'selected' : '' }}>Pending</option>
@@ -135,25 +204,35 @@
                             <option value="refunded" {{ request('payment_status') == 'refunded' ? 'selected' : '' }}>Refunded</option>
                         </select>
                     </div>
-                    <div class="col-md-2">
-                        <label class="form-label">Date From</label>
+                    <div class="col-md-2 col-sm-6 col-12">
+                        <label class="form-label small">Date From</label>
                         <input type="date" name="date_from" class="form-control form-control-sm" value="{{ request('date_from') }}">
                     </div>
-                    <div class="col-md-2">
-                        <label class="form-label">Date To</label>
+                    <div class="col-md-2 col-sm-6 col-12">
+                        <label class="form-label small">Date To</label>
                         <input type="date" name="date_to" class="form-control form-control-sm" value="{{ request('date_to') }}">
                     </div>
                 </div>
                 <div class="row g-3 mt-2">
-                    <div class="col-md-4">
-                        <label class="form-label">Search</label>
+                    <div class="col-md-8 col-12">
+                        <label class="form-label small">Search</label>
                         <input type="text" name="search" class="form-control form-control-sm"
                                placeholder="Order number, customer name, email, notes..."
                                value="{{ request('search') }}">
                     </div>
-                    <div class="col-md-8 d-flex align-items-end">
-                        <button type="submit" class="btn btn-primary btn-sm me-2">Filter</button>
-                        <a href="{{ route('admin.orders.index') }}" class="btn btn-outline-secondary btn-sm">Clear</a>
+                    <div class="col-md-4 col-12 d-flex align-items-end gap-2">
+                        <button type="submit" class="btn btn-primary btn-sm flex-grow-1">
+                            <svg class="icon me-1">
+                                <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-filter') }}"></use>
+                            </svg>
+                            Filter
+                        </button>
+                        <a href="{{ route('admin.orders.index') }}" class="btn btn-outline-secondary btn-sm flex-grow-1">
+                            <svg class="icon me-1">
+                                <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-reload') }}"></use>
+                            </svg>
+                            Clear
+                        </a>
                     </div>
                 </div>
             </form>
@@ -299,12 +378,7 @@
 
                 <!-- Pagination -->
                 <div class="card-footer">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="text-muted">
-                            Showing {{ $orders->firstItem() ?? 0 }} to {{ $orders->lastItem() ?? 0 }} of {{ $orders->total() }} orders
-                        </div>
-                        {{ $orders->appends(request()->query())->links() }}
-                    </div>
+                    {{ $orders->appends(request()->query())->links('vendor.pagination.coreui') }}
                 </div>
             @else
                 <div class="card-body text-center py-5">
