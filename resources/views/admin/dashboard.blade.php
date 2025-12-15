@@ -552,6 +552,35 @@
         width: 35px;
         height: 35px;
     }
+    
+    /* Recent System Activity mobile improvements */
+    .list-group-item {
+        padding: 0.75rem;
+    }
+    
+    .list-group-item h6 {
+        font-size: 0.95rem;
+    }
+    
+    .list-group-item .small {
+        font-size: 0.8rem;
+    }
+    
+    /* Prevent text overflow in activity items */
+    .list-group-item .d-flex {
+        overflow: hidden;
+    }
+    
+    .list-group-item .flex-grow-1 {
+        min-width: 0;
+        overflow: hidden;
+    }
+    
+    .list-group-item h6 {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
 }
 
 @media (max-width: 575.98px) {
@@ -566,6 +595,30 @@
     
     .fs-6 {
         font-size: 0.875rem !important;
+    }
+    
+    /* More aggressive mobile fixes for Recent System Activity */
+    .list-group-item {
+        padding: 0.5rem;
+    }
+    
+    .list-group-item .d-flex {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .list-group-item .text-end {
+        text-align: left !important;
+        margin-left: 0 !important;
+    }
+    
+    .list-group-item .gap-3 {
+        gap: 0.5rem !important;
+    }
+    
+    /* Stack badges vertically on very small screens */
+    .list-group-item .d-flex.align-items-center {
+        flex-wrap: wrap;
     }
 }
 
