@@ -667,6 +667,14 @@
 .bg-info-gradient {
     background: linear-gradient(135deg, #0dcaf0 0%, #0baccc 100%);
 }
+
+.bg-purple-gradient {
+    background: linear-gradient(135deg, #6f42c1 0%, #59359a 100%);
+}
+
+.text-purple {
+    color: #6f42c1;
+}
 </style>
 
 <!-- Bottom spacing for better visual layout -->
