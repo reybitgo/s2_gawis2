@@ -236,7 +236,12 @@
                                             </div>
                                         @endif
                                     </div>
-                                    @if(strlen($log['user_agent']) > 50)
+                                    @if(isset($log['metadata']) && !empty($log['metadata']))
+                                        <div class="mt-1 small text-body-secondary">
+                                            <strong>Additional Info:</strong> {{ is_array($log['metadata']) ? json_encode($log['metadata']) : $log['metadata'] }}
+                                        </div>
+                                    @endif
+                                    @if(isset($log['user_agent']) && strlen($log['user_agent']) > 50)
                                         <div class="mt-1 small text-body-secondary">
                                             <strong>User Agent:</strong> {{ Str::limit($log['user_agent'], 100) }}
                                         </div>
@@ -247,6 +252,9 @@
                             <!-- Actions -->
                             <div class="d-flex gap-2">
                                 <button onclick="viewLogDetails({{ json_encode($log) }})" class="btn btn-sm btn-outline-primary">
+                                    <svg class="icon me-1">
+                                        <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-info') }}"></use>
+                                    </svg>
                                     Details
                                 </button>
                             </div>
@@ -656,8 +664,10 @@ function showAlert(message, type = 'success') {
 
 @media (max-width: 575.98px) {
     /* Extra small screens */
-    .list-group-item .d-flex {
+    /* Stack content vertically on very small screens */
+    .list-group-item > .d-flex {
         flex-direction: column;
+        gap: 0.5rem;
     }
     
     .list-group-item .gap-3 {
@@ -669,6 +679,11 @@ function showAlert(message, type = 'success') {
         display: none !important;
     }
     
+    /* Hide labels to save space on mobile */
+    .list-group-item .small strong {
+        display: none;
+    }
+    
     /* More aggressive pagination hiding on very small screens */
     .pagination .page-item:not(.active):not(:first-child):not(:last-child):not(:nth-child(2)):not(:nth-last-child(2)) {
         display: none;
@@ -677,6 +692,16 @@ function showAlert(message, type = 'success') {
     /* Make pagination info smaller */
     .card-footer small {
         font-size: 0.75rem;
+    }
+    
+    /* Stack action buttons */
+    .list-group-item .d-flex.gap-2 {
+        align-self: flex-start;
+        width: 100%;
+    }
+    
+    .list-group-item .btn-sm {
+        width: 100%;
     }
 }
 
