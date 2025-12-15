@@ -7,7 +7,7 @@
 <!-- Page Header -->
 <div class="card mb-4">
     <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
             <div>
                 <h4 class="card-title mb-0">
                     <svg class="icon me-2">
@@ -17,18 +17,20 @@
                 </h4>
                 <p class="text-body-secondary mb-0">Monitor and configure the rank advancement system</p>
             </div>
-            <div>
-                <a href="{{ route('admin.ranks.configure') }}" class="btn btn-primary me-2">
-                    <svg class="icon me-1">
+            <div class="d-flex gap-2 flex-wrap">
+                <a href="{{ route('admin.ranks.configure') }}" class="btn btn-primary">
+                    <svg class="icon me-2">
                         <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-settings') }}"></use>
                     </svg>
-                    Configure Ranks
+                    <span class="d-none d-sm-inline">Configure Ranks</span>
+                    <span class="d-inline d-sm-none">Configure</span>
                 </a>
                 <a href="{{ route('admin.ranks.advancements') }}" class="btn btn-info">
-                    <svg class="icon me-1">
+                    <svg class="icon me-2">
                         <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-history') }}"></use>
                     </svg>
-                    View Advancements
+                    <span class="d-none d-sm-inline">View Advancements</span>
+                    <span class="d-inline d-sm-none">Advancements</span>
                 </a>
             </div>
         </div>
@@ -229,4 +231,74 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 @endif
+@endpush
+
+@push('styles')
+<style>
+/* Mobile responsiveness improvements */
+@media (max-width: 767.98px) {
+    .card-header {
+        padding: 1rem;
+    }
+    
+    .card-body {
+        padding: 0.75rem;
+    }
+    
+    .card-header h4, .card-header h5 {
+        font-size: 1.1rem;
+    }
+    
+    /* Button improvements */
+    .btn {
+        font-size: 0.875rem;
+    }
+    
+    /* Adjust statistics cards on mobile */
+    .row.g-3 {
+        gap: 0.5rem !important;
+    }
+    
+    .card-body.pb-0 {
+        padding: 0.75rem !important;
+    }
+    
+    .fs-4 {
+        font-size: 1.25rem !important;
+    }
+}
+
+@media (max-width: 575.98px) {
+    /* Extra small screens - show shorter button text */
+    .btn svg.icon {
+        margin-right: 0.25rem !important;
+    }
+}
+
+/* Prevent card header from overflowing */
+.card-header {
+    overflow: hidden;
+}
+
+.card-header > div {
+    min-width: 0;
+}
+
+/* Gradient backgrounds for stats cards */
+.bg-primary-gradient {
+    background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+}
+
+.bg-success-gradient {
+    background: linear-gradient(135deg, #198754 0%, #157347 100%);
+}
+
+.bg-info-gradient {
+    background: linear-gradient(135deg, #0dcaf0 0%, #0baccc 100%);
+}
+
+.bg-warning-gradient {
+    background: linear-gradient(135deg, #ffc107 0%, #ffb300 100%);
+}
+</style>
 @endpush
