@@ -173,22 +173,34 @@
         <div class="card-body p-0">
             <div class="list-group list-group-flush">
                 @foreach($activityLogs as $log)
+                    @php
+                        $levelColors = [
+                            'DEBUG' => 'secondary',
+                            'INFO' => 'primary',
+                            'WARNING' => 'warning',
+                            'ERROR' => 'danger',
+                            'CRITICAL' => 'dark'
+                        ];
+                        
+                        $typeColors = [
+                            'security' => 'danger',
+                            'transaction' => 'success',
+                            'mlm_commission' => 'primary',
+                            'wallet' => 'warning',
+                            'order' => 'info',
+                            'system' => 'secondary'
+                        ];
+                        
+                        $levelColor = $levelColors[$log['level']] ?? 'secondary';
+                        $typeColor = $typeColors[$log['type']] ?? 'secondary';
+                    @endphp
                     <div class="list-group-item {{ $log['level'] == 'CRITICAL' ? 'bg-danger-subtle' : ($log['level'] == 'ERROR' ? 'bg-warning-subtle' : '') }}">
                         <div class="d-flex justify-content-between align-items-start">
                             <div class="d-flex flex-grow-1">
                                 <!-- Log Level Badge -->
                                 <div class="me-3">
-                                    @php
-                                        $levelColors = [
-                                            'DEBUG' => 'bg-secondary',
-                                            'INFO' => 'bg-primary',
-                                            'WARNING' => 'bg-warning',
-                                            'ERROR' => 'bg-danger',
-                                            'CRITICAL' => 'bg-dark'
-                                        ];
-                                    @endphp
-                                    <span class="badge {{ $levelColors[$log['level']] ?? 'bg-secondary' }}">
-                                        {{ $log['level'] }}
+                                    <span class="badge bg-{{ $levelColor }}">
+                                        {{ strtoupper($log['level']) }}
                                     </span>
                                 </div>
 
@@ -196,17 +208,7 @@
                                 <div class="flex-grow-1">
                                     <div class="d-flex align-items-center mb-1">
                                         <h6 class="mb-0 me-2">{{ $log['message'] }}</h6>
-                                        @php
-                                            $typeColors = [
-                                                'security' => 'bg-danger',
-                                                'transaction' => 'bg-success',
-                                                'mlm_commission' => 'bg-primary',
-                                                'wallet' => 'bg-warning',
-                                                'order' => 'bg-info',
-                                                'system' => 'bg-secondary'
-                                            ];
-                                        @endphp
-                                        <span class="badge {{ $typeColors[$log['type']] ?? 'bg-secondary' }} badge-sm">
+                                        <span class="badge bg-{{ $typeColor }} badge-sm">
                                             {{ ucfirst($log['type']) }}
                                         </span>
                                     </div>
