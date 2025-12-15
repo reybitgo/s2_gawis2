@@ -285,17 +285,15 @@
 <!-- Recent System Activity -->
 <div class="card mb-4 border-0 shadow-sm">
     <div class="card-header bg-white border-0">
-        <div class="d-flex justify-content-between align-items-center">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
             <div>
                 <h5 class="card-title mb-0 d-flex align-items-center">
-                    <div class="avatar avatar-sm bg-info-gradient me-3">
-                        <svg class="icon text-white icon-sm">
-                            <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-chart-line') }}"></use>
-                        </svg>
-                    </div>
+                    <svg class="icon me-2">
+                        <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-chart-line') }}"></use>
+                    </svg>
                     Recent System Activity
                 </h5>
-                <small class="text-body-secondary">Latest transactions and system events across the platform</small>
+                <small class="text-body-secondary d-none d-md-inline">Latest transactions and system events across the platform</small>
             </div>
             <a href="{{ route('admin.transaction.approval') }}" class="btn btn-outline-primary btn-sm">
                 <svg class="icon me-1">
@@ -306,90 +304,103 @@
         </div>
     </div>
     <div class="card-body p-0">
-        @forelse($recentTransactions as $transaction)
-            @php
-                // Map transaction type and status to appropriate colors and icons
-                $typeColors = [
-                    'deposit' => 'success',
-                    'withdrawal' => 'warning',
-                    'transfer' => 'info',
-                    'payment' => 'primary',
-                    'refund' => 'secondary',
-                    'fee' => 'danger'
-                ];
+        <div class="list-group list-group-flush">
+            @forelse($recentTransactions as $transaction)
+                @php
+                    // Map transaction type and status to appropriate colors and icons
+                    $typeColors = [
+                        'deposit' => 'success',
+                        'withdrawal' => 'warning',
+                        'transfer' => 'info',
+                        'payment' => 'primary',
+                        'refund' => 'secondary',
+                        'fee' => 'danger'
+                    ];
 
-                $statusColors = [
-                    'pending' => 'warning',
-                    'approved' => 'success',
-                    'completed' => 'success',
-                    'rejected' => 'danger',
-                    'cancelled' => 'secondary'
-                ];
+                    $statusColors = [
+                        'pending' => 'warning',
+                        'approved' => 'success',
+                        'completed' => 'success',
+                        'rejected' => 'danger',
+                        'cancelled' => 'secondary'
+                    ];
 
-                $typeIcons = [
-                    'deposit' => 'cil-arrow-circle-bottom',
-                    'withdrawal' => 'cil-arrow-circle-top',
-                    'transfer' => 'cil-swap-horizontal',
-                    'payment' => 'cil-credit-card',
-                    'refund' => 'cil-reload',
-                    'fee' => 'cil-dollar'
-                ];
+                    $typeIcons = [
+                        'deposit' => 'cil-arrow-circle-bottom',
+                        'withdrawal' => 'cil-arrow-circle-top',
+                        'transfer' => 'cil-swap-horizontal',
+                        'payment' => 'cil-credit-card',
+                        'refund' => 'cil-reload',
+                        'fee' => 'cil-dollar'
+                    ];
 
-                $color = $statusColors[$transaction->status] ?? 'secondary';
-                $icon = $typeIcons[$transaction->type] ?? 'cil-money';
-                $typeColor = $typeColors[$transaction->type] ?? 'secondary';
-            @endphp
-            <div class="transaction-item d-flex justify-content-between align-items-center p-3 border-bottom">
-                <div class="d-flex align-items-center">
-                    <div class="avatar avatar-md me-3 bg-{{ $typeColor }}-gradient">
-                        <svg class="icon text-white">
-                            <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#' . $icon) }}"></use>
-                        </svg>
-                    </div>
-                    <div>
-                        <div class="fw-semibold text-dark">{{ ucfirst($transaction->type) }} Transaction</div>
-                        <div class="small text-body-secondary d-flex align-items-center">
-                            <svg class="icon icon-xs me-1">
-                                <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-clock') }}"></use>
-                            </svg>
-                            {{ $transaction->created_at->diffForHumans() }}
-                            <span class="mx-1">•</span>
-                            {{ $transaction->user->email ?? 'System' }}
+                    $color = $statusColors[$transaction->status] ?? 'secondary';
+                    $icon = $typeIcons[$transaction->type] ?? 'cil-money';
+                    $typeColor = $typeColors[$transaction->type] ?? 'secondary';
+                @endphp
+                <div class="list-group-item">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="d-flex flex-grow-1">
+                            <!-- Type Badge -->
+                            <div class="me-3">
+                                <span class="badge bg-{{ $typeColor }}">
+                                    {{ strtoupper($transaction->type) }}
+                                </span>
+                            </div>
+
+                            <!-- Transaction Content -->
+                            <div class="flex-grow-1">
+                                <div class="d-flex align-items-center mb-1">
+                                    <h6 class="mb-0 me-2">{{ ucfirst($transaction->type) }} Transaction</h6>
+                                    <span class="badge bg-{{ $color }} badge-sm">
+                                        {{ ucfirst($transaction->status) }}
+                                    </span>
+                                </div>
+                                <div class="d-flex flex-wrap text-body-secondary small gap-3">
+                                    <div class="d-flex align-items-center">
+                                        <svg class="icon me-1">
+                                            <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-clock') }}"></use>
+                                        </svg>
+                                        {{ $transaction->created_at->diffForHumans() }}
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        <svg class="icon me-1">
+                                            <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-user') }}"></use>
+                                        </svg>
+                                        {{ $transaction->user->email ?? 'System' }}
+                                    </div>
+                                </div>
+                                @if($transaction->description)
+                                    <div class="mt-1 small text-body-secondary">
+                                        {{ Str::limit($transaction->description, 80) }}
+                                    </div>
+                                @endif
+                            </div>
                         </div>
-                        <div class="small text-muted">
-                            @if($transaction->description)
-                                {{ Str::limit($transaction->description, 50) }}
-                            @else
-                                {{ ucfirst($transaction->type) }} by {{ $transaction->user->fullname ?? $transaction->user->username ?? 'User' }}
-                            @endif
+
+                        <!-- Amount -->
+                        <div class="text-end ms-3">
+                            <div class="fw-bold h6 mb-0 text-{{ $typeColor }}">
+                                {{ currency($transaction->amount) }}
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="text-end">
-                    <div class="fw-bold h6 mb-1 text-{{ $typeColor }}">
-                        ${{ number_format($transaction->amount, 2) }}
-                    </div>
-                    <span class="badge rounded-pill bg-{{ $color }}
-                        @if($color === 'warning') text-dark @else text-white @endif">
-                        {{ ucfirst($transaction->status) }}
-                    </span>
-                </div>
-            </div>
-        @empty
-            <div class="empty-state text-center p-5">
-                <div class="avatar avatar-xl bg-light mx-auto mb-3">
-                    <svg class="icon icon-xl text-body-secondary">
+            @empty
+                <div class="list-group-item text-center py-5">
+                    <svg class="icon icon-xxl text-body-secondary mb-3">
                         <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-chart-line') }}"></use>
                     </svg>
+                    <h5 class="text-body-secondary mb-2">No recent activity</h5>
+                    <p class="text-body-secondary mb-0">System activity will appear here as it occurs.</p>
                 </div>
-                <h5 class="text-body-secondary mb-2">No recent activity</h5>
-                <p class="text-body-secondary mb-0">System activity will appear here as it occurs.</p>
-            </div>
-        @endforelse
+            @endforelse
+        </div>
     </div>
 </div>
 
 <style>
+/* Quick Action Cards */
 .quick-action-card {
     transition: all 0.3s ease;
     border-radius: 12px !important;
@@ -416,6 +427,21 @@
 .quick-action-card .card-title {
     font-weight: 600;
     color: #2c3e50;
+}
+
+/* Recent System Activity improvements */
+.list-group-item {
+    border: none;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    padding: 1rem 1.25rem;
+}
+
+.list-group-item:last-child {
+    border-bottom: none;
+}
+
+.list-group-item:hover {
+    background-color: rgba(0, 123, 255, 0.02);
 }
 
 .quick-action-card .btn {
