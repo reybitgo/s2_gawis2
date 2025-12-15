@@ -79,7 +79,7 @@
                                                         </div>
                                                     </td>
                                                     <td>
-                                                        <div class="input-group">
+                                                        <div class="input-group" style="min-width: 160px;">
                                                             <span class="input-group-text">{{ currency_symbol() }}</span>
                                                             <input type="number"
                                                                    class="form-control bonus-input @error('bonus_amounts.' . $setting->level) is-invalid @enderror"
@@ -134,7 +134,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-4">
+                            <div class="col-md-4 mt-4 mt-md-0">
                                 <!-- Preview Card -->
                                 <div class="card mb-3">
                                     <div class="card-header bg-primary text-white">
