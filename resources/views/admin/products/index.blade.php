@@ -9,14 +9,24 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="card-title mb-0">Products (Unilevel System)</h5>
-                        <a href="{{ route('admin.products.create') }}" class="btn btn-primary">
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
+                        <div>
                             <svg class="icon me-2">
-                                <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-plus') }}"></use>
+                                <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-basket') }}"></use>
                             </svg>
-                            Add New Product
-                        </a>
+                            <strong>Products (Unilevel System)</strong>
+                            <small class="text-body-secondary ms-2 d-none d-md-inline">
+                                Manage product catalog and unilevel commission structure
+                            </small>
+                        </div>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <a href="{{ route('admin.products.create') }}" class="btn btn-primary">
+                                <svg class="icon me-2">
+                                    <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-plus') }}"></use>
+                                </svg>
+                                Add New Product
+                            </a>
+                        </div>
                     </div>
                 </div>
                 <div class="card-body">
@@ -55,13 +65,12 @@
                                 <thead>
                                     <tr>
                                         <th>Image</th>
-                                        <th>Product</th>
+                                        <th>Name</th>
                                         <th>SKU</th>
                                         <th>Category</th>
                                         <th>Price</th>
                                         <th>Points</th>
                                         <th>Quantity</th>
-                                        <th>Unilevel Bonus</th>
                                         <th>Status</th>
                                         <th>Actions</th>
                                     </tr>
@@ -80,7 +89,6 @@
                                                         <span class="badge bg-secondary ms-2">Deleted</span>
                                                     @endif
                                                 </div>
-                                                <small class="text-muted">{{ Str::limit($product->short_description, 40) }}</small>
                                             </td>
                                             <td><code>{{ $product->sku }}</code></td>
                                             <td><span class="badge bg-info">{{ $product->category }}</span></td>
@@ -98,11 +106,6 @@
                                                 @endif
                                             </td>
                                             <td>
-                                                <a href="{{ route('admin.products.unilevel-settings.edit', $product) }}" class="btn btn-sm btn-outline-primary">
-                                                    ₱{{ number_format($product->total_unilevel_bonus, 2) }}
-                                                </a>
-                                            </td>
-                                            <td>
                                                 @if(!$product->trashed())
                                                     <span class="badge bg-{{ $product->is_active ? 'success' : 'warning' }}">
                                                         {{ $product->is_active ? 'Active' : 'Inactive' }}
@@ -111,8 +114,8 @@
                                                     <span class="badge bg-secondary">Deleted</span>
                                                 @endif
                                             </td>
-                                            <td>
-                                                <div class="btn-group" role="group">
+                                            <td class="text-nowrap">
+                                                <div class="d-flex gap-1 justify-content-center align-items-center">
                                                     @if(!$product->trashed())
                                                         <a href="{{ route('admin.products.show', $product) }}"
                                                            class="btn btn-sm btn-outline-info" title="View">
@@ -126,7 +129,7 @@
                                                                 <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-pencil') }}"></use>
                                                             </svg>
                                                         </a>
-                                                        <form method="POST" action="{{ route('admin.products.toggle-status', $product) }}" class="d-inline">
+                                                        <form method="POST" action="{{ route('admin.products.toggle-status', $product) }}">
                                                             @csrf
                                                             <button type="submit" class="btn btn-sm btn-outline-{{ $product->is_active ? 'warning' : 'success' }}"
                                                                     title="{{ $product->is_active ? 'Deactivate' : 'Activate' }}">
@@ -246,3 +249,82 @@ function setDeleteProduct(productId, productName, actionUrl) {
 <div class="pb-5"></div>
 
 @endsection
+
+@push('styles')
+<style>
+/* Action buttons spacing and styling */
+.btn-sm {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+    white-space: nowrap;
+}
+
+.btn-sm .icon {
+    width: 1rem;
+    height: 1rem;
+}
+
+/* Ensure action buttons stay in one line on all screen sizes */
+td .d-flex {
+    flex-wrap: nowrap !important;
+    white-space: nowrap;
+}
+
+/* Keep actions column from wrapping */
+.text-nowrap {
+    white-space: nowrap !important;
+}
+
+/* On smaller screens, make buttons more compact */
+@media (max-width: 991.98px) {
+    table td .d-flex.gap-1 {
+        gap: 0.25rem !important;
+    }
+    
+    table .btn-sm {
+        padding: 0.3rem 0.45rem;
+        font-size: 0;
+        min-width: auto;
+        border-radius: 0.25rem;
+    }
+    
+    table .btn-sm .icon {
+        width: 0.875rem;
+        height: 0.875rem;
+        margin: 0 !important;
+    }
+}
+
+/* For very small screens, make buttons even more compact */
+@media (max-width: 575.98px) {
+    table td .d-flex.gap-1 {
+        gap: 0.2rem !important;
+    }
+    
+    table .btn-sm {
+        padding: 0.25rem 0.4rem;
+        border-radius: 0.2rem;
+    }
+    
+    table .btn-sm .icon {
+        width: 0.8rem;
+        height: 0.8rem;
+    }
+}
+
+/* Ensure table is horizontally scrollable */
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Prevent table cells from collapsing */
+table td {
+    vertical-align: middle;
+}
+
+table td.text-nowrap {
+    min-width: fit-content;
+}
+</style>
+@endpush
