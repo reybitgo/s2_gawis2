@@ -338,13 +338,13 @@
                     $icon = $typeIcons[$transaction->type] ?? 'cil-money';
                     $typeColor = $typeColors[$transaction->type] ?? 'secondary';
                 @endphp
-                <div class="list-group-item">
+                <div class="list-group-item {{ $transaction->status == 'rejected' ? 'bg-danger-subtle' : '' }}">
                     <div class="d-flex justify-content-between align-items-start">
                         <div class="d-flex flex-grow-1">
-                            <!-- Type Badge -->
+                            <!-- Status Badge -->
                             <div class="me-3">
-                                <span class="badge bg-{{ $typeColor }}">
-                                    {{ strtoupper($transaction->type) }}
+                                <span class="badge bg-{{ $color }}">
+                                    {{ strtoupper($transaction->status) }}
                                 </span>
                             </div>
 
@@ -352,8 +352,8 @@
                             <div class="flex-grow-1">
                                 <div class="d-flex align-items-center mb-1">
                                     <h6 class="mb-0 me-2">{{ ucfirst($transaction->type) }} Transaction</h6>
-                                    <span class="badge bg-{{ $color }} badge-sm">
-                                        {{ ucfirst($transaction->status) }}
+                                    <span class="badge bg-{{ $typeColor }} badge-sm">
+                                        {{ ucfirst($transaction->type) }}
                                     </span>
                                 </div>
                                 <div class="d-flex flex-wrap text-body-secondary small gap-3">
@@ -361,7 +361,7 @@
                                         <svg class="icon me-1">
                                             <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-clock') }}"></use>
                                         </svg>
-                                        {{ $transaction->created_at->diffForHumans() }}
+                                        {{ $transaction->created_at->format('M d, Y g:i A') }}
                                     </div>
                                     <div class="d-flex align-items-center">
                                         <svg class="icon me-1">
@@ -369,19 +369,29 @@
                                         </svg>
                                         {{ $transaction->user->email ?? 'System' }}
                                     </div>
+                                    @if($transaction->reference_number)
+                                        <div class="d-flex align-items-center">
+                                            <svg class="icon me-1">
+                                                <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-bookmark') }}"></use>
+                                            </svg>
+                                            Ref: {{ $transaction->reference_number }}
+                                        </div>
+                                    @endif
                                 </div>
                                 @if($transaction->description)
                                     <div class="mt-1 small text-body-secondary">
-                                        {{ Str::limit($transaction->description, 80) }}
+                                        <strong>Description:</strong> {{ Str::limit($transaction->description, 80) }}
                                     </div>
                                 @endif
                             </div>
                         </div>
 
-                        <!-- Amount -->
-                        <div class="text-end ms-3">
-                            <div class="fw-bold h6 mb-0 text-{{ $typeColor }}">
-                                {{ currency($transaction->amount) }}
+                        <!-- Actions -->
+                        <div class="d-flex gap-2">
+                            <div class="text-end">
+                                <div class="fw-bold h6 mb-0 text-{{ $typeColor }}">
+                                    {{ currency($transaction->amount) }}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -602,7 +612,8 @@
         padding: 0.5rem;
     }
     
-    .list-group-item .d-flex {
+    /* Stack content vertically on very small screens */
+    .list-group-item > .d-flex {
         flex-direction: column;
         gap: 0.5rem;
     }
@@ -619,6 +630,11 @@
     /* Stack badges vertically on very small screens */
     .list-group-item .d-flex.align-items-center {
         flex-wrap: wrap;
+    }
+    
+    /* Hide some metadata to prevent cramping */
+    .list-group-item .small strong {
+        display: none;
     }
 }
 
