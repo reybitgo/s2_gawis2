@@ -64,7 +64,7 @@
                                                 @endif
                                             </td>
                                             <td>
-                                                <div class="input-group">
+                                                <div class="input-group" style="min-width: 160px;">
                                                     <span class="input-group-text">₱</span>
                                                     <input type="number"
                                                            class="form-control commission-input"
