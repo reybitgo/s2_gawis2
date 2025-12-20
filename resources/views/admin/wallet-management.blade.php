@@ -140,7 +140,7 @@
             <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-people') }}"></use>
         </svg>
         <strong>User Wallets</strong>
-        <small class="text-body-secondary ms-auto">Overview of all member wallet balances and activity.</small>
+        <small class="text-body-secondary ms-auto"><p class="text-body-secondary mb-0">Overview of all member wallet balances and activity.</p></small>
     </div>
     <div class="card-body p-0">
         <div class="table-responsive">
@@ -222,7 +222,7 @@
             <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-list') }}"></use>
         </svg>
         <strong>Recent Transactions</strong>
-        <small class="text-body-secondary ms-auto">Latest wallet transactions across all users.</small>
+        <small class="text-body-secondary ms-auto"><p class="text-body-secondary mb-0">Latest wallet transactions across all users.</p></small>
     </div>
     <div class="card-body p-0">
         <div class="list-group list-group-flush">
