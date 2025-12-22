@@ -356,7 +356,9 @@
             <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-list-numbered') }}"></use>
         </svg>
         <strong>Recent Transactions</strong>
-        <small class="text-body-secondary ms-auto">Your latest wallet activity</small>
+        <div class="card-header-actions">
+            <small class="text-body-secondary ms-auto">Your latest wallet activity</small>
+        </div>
     </div>
     <div class="card-body p-0">
         @forelse($recentTransactions as $transaction)
@@ -456,7 +458,9 @@
             <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-user') }}"></use>
         </svg>
         <strong>Account Information</strong>
-        <small class="text-body-secondary ms-auto">Your account details and security status</small>
+        <div class="card-header-actions">
+            <small class="text-body-secondary ms-auto">Your account details and security status</small>
+        </div>
     </div>
     <div class="card-body p-0">
         <div class="list-group list-group-flush">
@@ -609,7 +613,9 @@
             <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-chart-line') }}"></use>
         </svg>
         <strong>Monthly Transaction Summary</strong>
-        <small class="text-body-secondary ms-auto">Your transaction activity over the past 6 months</small>
+        <div class="card-header-actions">
+            <small class="text-body-secondary ms-auto">Your transaction activity over the past 6 months</small>
+        </div>
     </div>
     <div class="card-body p-0">
         <div class="table-responsive">
