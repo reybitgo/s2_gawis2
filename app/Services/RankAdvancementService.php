@@ -10,6 +10,7 @@ use App\Models\RankAdvancement;
 use App\Models\DirectSponsorsTracker;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\Services\MLMCommissionService;
 
 class RankAdvancementService
 {
@@ -46,7 +47,6 @@ class RankAdvancementService
 
             DB::commit();
             return $advancementTriggered;
-
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Failed to track sponsorship', [
@@ -89,17 +89,17 @@ class RankAdvancementService
         $trackedCount = $user->directSponsorsTracked()
             ->where('counted_for_rank', $user->current_rank)
             ->count();
-        
+
         // 2. Legacy sponsorships (existing sponsor_id relationships not yet tracked)
         $legacyCount = User::where('sponsor_id', $user->id)
             ->where('current_rank', $user->current_rank)
-            ->whereNotIn('id', function($query) use ($user) {
+            ->whereNotIn('id', function ($query) use ($user) {
                 $query->select('sponsored_user_id')
-                      ->from('direct_sponsors_tracker')
-                      ->where('user_id', $user->id);
+                    ->from('direct_sponsors_tracker')
+                    ->where('user_id', $user->id);
             })
             ->count();
-        
+
         $totalSameRankSponsors = $trackedCount + $legacyCount;
         $requiredSponsors = $currentPackage->required_direct_sponsors;
 
@@ -117,7 +117,7 @@ class RankAdvancementService
         if ($totalSameRankSponsors >= $requiredSponsors) {
             // IMPORTANT: Before advancing, backfill legacy sponsorships into tracker
             $this->backfillLegacySponsorships($user);
-            
+
             return $this->advanceUserRank($user, $totalSameRankSponsors);
         }
 
@@ -134,10 +134,10 @@ class RankAdvancementService
     {
         // Get all direct referrals not yet tracked
         $legacyReferrals = User::where('sponsor_id', $user->id)
-            ->whereNotIn('id', function($query) use ($user) {
+            ->whereNotIn('id', function ($query) use ($user) {
                 $query->select('sponsored_user_id')
-                      ->from('direct_sponsors_tracker')
-                      ->where('user_id', $user->id);
+                    ->from('direct_sponsors_tracker')
+                    ->where('user_id', $user->id);
             })
             ->get();
 
@@ -151,7 +151,7 @@ class RankAdvancementService
                     'sponsored_user_package_id' => $referral->rank_package_id,
                     'counted_for_rank' => $referral->current_rank,
                 ]);
-                
+
                 Log::info('Backfilled legacy sponsorship', [
                     'sponsor_id' => $user->id,
                     'referral_id' => $referral->id,
@@ -239,8 +239,22 @@ class RankAdvancementService
             $this->sendRankAdvancementNotification($user, $currentPackage, $nextPackage, $order);
 
             DB::commit();
-            return true;
 
+            // Trigger MLM commissions for the system-funded order so uplines
+            // are rewarded on rank advancement as they are on regular checkouts.
+            try {
+                $mlmService = app(MLMCommissionService::class);
+                $mlmService->processCommissions($order);
+            } catch (\Exception $e) {
+                Log::error('Failed to process MLM commissions after rank advancement', [
+                    'order_id' => $order->id,
+                    'user_id' => $user->id,
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString(),
+                ]);
+            }
+
+            return true;
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Rank Advancement Failed', [
@@ -295,7 +309,6 @@ class RankAdvancementService
             ]);
 
             return $order;
-
         } catch (\Exception $e) {
             Log::error('Failed to create system-funded order', [
                 'user_id' => $user->id,
@@ -318,7 +331,7 @@ class RankAdvancementService
     {
         // TODO: Implement notification (database + email)
         // $user->notify(new RankAdvancementNotification($fromPackage, $toPackage, $order));
-        
+
         Log::info('Rank Advancement Notification Sent', [
             'user_id' => $user->id,
             'from_rank' => $fromPackage->rank_name,
@@ -349,7 +362,7 @@ class RankAdvancementService
         $sameRankSponsorsCount = $user->getSameRankSponsorsCount();
         $requiredSponsors = $currentPackage->required_direct_sponsors;
         $remaining = max(0, $requiredSponsors - $sameRankSponsorsCount);
-        $progress = $requiredSponsors > 0 
+        $progress = $requiredSponsors > 0
             ? min(100, ($sameRankSponsorsCount / $requiredSponsors) * 100)
             : 0;
 
