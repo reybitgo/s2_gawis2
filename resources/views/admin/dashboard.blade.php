@@ -165,7 +165,9 @@
             <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-task') }}"></use>
         </svg>
         <strong>Admin Quick Actions</strong>
-        <small class="text-body-secondary ms-auto">Common administrative tasks</small>
+        <div class="card-header-actions">
+            <small class="text-body-secondary ms-auto">Common administrative tasks</small>
+        </div>
     </div>
     <div class="card-body">
         <div class="row g-3">
