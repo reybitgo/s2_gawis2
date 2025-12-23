@@ -77,6 +77,13 @@
     .text-value-lg {
         font-size: 1.25rem !important;
     }
+
+    /* Ensure dropdown menus inside scrollable tables are visible on mobile */
+    .table .dropdown-menu {
+        position: fixed !important;
+        z-index: 2050 !important;
+        will-change: top, left;
+    }
 }
 
 @media (max-width: 575.98px) {
@@ -107,7 +114,7 @@
     <!-- Order Statistics Cards -->
     <div class="row g-3 mb-4">
         @foreach($statusStats as $groupName => $stats)
-        <div class="col-6 col-sm-6 col-md-2">
+        <div class="col-12 col-sm-6 col-md-2">
             <div class="card text-center">
                 <div class="card-body py-3">
                     <div class="text-value-lg text-primary">{{ $stats['count'] }}</div>
@@ -140,7 +147,7 @@
         <div class="card-header">
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
                 <h5 class="card-title mb-0">Orders</h5>
-                <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center gap-2 w-100 w-md-auto">
+                <div class="d-flex align-items-center gap-2 w-100 flex-nowrap">
                     <div class="btn-toolbar" role="toolbar">
                         <div class="btn-group" role="group">
                             <button type="button" class="btn btn-outline-primary btn-sm" id="exportBtn">
@@ -157,7 +164,9 @@
                             </button>
                         </div>
                     </div>
-                    <x-per-page-selector :perPage="$perPage" />
+                    <div class="ms-auto shrink-0">
+                        <x-per-page-selector :perPage="$perPage" />
+                    </div>
                 </div>
             </div>
         </div>
@@ -221,13 +230,13 @@
                                value="{{ request('search') }}">
                     </div>
                     <div class="col-md-4 col-12 d-flex align-items-end gap-2">
-                        <button type="submit" class="btn btn-primary btn-sm flex-grow-1">
+                        <button type="submit" class="btn btn-primary btn-sm grow">
                             <svg class="icon me-1">
                                 <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-filter') }}"></use>
                             </svg>
                             Filter
                         </button>
-                        <a href="{{ route('admin.orders.index') }}" class="btn btn-outline-secondary btn-sm flex-grow-1">
+                        <a href="{{ route('admin.orders.index') }}" class="btn btn-outline-secondary btn-sm grow">
                             <svg class="icon me-1">
                                 <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-reload') }}"></use>
                             </svg>
@@ -303,7 +312,7 @@
                                     </td>
                                     <td>
                                         <div>
-                                            <strong>{{ $order->user->name }}</strong>
+                                            <strong>{{ $order->user->username }}</strong>
                                             <div class="text-muted small">{{ $order->user->email }}</div>
                                         </div>
                                     </td>
@@ -344,30 +353,47 @@
                                                     <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-magnifying-glass') }}"></use>
                                                 </svg>
                                             </a>
-                                            <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle"
-                                                    data-coreui-toggle="dropdown"
-                                                    aria-expanded="false">
-                                                <svg class="icon">
-                                                    <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-options') }}"></use>
-                                                </svg>
-                                            </button>
-                                            <ul class="dropdown-menu dropdown-menu-end">
-                                                <li><h6 class="dropdown-header">Quick Actions</h6></li>
-                                                @if($order->adminAllowedStatuses && count($order->adminAllowedStatuses) > 0)
-                                                    @foreach($order->adminAllowedStatuses as $statusInfo)
-                                                        <li>
-                                                            <a class="dropdown-item quick-status-change"
-                                                               href="#"
-                                                               data-order-id="{{ $order->id }}"
-                                                               data-status="{{ $statusInfo['status'] }}">
-                                                                {{ $statusInfo['label'] }}
-                                                            </a>
-                                                        </li>
-                                                    @endforeach
-                                                @else
-                                                    <li><span class="dropdown-item-text text-muted">No actions available</span></li>
-                                                @endif
-                                            </ul>
+                                                <button type="button" class="btn btn-sm btn-outline-secondary"
+                                                        title="Quick Actions"
+                                                        data-coreui-toggle="modal"
+                                                        data-coreui-target="#quickActionsModal-{{ $order->id }}">
+                                                    <svg class="icon">
+                                                        <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-options') }}"></use>
+                                                    </svg>
+                                                </button>
+
+                                                <!-- Per-row Quick Actions Modal -->
+                                                <div class="modal fade" id="quickActionsModal-{{ $order->id }}" tabindex="-1" aria-hidden="true">
+                                                    <div class="modal-dialog modal-sm modal-dialog-centered">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h5 class="modal-title">Quick Actions</h5>
+                                                                <button type="button" class="btn-close" data-coreui-dismiss="modal"></button>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                <ul class="list-unstyled mb-0">
+                                                                    @if($order->adminAllowedStatuses && count($order->adminAllowedStatuses) > 0)
+                                                                        @foreach($order->adminAllowedStatuses as $statusInfo)
+                                                                            <li>
+                                                                                <a class="btn btn-sm btn-outline-primary d-block w-100 mb-2 text-start quick-status-change"
+                                                                                   href="#"
+                                                                                   data-order-id="{{ $order->id }}"
+                                                                                   data-status="{{ $statusInfo['status'] }}">
+                                                                                    {{ $statusInfo['label'] }}
+                                                                                </a>
+                                                                            </li>
+                                                                        @endforeach
+                                                                    @else
+                                                                        <li><span class="dropdown-item-text text-muted">No actions available</span></li>
+                                                                    @endif
+                                                                </ul>
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="btn btn-secondary btn-sm" data-coreui-dismiss="modal">Close</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                         </div>
                                     </td>
                                 </tr>
@@ -451,7 +477,7 @@
                             <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-warning') }}"></use>
                         </svg>
                     </div>
-                    <div class="flex-grow-1">
+                    <div class="grow">
                         <h6 class="mb-2">Are you sure you want to change the order status?</h6>
                         <p class="mb-2">
                             <strong>Order:</strong> <span id="quickConfirmOrderNumber"></span><br>

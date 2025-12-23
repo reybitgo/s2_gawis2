@@ -7,15 +7,14 @@
     <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h2 class="mb-1">Order {{ $order->order_number }}</h2>
-            <div class="text-muted">Created {{ $order->created_at->format('M d, Y \a\t H:i') }}</div>
+            <h2 class="mb-1">Order</h2>
         </div>
         <div>
             <a href="{{ route('admin.orders.index') }}" class="btn btn-outline-secondary">
                 <svg class="icon me-2">
                     <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-arrow-left') }}"></use>
                 </svg>
-                Back to Orders
+                Back
             </a>
         </div>
     </div>
@@ -196,7 +195,7 @@
                         <table class="table table-borderless mb-0">
                             <thead class="table-light">
                                 <tr>
-                                    <th>Package</th>
+                                    <th class="package-col" style="min-width: 220px;">Package</th>
                                     <th>Price</th>
                                     <th>Qty</th>
                                     <th>Points</th>
@@ -206,14 +205,22 @@
                             <tbody>
                                 @foreach($order->orderItems as $item)
                                     @php
-                                        $snapshot = $item->package_snapshot ?? [];
-                                        $name = $snapshot['name'] ?? $item->package?->name ?? 'Package';
-                                        $imageUrl = $snapshot['image_url'] ?? $item->package?->image_url ?? '/images/package-placeholder.svg';
-                                        $description = $snapshot['short_description'] ?? $item->package?->short_description ?? null;
+                                        // Use generic item accessors so both package and product items show correctly
+                                        $name = $item->item_name;
+                                        $description = $item->item_description ?: null;
+
+                                        // Prefer the current package/product image (keeps admin package listing consistent)
+                                        if ($item->isPackage()) {
+                                            $imageUrl = $item->package?->image_url ?? $item->item_image_url;
+                                        } elseif ($item->isProduct()) {
+                                            $imageUrl = $item->product?->image_url ?? $item->item_image_url;
+                                        } else {
+                                            $imageUrl = $item->item_image_url;
+                                        }
                                     @endphp
                                     <tr>
                                         <td>
-                                            <div class="d-flex align-items-center">
+                                            <div class="d-flex align-items-center flex-nowrap">
                                                 <img src="{{ $imageUrl }}"
                                                      alt="{{ $name }}"
                                                      class="rounded me-3" style="width: 50px; height: 50px; object-fit: cover;">
@@ -266,14 +273,14 @@
                 <div class="card-body">
                     @forelse($order->statusHistory->sortByDesc('created_at') as $history)
                         <div class="d-flex mb-3 pb-3 {{ !$loop->last ? 'border-bottom' : '' }}">
-                            <div class="flex-shrink-0 me-3">
+                            <div class="shrink-0 me-3">
                                 <div class="avatar bg-light text-primary">
                                     <svg class="icon">
                                         <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-user') }}"></use>
                                     </svg>
                                 </div>
                             </div>
-                            <div class="flex-grow-1">
+                            <div class="grow">
                                 <div class="d-flex justify-content-between align-items-start">
                                     <div>
                                         <h6 class="mb-1">{{ $history->status_label }}</h6>
@@ -613,7 +620,7 @@
                             <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-warning') }}"></use>
                         </svg>
                     </div>
-                    <div class="flex-grow-1">
+                    <div class="grow">
                         <h6 class="mb-2">Are you sure you want to change the order status?</h6>
                         <p class="mb-2">
                             <strong>Order:</strong> <span id="confirmOrderNumber">{{ $order->order_number }}</span><br>
