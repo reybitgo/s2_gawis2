@@ -225,7 +225,9 @@
     </div>
     @if($users->hasPages())
         <div class="card-footer">
-            {{ $users->appends(request()->query())->links() }}
+            <div class="d-flex justify-content-center">
+                {{ $users->appends(request()->query())->links('vendor.pagination.coreui') }}
+            </div>
         </div>
     @endif
 </div>
