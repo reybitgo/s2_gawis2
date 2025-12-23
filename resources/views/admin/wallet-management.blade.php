@@ -279,8 +279,7 @@
                 <svg class="icon me-2">
                     <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-list') }}"></use>
                 </svg>
-                <strong>All Transactions</strong>
-                <small class="text-body-secondary ms-2">Complete transaction history with filtering options</small>
+                <strong>All Transactions</strong>                
             </div>
             <x-per-page-selector :perPage="$perPage" />
         </div>
