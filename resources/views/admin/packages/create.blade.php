@@ -14,7 +14,7 @@
                             <svg class="icon me-2">
                                 <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-arrow-left') }}"></use>
                             </svg>
-                            Back to Packages
+                            Back
                         </a>
                     </div>
                 </div>
