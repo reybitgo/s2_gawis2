@@ -274,12 +274,19 @@
 <!-- All Transactions Section -->
 <div class="card mt-4">
     <div class="card-header">
-        <div class="d-flex justify-content-between align-items-center">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
             <div>
                 <svg class="icon me-2">
                     <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-list') }}"></use>
                 </svg>
-                <strong>All Transactions</strong>                
+                <strong>All Transactions</strong>
+                <small class="text-body-secondary ms-2 d-none d-md-inline">
+                    @if($allTransactions->count() > 0)
+                        Showing {{ $allTransactions->firstItem() }} to {{ $allTransactions->lastItem() }} of {{ $allTransactions->total() }} transactions
+                    @else
+                        No transactions found
+                    @endif
+                </small>
             </div>
             <x-per-page-selector :perPage="$perPage" />
         </div>
@@ -416,9 +423,13 @@
             </div>
 
             <!-- Pagination -->
-            <div class="card-footer">
-                {{ $allTransactions->links('vendor.pagination.coreui') }}
-            </div>
+            @if($allTransactions->hasPages())
+                <div class="card-footer">
+                    <div class="d-flex justify-content-center">
+                        {{ $allTransactions->appends(request()->query())->links('vendor.pagination.coreui') }}
+                    </div>
+                </div>
+            @endif
         @else
             <div class="text-center py-5">
                 <svg class="icon icon-3xl text-body-secondary mb-3">
@@ -518,6 +529,32 @@
     background-color: #f8f9fa;
     border-top: 1px solid rgba(0, 0, 0, 0.05);
     border-radius: 0 0 12px 12px !important;
+}
+
+/* Make pagination wrap on small screens to prevent overflow */
+.card-footer .pagination {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    justify-content: center;
+    padding: 0.25rem 0;
+    margin: 0;
+}
+
+.card-footer .pagination .page-item {
+    margin: 0.125rem;
+}
+
+.card-footer .pagination .page-link {
+    padding: 0.35rem 0.6rem;
+    min-width: auto;
+    white-space: nowrap;
+}
+
+@media (max-width: 576px) {
+    .card-footer .pagination {
+        font-size: 13px;
+    }
 }
 
 /* Transaction amount styling */
