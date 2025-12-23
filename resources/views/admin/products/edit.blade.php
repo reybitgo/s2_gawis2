@@ -11,12 +11,12 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <h5 class="card-title mb-0">Edit Product: {{ $product->name }}</h5>
                         <div>
-                            <a href="{{ route('admin.products.show', $product) }}" class="btn btn-outline-info me-2">
+                            {{-- <a href="{{ route('admin.products.show', $product) }}" class="btn btn-outline-info me-2">
                                 <svg class="icon me-1">
                                     <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-magnifying-glass') }}"></use>
                                 </svg>
                                 View Details
-                            </a>
+                            </a> --}}
                             <a href="{{ route('admin.products.index') }}" class="btn btn-outline-secondary">
                                 <svg class="icon me-2">
                                     <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-arrow-left') }}"></use>
