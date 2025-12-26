@@ -48,7 +48,7 @@
                             @if($user->rankPackage)
                                 <p class="text-muted mb-0">
                                     <strong>{{ $user->rankPackage->name }}</strong> 
-                                    <span class="text-body-secondary">(₱{{ number_format($user->rankPackage->price, 2) }})</span>
+                                    {{-- <span class="text-body-secondary">(₱{{ number_format($user->rankPackage->price, 2) }})</span> --}}
                                 </p>
                                 @if($user->rank_updated_at)
                                     <small class="text-body-secondary">
@@ -470,7 +470,7 @@
                         <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-envelope-closed') }}"></use>
                     </svg>
                 </div>
-                <div class="flex-grow-1">
+                <div class="grow">
                     <div class="fw-semibold">Email Address</div>
                     <div class="small text-body-secondary">{{ $user->email }}</div>
                 </div>
@@ -497,7 +497,7 @@
                         <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-shield-alt') }}"></use>
                     </svg>
                 </div>
-                <div class="flex-grow-1">
+                <div class="grow">
                     <div class="fw-semibold">Account Security</div>
                     <div class="small text-body-secondary">Email verification status</div>
                 </div>
@@ -524,7 +524,7 @@
                         <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-mobile') }}"></use>
                     </svg>
                 </div>
-                <div class="flex-grow-1">
+                <div class="grow">
                     <div class="fw-semibold">Two-Factor Authentication</div>
                     <div class="small text-body-secondary">Additional security protection</div>
                 </div>
@@ -551,7 +551,7 @@
                         <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-wallet') }}"></use>
                     </svg>
                 </div>
-                <div class="flex-grow-1">
+                <div class="grow">
                     <div class="fw-semibold">Wallet Status</div>
                     <div class="small text-body-secondary">Current wallet access level</div>
                 </div>
@@ -578,7 +578,7 @@
                         <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-chart-line') }}"></use>
                     </svg>
                 </div>
-                <div class="flex-grow-1">
+                <div class="grow">
                     <div class="fw-semibold">Transaction Activity</div>
                     <div class="small text-body-secondary">Total completed transactions</div>
                 </div>
@@ -593,7 +593,7 @@
                         <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-calendar') }}"></use>
                     </svg>
                 </div>
-                <div class="flex-grow-1">
+                <div class="grow">
                     <div class="fw-semibold">Member Since</div>
                     <div class="small text-body-secondary">Account creation date</div>
                 </div>
