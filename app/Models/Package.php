@@ -33,10 +33,12 @@ class Package extends Model
         'required_direct_sponsors',
         'is_rankable',
         'next_rank_package_id',
+        'rank_reward',
     ];
 
     protected $casts = [
         'price' => 'decimal:2',
+        'rank_reward' => 'decimal:2',
         'points_awarded' => 'integer',
         'quantity_available' => 'integer',
         'is_active' => 'boolean',
@@ -50,6 +52,11 @@ class Package extends Model
         'required_direct_sponsors' => 'integer',
         'is_rankable' => 'boolean',
     ];
+
+    public function getFormattedRankRewardAttribute()
+    {
+        return currency($this->rank_reward);
+    }
 
     protected static function boot()
     {
@@ -84,9 +91,9 @@ class Package extends Model
 
     public function scopeAvailable($query)
     {
-        return $query->where(function($q) {
+        return $query->where(function ($q) {
             $q->whereNull('quantity_available')
-              ->orWhere('quantity_available', '>', 0);
+                ->orWhere('quantity_available', '>', 0);
         });
     }
 
@@ -113,7 +120,7 @@ class Package extends Model
     public function isAvailable()
     {
         return $this->is_active &&
-               ($this->quantity_available === null || $this->quantity_available > 0);
+            ($this->quantity_available === null || $this->quantity_available > 0);
     }
 
     public function canBeDeleted()
@@ -181,7 +188,7 @@ class Package extends Model
     public function scopeOrderedByRank($query)
     {
         return $query->where('is_rankable', true)
-                     ->orderBy('rank_order', 'asc');
+            ->orderBy('rank_order', 'asc');
     }
 
     /**

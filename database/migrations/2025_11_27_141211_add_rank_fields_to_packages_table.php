@@ -17,7 +17,6 @@ return new class extends Migration
             $table->unsignedInteger('required_direct_sponsors')->default(0)->after('rank_order');
             $table->boolean('is_rankable')->default(true)->after('required_direct_sponsors');
             $table->unsignedBigInteger('next_rank_package_id')->nullable()->after('is_rankable');
-            
             $table->foreign('next_rank_package_id')->references('id')->on('packages')->onDelete('set null');
             $table->index('rank_order');
             $table->index('rank_name');

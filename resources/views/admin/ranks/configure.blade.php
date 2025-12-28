@@ -102,10 +102,30 @@
                         <tr>
                             <th>Package</th>
                             <th>Rank Name <span class="text-danger">*</span></th>
-                            <th>Rank Order <span class="text-danger">*</span></th>
-                            <th>Required Sponsors <span class="text-danger">*</span></th>
-                            <th>Next Rank Package</th>
-                            <th>Price</th>
+                            <th>
+                                Rank Order <span class="text-danger">*</span>
+                                <svg class="icon ms-1 text-muted" data-coreui-toggle="tooltip" title="1 = lowest" style="vertical-align: middle;">
+                                    <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-info') }}"></use>
+                                </svg>
+                            </th>
+                            <th>
+                                Required Sponsors <span class="text-danger">*</span>
+                                <svg class="icon ms-1 text-muted" data-coreui-toggle="tooltip" title="Same-rank sponsors" style="vertical-align: middle;">
+                                    <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-info') }}"></use>
+                                </svg>
+                            </th>
+                            <th>
+                                Next Rank Package
+                                <svg class="icon ms-1 text-muted" data-coreui-toggle="tooltip" title="Auto-purchase on advance" style="vertical-align: middle;">
+                                    <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-info') }}"></use>
+                                </svg>
+                            </th>
+                            <th>
+                                Reward
+                                <svg class="icon ms-1 text-muted" data-coreui-toggle="tooltip" title="Reward given to user on reaching this rank" style="vertical-align: middle;">
+                                    <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-info') }}"></use>
+                                </svg>
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
@@ -138,7 +158,7 @@
                                     @error('packages.'.$package->id.'.rank_order')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
-                                    <small class="text-muted">1 = lowest</small>
+                                    
                                 </td>
                                 <td>
                                     <input type="number" 
@@ -151,7 +171,7 @@
                                     @error('packages.'.$package->id.'.required_direct_sponsors')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
-                                    <small class="text-muted">Same-rank sponsors</small>
+                                    
                                 </td>
                                 <td>
                                     @php
@@ -187,10 +207,19 @@
                                     @error('packages.'.$package->id.'.next_rank_package_id')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
-                                    <small class="text-muted">Auto-purchase on advance</small>
+                                    
                                 </td>
                                 <td class="align-middle">
-                                    <strong class="text-success">₱{{ number_format($package->price, 2) }}</strong>
+                                    <input type="number"
+                                           step="0.01"
+                                           min="0"
+                                           name="packages[{{ $package->id }}][rank_reward]"
+                                           value="{{ old('packages.'.$package->id.'.rank_reward', $package->rank_reward) }}"
+                                           class="form-control @error('packages.'.$package->id.'.rank_reward') is-invalid @enderror">
+                                    @error('packages.'.$package->id.'.rank_reward')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                    
                                 </td>
                             </tr>
                         @empty
@@ -279,21 +308,21 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td>Starter Package (₱1,000)</td>
+                        <td>Starter Package (Reward: ₱{{ number_format(1000, 2) }})</td>
                         <td>Starter</td>
                         <td>1</td>
                         <td>5</td>
                         <td>Newbie Package</td>
                     </tr>
                     <tr>
-                        <td>Newbie Package (₱2,500)</td>
+                        <td>Newbie Package (Reward: ₱{{ number_format(2500, 2) }})</td>
                         <td>Newbie</td>
                         <td>2</td>
                         <td>8</td>
                         <td>Bronze Package</td>
                     </tr>
                     <tr>
-                        <td>Bronze Package (₱5,000)</td>
+                        <td>Bronze Package (Reward: ₱{{ number_format(5000, 2) }})</td>
                         <td>Bronze</td>
                         <td>3</td>
                         <td>10</td>
@@ -307,3 +336,29 @@
     </div>
 </div>
 @endsection
+
+    @push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var selector = '[data-coreui-toggle="tooltip"], [data-bs-toggle="tooltip"], [data-toggle="tooltip"]';
+            var tooltipElements = [].slice.call(document.querySelectorAll(selector));
+
+            tooltipElements.forEach(function (el) {
+                try {
+                    if (window.coreui) {
+                        new coreui.Tooltip(el);
+                    } else if (window.CoreUI) {
+                        new CoreUI.Tooltip(el);
+                    } else if (window.bootstrap) {
+                        new bootstrap.Tooltip(el);
+                    } else if (typeof $ !== 'undefined' && $.fn && $.fn.tooltip) {
+                        $(el).tooltip();
+                    }
+                } catch (e) {
+                    // ignore init errors
+                    console.warn('Tooltip init error', e);
+                }
+            });
+        });
+    </script>
+    @endpush

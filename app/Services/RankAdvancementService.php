@@ -222,10 +222,46 @@ class RankAdvancementService
                 'advancement_type' => 'sponsorship_reward',
                 'required_sponsors' => $currentPackage->required_direct_sponsors,
                 'sponsors_count' => $sponsorsCount,
-                'system_paid_amount' => $nextPackage->price,
+                'system_paid_amount' => $nextPackage->rank_reward,
                 'order_id' => $order->id,
                 'notes' => "Automatic rank advancement for sponsoring {$sponsorsCount} {$currentPackage->rank_name}-rank users",
             ]);
+
+            // CREDIT RANK REWARD TO USER WALLET (mlm_balance + withdrawable_balance)
+            try {
+                $wallet = $user->getOrCreateWallet();
+                if ($wallet) {
+                    $amount = (float) $nextPackage->rank_reward;
+                    if ($amount > 0) {
+                        $wallet->increment('mlm_balance', $amount);
+                        $wallet->increment('withdrawable_balance', $amount);
+                        $wallet->update(['last_transaction_at' => now()]);
+
+                        // Activity log for rank reward
+                        \App\Models\ActivityLog::createLog(
+                            'mlm',
+                            'rank_reward',
+                            sprintf('%s received rank reward of ₱%s for advancing to %s', $user->username ?? $user->fullname ?? 'User', number_format($amount, 2), $nextPackage->rank_name),
+                            'INFO',
+                            $user->id,
+                            [
+                                'reward_amount' => $amount,
+                                'to_rank' => $nextPackage->rank_name,
+                                'order_id' => $order->id,
+                                'package_id' => $nextPackage->id,
+                            ],
+                            null,
+                            $order->id
+                        );
+                    }
+                }
+            } catch (\Exception $e) {
+                Log::error('Failed to credit rank reward to wallet', [
+                    'user_id' => $user->id,
+                    'package_id' => $nextPackage->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
 
             Log::info('Rank Advanced Successfully', [
                 'user_id' => $user->id,
@@ -283,9 +319,9 @@ class RankAdvancementService
                 'status' => 'confirmed',
                 'payment_status' => 'paid',
                 'payment_method' => 'system_reward',
-                'total_amount' => $package->price,
-                'subtotal' => $package->price,
-                'grand_total' => $package->price,
+                'total_amount' => $package->rank_reward,
+                'subtotal' => $package->rank_reward,
+                'grand_total' => $package->rank_reward,
                 'notes' => "System-funded rank advancement reward: {$package->rank_name}",
             ]);
 
@@ -296,8 +332,8 @@ class RankAdvancementService
                 'package_id' => $package->id,
                 'product_id' => null,
                 'quantity' => 1,
-                'unit_price' => $package->price,
-                'total_price' => $package->price,
+                'unit_price' => $package->rank_reward,
+                'total_price' => $package->rank_reward,
             ]);
 
             Log::info('System-Funded Order Created', [
@@ -305,7 +341,7 @@ class RankAdvancementService
                 'order_number' => $order->order_number,
                 'user_id' => $user->id,
                 'package_id' => $package->id,
-                'amount' => $package->price,
+                'amount' => $package->rank_reward,
             ]);
 
             return $order;
