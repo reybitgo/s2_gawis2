@@ -69,34 +69,34 @@
     <div class="wrapper d-flex flex-column min-vh-100">
         @include('partials.header')
 
-        <div class="body flex-grow-1">
+        <div class="body grow">
             <div class="container-lg h-auto px-4">
                 @if(session('success'))
                     <div class="alert alert-success alert-dismissible fade show d-flex align-items-center" role="alert">
-                        <svg class="icon me-3 flex-shrink-0" style="width: 2.5rem; height: 2.5rem;">
+                        <svg class="icon me-3 shrink-0" style="width: 2.5rem; height: 2.5rem;">
                             <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-check-circle') }}"></use>
                         </svg>
-                        <div class="flex-grow-1">{!! session('success') !!}</div>
+                        <div class="grow">{!! session('success') !!}</div>
                         <button type="button" class="btn-close" data-coreui-dismiss="alert" aria-label="Close"></button>
                     </div>
                 @endif
 
                 @if(session('error'))
                     <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center" role="alert">
-                        <svg class="icon me-3 flex-shrink-0" style="width: 2.5rem; height: 2.5rem;">
+                        <svg class="icon me-3 shrink-0" style="width: 2.5rem; height: 2.5rem;">
                             <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-warning') }}"></use>
                         </svg>
-                        <div class="flex-grow-1">{!! session('error') !!}</div>
+                        <div class="grow">{!! session('error') !!}</div>
                         <button type="button" class="btn-close" data-coreui-dismiss="alert" aria-label="Close"></button>
                     </div>
                 @endif
 
                 @if($errors->any())
                     <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center" role="alert">
-                        <svg class="icon me-3 flex-shrink-0" style="width: 2.5rem; height: 2.5rem;">
+                        <svg class="icon me-3 shrink-0" style="width: 2.5rem; height: 2.5rem;">
                             <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-warning') }}"></use>
                         </svg>
-                        <div class="flex-grow-1">
+                        <div class="grow">
                             @if($errors->count() === 1)
                                 {!! $errors->first() !!}
                             @else
