@@ -6,7 +6,7 @@
 <!-- Page Header -->
 <div class="card mb-4">
     <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
             <div>
                 <h4 class="card-title mb-0">
                     <svg class="icon me-2">
@@ -16,8 +16,8 @@
                 </h4>
                 <p class="text-body-secondary mb-0">Add money to your e-wallet</p>
             </div>
-            <div>
-                <a href="{{ route('dashboard') }}" class="btn btn-secondary">
+            <div class="d-flex gap-2 flex-wrap">
+                <a href="{{ route('admin.dashboard') }}" class="btn btn-secondary">
                     <svg class="icon me-2">
                         <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-arrow-left') }}"></use>
                     </svg>
@@ -141,7 +141,7 @@
                     @if($paymentMethods['gcash_enabled'] && $paymentMethods['gcash_number'])
                     <div id="gcash_info" class="alert alert-info d-none mb-3">
                         <div class="d-flex align-items-start">
-                            <svg class="icon me-2 flex-shrink-0">
+                            <svg class="icon me-2 shrink-0">
                                 <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-mobile') }}"></use>
                             </svg>
                             <div>
@@ -160,7 +160,7 @@
                     @if($paymentMethods['maya_enabled'] && $paymentMethods['maya_number'])
                     <div id="maya_info" class="alert alert-success d-none mb-3">
                         <div class="d-flex align-items-start">
-                            <svg class="icon me-2 flex-shrink-0">
+                            <svg class="icon me-2 shrink-0">
                                 <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-credit-card') }}"></use>
                             </svg>
                             <div>
