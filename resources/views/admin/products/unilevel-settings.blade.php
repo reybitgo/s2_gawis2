@@ -8,7 +8,7 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
                         <div>
                             <h5 class="card-title mb-1">Unilevel Bonus Configuration</h5>
                             <p class="text-muted mb-0">{{ $product->name }} ({{ $product->sku }})</p>
