@@ -6,7 +6,7 @@
 <!-- Page Header -->
 <div class="card mb-4">
     <div class="card-body">
-        <div class="d-flex justify-content-between align-items-center">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
             <div>
                 <h4 class="card-title mb-0">
                     <svg class="icon me-2">
@@ -16,8 +16,8 @@
                 </h4>
                 <p class="text-body-secondary mb-0">Convert your withdrawable earnings to Purchase Balance</p>
             </div>
-            <div>
-                <a href="{{ route('dashboard') }}" class="btn btn-secondary">
+            <div class="d-flex gap-2 flex-wrap">
+                <a href="{{ route('admin.dashboard') }}" class="btn btn-secondary">
                     <svg class="icon me-2">
                         <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-arrow-left') }}"></use>
                     </svg>
@@ -30,7 +30,7 @@
 
 <!-- Current Balance Card -->
 <div class="row mb-4">
-    <div class="col-md-6">
+    <div class="col-md-6 mb-3 mb-md-0">
         <div class="card bg-success-gradient text-white">
             <div class="card-body text-center">
                 <h5 class="card-title">Network Balance</h5>
