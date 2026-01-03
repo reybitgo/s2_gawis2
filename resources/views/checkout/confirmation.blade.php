@@ -103,7 +103,7 @@
             </div>
 
             <!-- Order Items -->
-            <div class="card mb-4">
+            <div class="card mb-4 order-items">
                 <div class="card-header">
                     <h5 class="mb-0">
                         <svg class="icon me-2">
@@ -117,20 +117,17 @@
                         <div class="border-bottom p-3">
                             <div class="d-flex align-items-center">
                                 <img src="{{ $item->package_image_url }}" alt="{{ $item->package_name }}" class="rounded me-3" style="width: 60px; height: 60px; object-fit: cover;">
-                                <div class="flex-grow-1">
-                                    <h6 class="mb-1">{{ $item->package_name }}</h6>
+                                <div class="grow">
+                                    <h6 class="mb-1 item-name">{{ $item->package_name }}</h6>
                                     @if($item->package_description)
                                         <p class="text-muted small mb-1">{{ Str::limit($item->package_description, 80) }}</p>
                                     @endif
-                                    <div class="d-flex align-items-center text-sm">
+                                    <div class="d-flex text-sm">
                                         <span class="me-3">Quantity: <strong>{{ $item->quantity }}</strong></span>
                                         <span class="me-3">Unit Price: <strong>{{ $item->formatted_unit_price }}</strong></span>
                                         <span class="text-primary">Points: <strong>{{ number_format($item->total_points_awarded) }}</strong></span>
                                     </div>
-                                </div>
-                                <div class="text-end">
-                                    <div class="fw-bold h6 mb-0">{{ $item->formatted_total_price }}</div>
-                                </div>
+                                </div>                                
                             </div>
                         </div>
                     @endforeach
@@ -198,23 +195,19 @@
             </div>
 
             <!-- Action Buttons -->
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <a href="{{ route('packages.index') }}" class="btn btn-outline-primary">
-                        <svg class="icon me-2">
-                            <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-basket') }}"></use>
-                        </svg>
-                        Continue Shopping
-                    </a>
-                </div>
-                <div>
-                    <a href="{{ route('checkout.order-details', $order) }}" class="btn btn-primary">
-                        <svg class="icon me-2">
-                            <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-list-numbered') }}"></use>
-                        </svg>
-                        View Order Details
-                    </a>
-                </div>
+            <div class="d-grid gap-2">                
+                <a href="{{ route('packages.index') }}" class="btn btn-outline-primary flex-md-fill">
+                    <svg class="icon me-2">
+                        <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-basket') }}"></use>
+                    </svg>
+                    Continue Shopping
+                </a>              
+                <a href="{{ route('checkout.order-details', $order) }}" class="btn btn-primary flex-md-fill">
+                    <svg class="icon me-2">
+                        <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-list-numbered') }}"></use>
+                    </svg>
+                    View Order Details
+                </a>                
             </div>
         </div>
     </div>
@@ -222,6 +215,58 @@
 
 <!-- Bottom spacing for better visual layout -->
 <div class="pb-5"></div>
+
+@push('styles')
+<style>
+/* Prevent Order Items card content from overflowing (fix bleed) */
+.order-items .card-body .d-flex.align-items-center {
+    gap: 0.75rem;
+}
+.order-items .card-body .flex-grow-1 {
+    min-width: 0; /* allow flex child to shrink and enable ellipsis */
+}
+.order-items .item-name {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.order-items img {
+    flex-shrink: 0;
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+}
+/* Responsive: stack item content on small screens */
+@media (max-width: 576px) {
+    .order-items .card-body .d-flex.align-items-center {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+    }
+    .order-items img {
+        width: 56px;
+        height: 56px;
+    }
+    .order-items .text-end {
+        width: 100%;
+        text-align: right;
+        align-self: stretch;
+        margin-top: 0.25rem;
+    }
+    .order-items .item-name {
+        white-space: normal;
+        overflow: visible;
+        text-overflow: unset;
+    }
+    .order-items .card-body .d-flex.align-items-center .d-flex.text-sm {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+}
+</style>
+@endpush
 
 @if($order->canBeCancelled())
 <!-- Cancel Order Modal -->

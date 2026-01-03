@@ -6,13 +6,18 @@
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
                 <div>
-                    <h1 class="h2 mb-2">Checkout</h1>
-                    <p class="text-muted">Review your order and complete your purchase</p>
+                    <h4 class="card-title mb-0">
+                        <svg class="icon me-2">
+                            <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-credit-card') }}"></use>
+                        </svg>
+                        Checkout
+                    </h4>
+                    <p class="text-body-secondary mb-0">Review your order and complete your purchase</p>
                 </div>
-                <div>
-                    <a href="{{ route('cart.index') }}" class="btn btn-outline-secondary">
+                <div class="d-flex gap-2 flex-wrap">
+                    <a href="{{ route('cart.index') }}" class="btn btn-secondary">
                         <svg class="icon me-2">
                             <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-arrow-left') }}"></use>
                         </svg>
@@ -30,7 +35,7 @@
         <!-- Order Review -->
         <div class="col-lg-8">
             <!-- Order Items -->
-            <div class="card mb-4">
+            <div class="card mb-4 order-items">
                 <div class="card-header">
                     <h5 class="mb-0">
                         <svg class="icon me-2">
@@ -44,12 +49,12 @@
                         <div class="border-bottom p-3">
                             <div class="d-flex align-items-center">
                                 <img src="{{ $item['image_url'] }}" alt="{{ $item['name'] }}" class="rounded me-3" style="width: 60px; height: 60px; object-fit: cover;">
-                                <div class="flex-grow-1">
-                                    <h6 class="mb-1">{{ $item['name'] }}</h6>
+                                <div class="grow">
+                                    <h6 class="mb-1 item-name">{{ $item['name'] }}</h6>
                                     @if(isset($item['short_description']) && $item['short_description'])
                                         <p class="text-muted small mb-1">{{ Str::limit($item['short_description'], 80) }}</p>
                                     @endif
-                                    <div class="d-flex flex-wrap align-items-center text-sm">
+                                    <div class="d-flex flex-wrap text-sm">
                                         <span class="me-3 mb-1">Quantity: <strong>{{ $item['quantity'] }}</strong></span>
                                         <span class="me-3 mb-1">Unit Price: <strong>{{ currency($item['price']) }}</strong></span>
                                         <span class="text-primary mb-1">Points: <strong>{{ number_format(($item['points_awarded'] ?? $item['points'] ?? 0) * $item['quantity']) }}</strong></span>
@@ -84,7 +89,7 @@
                                                 <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-location-pin') }}"></use>
                                             </svg>
                                         </div>
-                                        <div class="flex-grow-1">
+                                        <div class="grow">
                                             <h6 class="mb-2">Office Pickup <span class="badge bg-success ms-2">Recommended</span></h6>
                                             <p class="text-muted small mb-2">Collect your order from our office or arranged meetup point</p>
                                             <div class="text-success small">
@@ -109,7 +114,7 @@
                                                 <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-home') }}"></use>
                                             </svg>
                                         </div>
-                                        <div class="flex-grow-1">
+                                        <div class="grow">
                                             <h6 class="mb-2">Home Delivery</h6>
                                             <p class="text-muted small mb-2">Standard delivery to your address</p>
                                             <div class="text-info small">
@@ -406,7 +411,7 @@
 
                         @if(!$walletSummary['can_pay'])
                             <div class="alert alert-warning d-flex align-items-start">
-                                <svg class="icon me-2 flex-shrink-0">
+                                <svg class="icon me-2 shrink-0">
                                     <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-wallet') }}"></use>
                                 </svg>
                                 <div>
@@ -544,6 +549,53 @@
 <style>
 .sticky-order-summary {
     z-index: 100 !important;
+}
+/* Prevent Order Items card content from overflowing (fix bleed) */
+.order-items .card-body .d-flex.align-items-center {
+    gap: 0.75rem;
+}
+.order-items .card-body .flex-grow-1 {
+    min-width: 0; /* allow flex child to shrink and enable ellipsis */
+}
+.order-items .item-name {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.order-items img {
+    flex-shrink: 0;
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+}
+/* Responsive: stack item content on small screens */
+@media (max-width: 576px) {
+    .order-items .card-body .d-flex.align-items-center {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+    }
+    .order-items img {
+        width: 56px;
+        height: 56px;
+    }
+    .order-items .text-end {
+        width: 100%;
+        text-align: right;
+        align-self: stretch;
+        margin-top: 0.25rem;
+    }
+    .order-items .item-name {
+        white-space: normal;
+        overflow: visible;
+        text-overflow: unset;
+    }
+    .order-items .card-body .d-flex.align-items-center .d-flex.text-sm {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
 }
 </style>
 @endpush

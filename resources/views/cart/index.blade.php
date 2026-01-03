@@ -6,13 +6,18 @@
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
                 <div>
-                    <h1 class="h2 mb-2">Shopping Cart</h1>
-                    <p class="text-muted">Review your selected packages</p>
+                    <h4 class="card-title mb-0">
+                        <svg class="icon me-2">
+                            <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-cart') }}"></use>
+                        </svg>
+                        Shopping Cart
+                    </h4>
+                    <p class="text-body-secondary mb-0">Review your selected packages</p>
                 </div>
-                <div>
-                    <a href="{{ route('packages.index') }}" class="btn btn-outline-primary">
+                <div class="d-flex gap-2 flex-wrap">
+                    <a href="{{ route('admin.dashboard') }}" class="btn btn-secondary">
                         <svg class="icon me-2">
                             <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-arrow-left') }}"></use>
                         </svg>
@@ -90,10 +95,10 @@
                                     <div class="cart-item border-bottom p-4" data-item-id="{{ $itemId }}">
                                         <!-- Desktop Layout -->
                                         <div class="d-none d-lg-flex align-items-center">
-                                            <div class="flex-shrink-0 me-3">
+                                            <div class="shrink-0 me-3">
                                                 <img src="{{ $itemImage }}" alt="{{ $item['name'] }}" class="rounded" style="width: 80px; height: 80px; object-fit: cover;">
                                             </div>
-                                            <div class="flex-grow-1 me-4">
+                                            <div class="grow me-4">
                                                 <h6 class="mb-1"><a href="{{ $itemRoute }}" class="text-decoration-none">{{ $item['name'] }}</a></h6>
                                                 <small class="text-muted">{{ $itemPoints }} points each</small>
                                             </div>
@@ -121,8 +126,8 @@
                                             <div class="row">
                                                 <div class="col-8">
                                                     <div class="d-flex">
-                                                        <img src="{{ $itemImage }}" alt="{{ $item['name'] }}" class="rounded me-3 flex-shrink-0" style="width: 60px; height: 60px; object-fit: cover;">
-                                                        <div class="flex-grow-1">
+                                                        <img src="{{ $itemImage }}" alt="{{ $item['name'] }}" class="rounded me-3 shrink-0" style="width: 60px; height: 60px; object-fit: cover;">
+                                                        <div class="grow">
                                                             <h6 class="mb-1"><a href="{{ $itemRoute }}" class="text-decoration-none">{{ $item['name'] }}</a></h6>
                                                             <div class="text-muted small">{{ $itemPoints }} points each</div>
                                                             <div class="fw-semibold">{{ currency($item['price']) }} each</div>
