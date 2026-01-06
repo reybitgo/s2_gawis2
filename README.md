@@ -1,6 +1,6 @@
-# Laravel E-Commerce & MLM Platform
+# GAWIS2 - Laravel MLM E-Commerce Platform
 
-A comprehensive e-commerce and multi-level marketing (MLM) platform built with Laravel 12. It features complete order management, an integrated e-wallet, a 5-level MLM commission system, and a unilevel bonus system for product sales.
+A comprehensive MLM e-commerce platform built with Laravel 12, featuring advanced commission distribution, wallet systems, rank management, and genealogy visualization. Supports complex business logic for multi-level marketing with 5-level commissions, unilevel bonuses, and automated rank advancement.
 
 ## 🚀 Core Features
 
@@ -18,11 +18,15 @@ A comprehensive e-commerce and multi-level marketing (MLM) platform built with L
 - **Automatic Commission Distribution**: Commissions are processed and distributed to the upline's MLM wallet balance immediately upon a new member's package purchase.
 - **Real-time Notifications**: Get notified via database, broadcast, and email (for verified users) when you earn a commission.
 - **MLM Dashboard**: Track your network, earnings, and referral statistics.
+- **Network Genealogy**: Visualize your downline network with interactive tree views and statistics.
+- **Rank Advancement System**: Automatic rank progression based on network size, monthly quotas, and package purchases.
+- **Monthly Quota Tracking**: Maintain monthly sales quotas to qualify for unilevel bonuses and rank advancements.
 
 ### Unilevel Bonus System
 - **Product-Based Bonuses**: Earn bonuses from product purchases made by your downline.
 - **Configurable Bonus Structure**: Each product can have its own multi-level bonus structure.
-- **Automatic Bonus Distribution**: Bonuses are distributed automatically when a product is purchased.
+- **Monthly Quota Requirements**: Bonuses are distributed based on meeting monthly sales quotas.
+- **Automatic Bonus Distribution**: Bonuses are distributed automatically when a product is purchased and quotas are met.
 
 ### E-Wallet System
 - **Integrated Digital Wallet**: Every user gets a wallet with segregated balances for MLM earnings and general purchases.
@@ -32,19 +36,24 @@ A comprehensive e-commerce and multi-level marketing (MLM) platform built with L
 - **Complete Transaction History**: Audit trail for all wallet operations.
 
 ### Administration & Security
-- **Admin Dashboard**: Centralized management of orders, returns, products, packages, and users.
+- **Admin Dashboard**: Centralized management of orders, returns, products, packages, users, and MLM operations.
 - **System & Activity Logs**: Comprehensive logging for all system and user activities, with advanced filtering and export options.
 - **Role-Based Access Control**: Granular permissions for admins and members using Spatie Laravel Permission.
-- **Two-Factor Authentication (2FA)**: Secure your account with 2FA.
+- **Two-Factor Authentication (2FA)**: Secure your account with 2FA using Laravel Fortify.
 - **User Suspension System**: Admins can suspend and activate user accounts.
+- **Fraud Detection**: Automated fraud detection for suspicious transactions and activities.
+- **Input Sanitization**: Comprehensive input validation and sanitization for security.
+- **Email Service**: Configurable email notifications with verification requirements.
 
 ## 🛠 Technology Stack
 
 - **Backend**: Laravel 12, PHP 8.2+
 - **Frontend**: Tailwind CSS 4.0, CoreUI, Vite
-- **Database**: MySQL or PostgreSQL
-- **Authentication**: Laravel Fortify
+- **Database**: MySQL or PostgreSQL (SQLite for testing)
+- **Authentication**: Laravel Fortify with 2FA
 - **Permissions**: Spatie Laravel Permission
+- **Testing**: PHPUnit with Feature and Unit tests
+- **Code Quality**: Laravel Pint for code formatting
 
 ## 🏁 Getting Started
 
@@ -119,11 +128,33 @@ After running the database reset, you can use the following default credentials 
 - **Email**: `member@gawisherbal.com`
 - **Password**: `Member123!@#`
 
-## 🧪 Testing
+## 🧪 Testing & Code Quality
 
-The project uses PHPUnit for testing. To run the tests, execute the following command:
+The project uses PHPUnit for testing and Laravel Pint for code formatting.
+
+### Running Tests
 ```bash
-./vendor/bin/phpunit
+# Run all tests
+composer test
+# Or
+php artisan test
+
+# Run specific test
+php artisan test --filter testMethodName
+php artisan test --filter TestClassName
+
+# Run tests in a specific file
+php artisan test tests/Feature/YourTest.php
+
+# Run only unit or feature tests
+php artisan test --testsuite Unit
+php artisan test --testsuite Feature
+```
+
+### Code Formatting
+Always run Laravel Pint before committing:
+```bash
+./vendor/bin/pint
 ```
 
 ## 🤝 Contributing
@@ -132,8 +163,15 @@ Contributions are welcome! Please follow these steps:
 1. Fork the repository.
 2. Create a new feature branch.
 3. Make your changes and add tests.
-4. Ensure the code follows Laravel Pint coding standards.
-5. Submit a pull request.
+4. Run Laravel Pint to ensure code formatting:
+   ```bash
+   ./vendor/bin/pint
+   ```
+5. Run tests to ensure nothing broke:
+   ```bash
+   composer test
+   ```
+6. Submit a pull request.
 
 ## 📄 License
 

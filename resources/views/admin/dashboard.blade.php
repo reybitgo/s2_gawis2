@@ -182,7 +182,7 @@
                             </div>
                         </div>
                         <h6 class="card-title mb-2">User Management</h6>
-                        <p class="card-text text-body-secondary small mb-3 flex-grow-1">Manage user accounts, roles and permissions</p>
+                        <p class="card-text text-body-secondary small mb-3 grow">Manage user accounts, roles and permissions</p>
                         <a href="{{ route('admin.users') }}" class="btn btn-primary btn-sm stretched-link">
                             Access
                         </a>
@@ -200,7 +200,7 @@
                             </div>
                         </div>
                         <h6 class="card-title mb-2">Wallet Management</h6>
-                        <p class="card-text text-body-secondary small mb-3 flex-grow-1">Monitor wallets, balances and transaction history</p>
+                        <p class="card-text text-body-secondary small mb-3 grow">Monitor wallets, balances and transaction history</p>
                         <a href="{{ route('admin.wallet.management') }}" class="btn btn-success btn-sm stretched-link">
                             Access
                         </a>
@@ -218,7 +218,7 @@
                             </div>
                         </div>
                         <h6 class="card-title mb-2">Transaction Approval</h6>
-                        <p class="card-text text-body-secondary small mb-3 flex-grow-1">Review and approve pending transactions</p>
+                        <p class="card-text text-body-secondary small mb-3 grow">Review and approve pending transactions</p>
                         <a href="{{ route('admin.transaction.approval') }}" class="btn btn-warning btn-sm stretched-link">
                             <span class="badge bg-light text-warning me-1">{{ $pendingTransactions }}</span>
                             Access
@@ -237,7 +237,7 @@
                             </div>
                         </div>
                         <h6 class="card-title mb-2">System Settings</h6>
-                        <p class="card-text text-body-secondary small mb-3 flex-grow-1">Configure system parameters and preferences</p>
+                        <p class="card-text text-body-secondary small mb-3 grow">Configure system parameters and preferences</p>
                         <a href="{{ route('admin.system.settings') }}" class="btn btn-info btn-sm stretched-link">
                             Access
                         </a>
@@ -255,7 +255,7 @@
                             </div>
                         </div>
                         <h6 class="card-title mb-2">System Logs</h6>
-                        <p class="card-text text-body-secondary small mb-3 flex-grow-1">View system activity and security events</p>
+                        <p class="card-text text-body-secondary small mb-3 grow">View system activity and security events</p>
                         <a href="{{ route('admin.logs') }}" class="btn btn-danger btn-sm stretched-link">
                             Access
                         </a>
@@ -273,7 +273,7 @@
                             </div>
                         </div>
                         <h6 class="card-title mb-2">Reports</h6>
-                        <p class="card-text text-body-secondary small mb-3 flex-grow-1">Generate and export system reports</p>
+                        <p class="card-text text-body-secondary small mb-3 grow">Generate and export system reports</p>
                         <a href="{{ route('admin.reports') }}" class="btn btn-secondary btn-sm stretched-link">
                             Access
                         </a>
@@ -342,7 +342,7 @@
                 @endphp
                 <div class="list-group-item {{ $transaction->status == 'rejected' ? 'bg-danger-subtle' : '' }}">
                     <div class="d-flex justify-content-between align-items-start">
-                        <div class="d-flex flex-grow-1">
+                        <div class="d-flex grow">
                             <!-- Status Badge -->
                             <div class="me-3">
                                 <span class="badge bg-{{ $color }}">
@@ -351,7 +351,7 @@
                             </div>
 
                             <!-- Transaction Content -->
-                            <div class="flex-grow-1">
+                            <div class="grow">
                                 <div class="d-flex align-items-center mb-1">
                                     <h6 class="mb-0 me-2">{{ ucfirst($transaction->type) }} Transaction</h6>
                                     <span class="badge bg-{{ $typeColor }} badge-sm">
@@ -583,7 +583,7 @@
         overflow: hidden;
     }
     
-    .list-group-item .flex-grow-1 {
+    .list-group-item .grow {
         min-width: 0;
         overflow: hidden;
     }
