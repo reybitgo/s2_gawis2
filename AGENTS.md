@@ -177,6 +177,37 @@ public function test_user_can_checkout_with_wallet(): void
 
 ## Critical Business Logic
 
+### Dual-Path Rank Advancement System
+
+**Two Independent Advancement Paths:**
+- **Path A (Recruitment-based):** Meet `required_direct_sponsors` (default 2)
+- **Path B (PV-based):** Meet `required_sponsors_ppv_gpv` (default 4) + `ppv_required` + `gpv_required`
+- First path to succeed wins the advancement
+
+**Personal Points Volume (PPV):**
+- Credits to user when they make purchases
+- Based on `product.points_awarded * quantity`
+- Resets to 0 on rank advancement
+- Tracked in `points_tracker` table
+
+**Group Points Volume (GPV):**
+- Credits to buyer (as their own GPV) + ALL uplines
+- Recursive upline credit (indefinite depth, no level limit)
+- Resets to 0 on rank advancement
+- Tracked in `points_tracker` table
+
+**Point Processing:**
+- Triggers on order completion (status = 'confirmed')
+- PointsService::processOrderPoints() processes order items
+- Calls PointsService::creditPPV() and PointsService::creditGPVToUplines()
+- Wrapped in database transaction for atomicity
+
+**Rank Advancement Criteria:**
+- Path A: `same_rank_sponsors >= required_direct_sponsors`
+- Path B: `rank_pv_enabled = true` AND `same_rank_sponsors >= required_sponsors_ppv_gpv` AND `current_ppv >= ppv_required` AND `current_gpv >= gpv_required`
+- Both paths checked in RankAdvancementService::checkAndTriggerAdvancement()
+- PPV/GPV reset synchronously on ANY rank advancement
+
 ### MLM Commission Distribution
 - Triggered synchronously on order payment via `ProcessMLMCommissions::dispatchSync()`
 - Distributes to 5 upline levels: L1 (₱200), L2-L5 (₱50 each)
@@ -205,6 +236,19 @@ public function test_user_can_checkout_with_wallet(): void
 
 ## Key Files
 
+### Dual-Path Rank Advancement
+- `app/Services/PointsService.php` - All point logic (PPV/GPV)
+- `app/Services/RankAdvancementService.php` - Dual-path advancement
+- `app/Models/PointsTracker.php` - Point audit trail
+- `resources/views/dashboard.blade.php` - Progress display
+- `resources/views/admin/ranks/configure.blade.php` - Admin configuration
+
+**Default Configuration:**
+- PPV thresholds: 0, 100, 300, 500, 800, 1200, 2000
+- GPV thresholds: 0, 1000, 5000, 15000, 40000, 100000, 250000
+- Sponsors: 2 (recruitment) vs 4 (PV-based)
+
+### MLM Commission System
 - `app/Services/MLMCommissionService.php` - Core commission logic
 - `app/Services/WalletPaymentService.php` - Payment processing
 - `app/Models/Wallet.php` - Balance management
@@ -234,3 +278,12 @@ composer test
 - Uses SQLite (`:memory:`) for tests
 - Check `phpunit.xml` for test configuration
 - Use factories and seeders for consistent test data
+
+## Data Migration
+
+**PPV/GPV Migration:**
+- Migration `2026_01_19_205840_ensure_ppv_gpv_defaults_for_existing_data` sets defaults for existing data
+- Packages: Default `ppv_required=0`, `gpv_required=0`, `required_sponsors_ppv_gpv=4`, `rank_pv_enabled=false`
+- Users: Default `current_ppv=0`, `current_gpv=0`, `ppv_gpv_updated_at=NULL`
+- All seeded packages have proper PPV/GPV values set
+- All seeded users have PPV/GPV initialized to 0
