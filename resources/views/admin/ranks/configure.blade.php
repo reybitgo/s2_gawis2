@@ -41,6 +41,21 @@
     .rank-config-table td:nth-child(6) {
         min-width: 120px; /* Price column */
     }
+
+    .rank-config-table th:nth-child(7),
+    .rank-config-table td:nth-child(7) {
+        min-width: 130px; /* PV Required column */
+    }
+
+    .rank-config-table th:nth-child(8),
+    .rank-config-table td:nth-child(8) {
+        min-width: 130px; /* GPV Required column */
+    }
+
+    .rank-config-table th:nth-child(9),
+    .rank-config-table td:nth-child(9) {
+        min-width: 100px; /* PV Enabled column */
+    }
     
     .rank-config-table td input.form-control,
     .rank-config-table td select.form-select {
@@ -102,30 +117,43 @@
                         <tr>
                             <th>Package</th>
                             <th>Rank Name <span class="text-danger">*</span></th>
-                            <th>
-                                Rank Order <span class="text-danger">*</span>
-                                <svg class="icon ms-1 text-muted" data-coreui-toggle="tooltip" title="1 = lowest" style="vertical-align: middle;">
-                                    <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-info') }}"></use>
-                                </svg>
-                            </th>
-                            <th>
-                                Required Sponsors <span class="text-danger">*</span>
-                                <svg class="icon ms-1 text-muted" data-coreui-toggle="tooltip" title="Same-rank sponsors" style="vertical-align: middle;">
-                                    <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-info') }}"></use>
-                                </svg>
-                            </th>
+                             <th>Rank Order <span class="text-danger">*</span></th>
+                             <th>
+                                 Required Sponsors (PV)
+                                 <svg class="icon ms-1 text-muted" data-coreui-toggle="tooltip" title="Sponsors for PV-based advancement" style="vertical-align: middle;">
+                                     <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-info') }}"></use>
+                                 </svg>
+                             </th>
                             <th>
                                 Next Rank Package
                                 <svg class="icon ms-1 text-muted" data-coreui-toggle="tooltip" title="Auto-purchase on advance" style="vertical-align: middle;">
                                     <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-info') }}"></use>
                                 </svg>
                             </th>
-                            <th>
-                                Reward
-                                <svg class="icon ms-1 text-muted" data-coreui-toggle="tooltip" title="Reward given to user on reaching this rank" style="vertical-align: middle;">
-                                    <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-info') }}"></use>
-                                </svg>
-                            </th>
+                             <th>
+                                 Reward
+                                 <svg class="icon ms-1 text-muted" data-coreui-toggle="tooltip" title="Reward given to user on reaching this rank" style="vertical-align: middle;">
+                                     <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-info') }}"></use>
+                                 </svg>
+                             </th>
+                             <th>
+                                 PV Required
+                                 <svg class="icon ms-1 text-muted" data-coreui-toggle="tooltip" title="Personal Points Volume needed" style="vertical-align: middle;">
+                                     <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-info') }}"></use>
+                                 </svg>
+                             </th>
+                             <th>
+                                 GPV Required
+                                 <svg class="icon ms-1 text-muted" data-coreui-toggle="tooltip" title="Group Points Volume needed" style="vertical-align: middle;">
+                                     <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-info') }}"></use>
+                                 </svg>
+                             </th>
+                             <th>
+                                 PV Enabled
+                                 <svg class="icon ms-1 text-muted" data-coreui-toggle="tooltip" title="Enable PV-based advancement" style="vertical-align: middle;">
+                                     <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-info') }}"></use>
+                                 </svg>
+                             </th>
                         </tr>
                     </thead>
                     <tbody>
@@ -161,17 +189,30 @@
                                     
                                 </td>
                                 <td>
-                                    <input type="number" 
-                                           name="packages[{{ $package->id }}][required_direct_sponsors]" 
-                                           value="{{ old('packages.'.$package->id.'.required_direct_sponsors', $package->required_direct_sponsors) }}" 
-                                           class="form-control @error('packages.'.$package->id.'.required_direct_sponsors') is-invalid @enderror" 
-                                           min="0" 
-                                           placeholder="e.g., 5" 
-                                           required>
-                                    @error('packages.'.$package->id.'.required_direct_sponsors')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                    
+                                     <input type="number"
+                                            name="packages[{{ $package->id }}][required_direct_sponsors]"
+                                            value="{{ old('packages.'.$package->id.'.required_direct_sponsors', $package->required_direct_sponsors) }}"
+                                            class="form-control @error('packages.'.$package->id.'.required_direct_sponsors') is-invalid @enderror"
+                                            min="0"
+                                            placeholder="e.g., 5"
+                                            required>
+                                     <small class="text-muted">Path A: Recruitment</small>
+                                     @error('packages.'.$package->id.'.required_direct_sponsors')
+                                         <div class="invalid-feedback">{{ $message }}</div>
+                                     @enderror
+                                </td>
+                                <td>
+                                     <input type="number"
+                                            name="packages[{{ $package->id }}][required_sponsors_ppv_gpv]"
+                                            value="{{ old('packages.'.$package->id.'.required_sponsors_ppv_gpv', $package->required_sponsors_ppv_gpv) }}"
+                                            class="form-control @error('packages.'.$package->id.'.required_sponsors_ppv_gpv') is-invalid @enderror"
+                                            min="0"
+                                            placeholder="e.g., 4"
+                                            required>
+                                     <small class="text-muted">Path B: PV</small>
+                                     @error('packages.'.$package->id.'.required_sponsors_ppv_gpv')
+                                         <div class="invalid-feedback">{{ $message }}</div>
+                                     @enderror
                                 </td>
                                 <td>
                                     @php
@@ -209,17 +250,56 @@
                                     @enderror
                                     
                                 </td>
+                                 <td class="align-middle">
+                                     <input type="number"
+                                            step="0.01"
+                                            min="0"
+                                            name="packages[{{ $package->id }}][rank_reward]"
+                                            value="{{ old('packages.'.$package->id.'.rank_reward', $package->rank_reward) }}"
+                                            class="form-control @error('packages.'.$package->id.'.rank_reward') is-invalid @enderror">
+                                     @error('packages.'.$package->id.'.rank_reward')
+                                         <div class="invalid-feedback">{{ $message }}</div>
+                                     @enderror
+                                </td>
                                 <td class="align-middle">
-                                    <input type="number"
-                                           step="0.01"
-                                           min="0"
-                                           name="packages[{{ $package->id }}][rank_reward]"
-                                           value="{{ old('packages.'.$package->id.'.rank_reward', $package->rank_reward) }}"
-                                           class="form-control @error('packages.'.$package->id.'.rank_reward') is-invalid @enderror">
-                                    @error('packages.'.$package->id.'.rank_reward')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                    
+                                     <input type="number"
+                                            step="0.01"
+                                            min="0"
+                                            name="packages[{{ $package->id }}][ppv_required]"
+                                            value="{{ old('packages.'.$package->id.'.ppv_required', $package->ppv_required) }}"
+                                            class="form-control @error('packages.'.$package->id.'.ppv_required') is-invalid @enderror"
+                                            placeholder="0.00">
+                                     <small class="text-muted">PPV needed</small>
+                                     @error('packages.'.$package->id.'.ppv_required')
+                                         <div class="invalid-feedback">{{ $message }}</div>
+                                     @enderror
+                                </td>
+                                <td class="align-middle">
+                                     <input type="number"
+                                            step="0.01"
+                                            min="0"
+                                            name="packages[{{ $package->id }}][gpv_required]"
+                                            value="{{ old('packages.'.$package->id.'.gpv_required', $package->gpv_required) }}"
+                                            class="form-control @error('packages.'.$package->id.'.gpv_required') is-invalid @enderror"
+                                            placeholder="0.00">
+                                     <small class="text-muted">GPV needed</small>
+                                     @error('packages.'.$package->id.'.gpv_required')
+                                         <div class="invalid-feedback">{{ $message }}</div>
+                                     @enderror
+                                </td>
+                                <td class="align-middle text-center">
+                                     <div class="form-check">
+                                         <input class="form-check-input" type="checkbox" id="rank_pv_enabled_{{ $package->id }}"
+                                                name="packages[{{ $package->id }}][rank_pv_enabled]"
+                                                value="1"
+                                                {{ old('packages.'.$package->id.'.rank_pv_enabled', $package->rank_pv_enabled) ? 'checked' : '' }}>
+                                         <label class="form-check-label" for="rank_pv_enabled_{{ $package->id }}">
+                                             {{ $package->rank_pv_enabled ? 'Yes' : 'No' }}
+                                         </label>
+                                     </div>
+                                     @error('packages.'.$package->id.'.rank_pv_enabled')
+                                         <div class="invalid-feedback">{{ $message }}</div>
+                                     @enderror
                                 </td>
                             </tr>
                         @empty
@@ -270,8 +350,13 @@
         <ul class="mb-3">
             <li><strong>Rank Name:</strong> Display name for this rank tier (e.g., "Starter", "Newbie", "Bronze")</li>
             <li><strong>Rank Order:</strong> Numeric order where 1 = lowest rank, higher numbers = better ranks. Used for rank comparisons in commission calculations.</li>
-            <li><strong>Required Sponsors:</strong> Number of same-rank direct sponsors needed to advance to the next rank tier</li>
-            <li><strong>Next Rank Package:</strong> The package that will be automatically purchased (system-funded) when advancement criteria is met</li>
+            <li><strong>Required Sponsors (Path A):</strong> Number of same-rank direct sponsors needed to advance to next rank tier via recruitment path.</li>
+            <li><strong>Required Sponsors (Path B):</strong> Minimum same-rank sponsors needed for PV-based rank advancement (separate from Path A).</li>
+            <li><strong>PV Required:</strong> Personal Points Volume needed for PV-based advancement.</li>
+            <li><strong>GPV Required:</strong> Group Points Volume needed for PV-based advancement (user + all downlines).</li>
+            <li><strong>PV Enabled:</strong> Enable or disable PV-based advancement for this rank.</li>
+            <li><strong>Next Rank Package:</strong> The package that will be automatically purchased (system-funded) when advancement criteria is met.</li>
+            <li><strong>Reward:</strong> Cash reward given to user on reaching this rank.</li>
         </ul>
         
         <h6>Important Notes:</h6>
@@ -297,46 +382,63 @@
         <h6>Example Configuration:</h6>
         <div class="table-responsive">
             <table class="table table-sm table-bordered">
-                <thead class="table-light">
-                    <tr>
-                        <th>Package</th>
-                        <th>Rank Name</th>
-                        <th>Rank Order</th>
-                        <th>Required Sponsors</th>
-                        <th>Next Rank</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Starter Package (Reward: ₱{{ number_format(1000, 2) }})</td>
-                        <td>Starter</td>
-                        <td>1</td>
-                        <td>5</td>
-                        <td>Newbie Package</td>
-                    </tr>
-                    <tr>
-                        <td>Newbie Package (Reward: ₱{{ number_format(2500, 2) }})</td>
-                        <td>Newbie</td>
-                        <td>2</td>
-                        <td>8</td>
-                        <td>Bronze Package</td>
-                    </tr>
-                    <tr>
-                        <td>Bronze Package (Reward: ₱{{ number_format(5000, 2) }})</td>
-                        <td>Bronze</td>
-                        <td>3</td>
-                        <td>10</td>
-                        <td>None (Top Rank)</td>
-                    </tr>
+                 <thead class="table-light">
+                        <tr>
+                            <th>Package</th>
+                            <th>Rank Name</th>
+                            <th>Rank Order</th>
+                            <th>Sponsors A</th>
+                            <th>Sponsors B</th>
+                            <th>PV Req</th>
+                            <th>GPV Req</th>
+                            <th>PV</th>
+                        </tr>
+                    </thead>
+                 <tbody>
+                        <tr>
+                            <td>Starter Package (Reward: ₱{{ number_format(1000, 2) }})</td>
+                            <td>Starter</td>
+                            <td>1</td>
+                            <td>2</td>
+                            <td>2</td>
+                            <td>0</td>
+                            <td>0</td>
+                            <td>Yes</td>
+                            <td>Newbie Package</td>
+                        </tr>
+                        <tr>
+                            <td>Newbie Package (Reward: ₱{{ number_format(2500, 2) }})</td>
+                            <td>Newbie</td>
+                            <td>2</td>
+                            <td>5</td>
+                            <td>4</td>
+                            <td>100</td>
+                            <td>1000</td>
+                            <td>Yes</td>
+                            <td>Bronze Package</td>
+                        </tr>
+                        <tr>
+                            <td>Bronze Package (Reward: ₱{{ number_format(5000, 2) }})</td>
+                            <td>Bronze</td>
+                            <td>3</td>
+                            <td>10</td>
+                            <td>4</td>
+                            <td>300</td>
+                            <td>5000</td>
+                            <td>Yes</td>
+                            <td>Silver Package</td>
+                        </tr>
                 </tbody>
             </table>
         </div>
-        
-        <p class="mb-0"><strong>Result:</strong> When a Starter user sponsors 5 other Starter-rank users, they automatically receive the Newbie Package for free!</p>
-    </div>
-</div>
-@endsection
-
+	        
+        <p class="mb-0"><strong>Result:</strong> Users can advance ranks via two paths:
+            <ul class="mb-0">
+                <li><strong>Path A (Recruitment):</strong> When a user meets recruitment sponsor requirement, they automatically receive next rank package!</li>
+                <li><strong>Path B (PV-Based):</strong> When a user meets PPV/GPV sponsor requirement + PPV threshold + GPV threshold, they advance!</li>
+            </ul>
+        </p>
+	    
     @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function () {

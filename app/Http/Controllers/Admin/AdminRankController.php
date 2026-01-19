@@ -81,6 +81,10 @@ class AdminRankController extends Controller
             'packages.*.rank_name' => 'required|string|max:100',
             'packages.*.rank_order' => 'required|integer|min:1',
             'packages.*.required_direct_sponsors' => 'required|integer|min:0',
+            'packages.*.required_sponsors_ppv_gpv' => 'required|integer|min:0',
+            'packages.*.ppv_required' => 'required|numeric|min:0',
+            'packages.*.gpv_required' => 'required|numeric|min:0',
+            'packages.*.rank_pv_enabled' => 'nullable|boolean',
             'packages.*.rank_reward' => 'nullable|numeric|min:0',
             'packages.*.next_rank_package_id' => 'nullable|exists:packages,id',
         ]);
@@ -94,6 +98,10 @@ class AdminRankController extends Controller
                     'rank_name' => $data['rank_name'],
                     'rank_order' => $data['rank_order'],
                     'required_direct_sponsors' => $data['required_direct_sponsors'],
+                    'required_sponsors_ppv_gpv' => $data['required_sponsors_ppv_gpv'],
+                    'ppv_required' => $data['ppv_required'],
+                    'gpv_required' => $data['gpv_required'],
+                    'rank_pv_enabled' => $data['rank_pv_enabled'] ?? true,
                     'next_rank_package_id' => $data['next_rank_package_id'] ?? null,
                     'rank_reward' => $data['rank_reward'] ?? 0,
                 ]);
