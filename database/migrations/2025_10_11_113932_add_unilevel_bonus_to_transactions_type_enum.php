@@ -12,33 +12,33 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Add 'unilevel_bonus' to the transaction type enum
-        DB::statement("
-            ALTER TABLE transactions
-            MODIFY COLUMN type ENUM(
-                'deposit',
-                'withdrawal',
-                'transfer',
-                'transfer_out',
-                'transfer_in',
-                'transfer_charge',
-                'withdrawal_fee',
-                'payment',
-                'refund',
-                'mlm_commission',
-                'balance_conversion',
-                'unilevel_bonus'
-            ) NOT NULL
-        ");
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement("
+                ALTER TABLE transactions
+                MODIFY COLUMN type ENUM(
+                    'deposit',
+                    'withdrawal',
+                    'transfer',
+                    'transfer_out',
+                    'transfer_in',
+                    'transfer_charge',
+                    'withdrawal_fee',
+                    'payment',
+                    'refund',
+                    'mlm_commission',
+                    'balance_conversion',
+                    'unilevel_bonus'
+                ) NOT NULL
+            ");
 
-        // Add 'unilevel' to the transaction source_type enum
-        DB::statement("
-            ALTER TABLE transactions
-            MODIFY COLUMN source_type ENUM(
-                'mlm',
-                'unilevel'
-            ) NULL
-        ");
+            DB::statement("
+                ALTER TABLE transactions
+                MODIFY COLUMN source_type ENUM(
+                    'mlm',
+                    'unilevel'
+                ) NULL
+            ");
+        }
     }
 
     /**
@@ -46,30 +46,30 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // Remove 'unilevel_bonus' from the transaction type enum
-        DB::statement("
-            ALTER TABLE transactions
-            MODIFY COLUMN type ENUM(
-                'deposit',
-                'withdrawal',
-                'transfer',
-                'transfer_out',
-                'transfer_in',
-                'transfer_charge',
-                'withdrawal_fee',
-                'payment',
-                'refund',
-                'mlm_commission',
-                'balance_conversion'
-            ) NOT NULL
-        ");
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement("
+                ALTER TABLE transactions
+                MODIFY COLUMN type ENUM(
+                    'deposit',
+                    'withdrawal',
+                    'transfer',
+                    'transfer_out',
+                    'transfer_in',
+                    'transfer_charge',
+                    'withdrawal_fee',
+                    'payment',
+                    'refund',
+                    'mlm_commission',
+                    'balance_conversion'
+                ) NOT NULL
+            ");
 
-        // Remove 'unilevel' from the transaction source_type enum
-        DB::statement("
-            ALTER TABLE transactions
-            MODIFY COLUMN source_type ENUM(
-                'mlm'
-            ) NULL
-        ");
+            DB::statement("
+                ALTER TABLE transactions
+                MODIFY COLUMN source_type ENUM(
+                    'mlm'
+                ) NULL
+            ");
+        }
     }
 };

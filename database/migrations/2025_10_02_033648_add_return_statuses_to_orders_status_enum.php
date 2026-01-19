@@ -12,34 +12,35 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Add return-related statuses and remove 'in_transit' from orders.status enum
-        DB::statement("ALTER TABLE orders MODIFY COLUMN status ENUM(
-            'pending',
-            'paid',
-            'payment_failed',
-            'processing',
-            'confirmed',
-            'packing',
-            'ready_for_pickup',
-            'pickup_notified',
-            'received_in_office',
-            'ready_to_ship',
-            'shipped',
-            'out_for_delivery',
-            'delivered',
-            'delivery_failed',
-            'return_requested',
-            'return_approved',
-            'return_rejected',
-            'return_in_transit',
-            'return_received',
-            'completed',
-            'on_hold',
-            'cancelled',
-            'refunded',
-            'returned',
-            'failed'
-        ) NOT NULL DEFAULT 'pending'");
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement("ALTER TABLE orders MODIFY COLUMN status ENUM(
+                'pending',
+                'paid',
+                'payment_failed',
+                'processing',
+                'confirmed',
+                'packing',
+                'ready_for_pickup',
+                'pickup_notified',
+                'received_in_office',
+                'ready_to_ship',
+                'shipped',
+                'out_for_delivery',
+                'delivered',
+                'delivery_failed',
+                'return_requested',
+                'return_approved',
+                'return_rejected',
+                'return_in_transit',
+                'return_received',
+                'completed',
+                'on_hold',
+                'cancelled',
+                'refunded',
+                'returned',
+                'failed'
+            ) NOT NULL DEFAULT 'pending'");
+        }
     }
 
     /**
@@ -47,29 +48,30 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // Remove return-related statuses from orders.status enum
-        DB::statement("ALTER TABLE orders MODIFY COLUMN status ENUM(
-            'pending',
-            'paid',
-            'payment_failed',
-            'processing',
-            'confirmed',
-            'packing',
-            'ready_for_pickup',
-            'pickup_notified',
-            'received_in_office',
-            'ready_to_ship',
-            'shipped',
-            'in_transit',
-            'out_for_delivery',
-            'delivered',
-            'delivery_failed',
-            'completed',
-            'on_hold',
-            'cancelled',
-            'refunded',
-            'returned',
-            'failed'
-        ) NOT NULL DEFAULT 'pending'");
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement("ALTER TABLE orders MODIFY COLUMN status ENUM(
+                'pending',
+                'paid',
+                'payment_failed',
+                'processing',
+                'confirmed',
+                'packing',
+                'ready_for_pickup',
+                'pickup_notified',
+                'received_in_office',
+                'ready_to_ship',
+                'shipped',
+                'in_transit',
+                'out_for_delivery',
+                'delivered',
+                'delivery_failed',
+                'completed',
+                'on_hold',
+                'cancelled',
+                'refunded',
+                'returned',
+                'failed'
+            ) NOT NULL DEFAULT 'pending'");
+        }
     }
 };

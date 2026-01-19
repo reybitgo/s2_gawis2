@@ -12,37 +12,39 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Add mlm_commission to the transaction type enum
-        DB::statement("ALTER TABLE transactions MODIFY COLUMN type ENUM(
-            'deposit',
-            'withdrawal',
-            'transfer',
-            'transfer_out',
-            'transfer_in',
-            'transfer_charge',
-            'withdrawal_fee',
-            'payment',
-            'refund',
-            'mlm_commission'
-        ) NULL");
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement("ALTER TABLE transactions MODIFY COLUMN type ENUM(
+                'deposit',
+                'withdrawal',
+                'transfer',
+                'transfer_out',
+                'transfer_in',
+                'transfer_charge',
+                'withdrawal_fee',
+                'payment',
+                'refund',
+                'mlm_commission'
+            ) NULL");
+        }
     }
 
     /**
-     * Reverse the migrations.
+     * Reverse migrations.
      */
     public function down(): void
     {
-        // Remove mlm_commission from the transaction type enum
-        DB::statement("ALTER TABLE transactions MODIFY COLUMN type ENUM(
-            'deposit',
-            'withdrawal',
-            'transfer',
-            'transfer_out',
-            'transfer_in',
-            'transfer_charge',
-            'withdrawal_fee',
-            'payment',
-            'refund'
-        ) NULL");
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement("ALTER TABLE transactions MODIFY COLUMN type ENUM(
+                'deposit',
+                'withdrawal',
+                'transfer',
+                'transfer_out',
+                'transfer_in',
+                'transfer_charge',
+                'withdrawal_fee',
+                'payment',
+                'refund'
+            ) NULL");
+        }
     }
 };

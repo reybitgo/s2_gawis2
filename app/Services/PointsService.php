@@ -54,7 +54,7 @@ class PointsService
     public function creditGPVToUplines(User $user, float $points, OrderItem $item): void
     {
         $user->increment('current_gpv', $points);
-        $this->recordPoints($user, 0, $points, $item, null, 'product_purchase');
+        $this->recordPoints($user, $points, $points, $item, null, 'product_purchase');
 
         $currentUpline = $user->sponsor;
 

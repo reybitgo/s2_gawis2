@@ -95,6 +95,9 @@ class RankAdvancementService
                 'user_id' => $user->id,
                 'directs' => $directSponsorsCount,
                 'required' => $requiredDirectsRecruit,
+                'ppv_enabled' => $currentPackage->rank_pv_enabled,
+                'current_ppv' => $currentPPV,
+                'current_gpv' => $currentGPV,
             ]);
 
             return $this->advanceUserRank($user, $directSponsorsCount, 'recruitment');
@@ -418,6 +421,7 @@ class RankAdvancementService
             return [
                 'current_rank' => 'Unranked',
                 'can_advance' => false,
+                'is_eligible' => false,
                 'progress' => 0,
                 'required' => 0,
                 'remaining' => 0,

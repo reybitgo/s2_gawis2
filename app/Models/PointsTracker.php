@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PointsTracker extends Model
 {
+    protected $table = 'points_tracker';
+
     public $timestamps = false;
 
     protected $fillable = [

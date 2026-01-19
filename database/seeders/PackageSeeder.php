@@ -14,37 +14,42 @@ class PackageSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create MLM Starter Package (Rank 1)
-        $starterPackage = Package::create([
-            'name' => 'Starter Package',
-            'slug' => 'starter-package',
-            'rank_name' => 'Starter',
-            'rank_order' => 1,
-            'price' => 1000.00,
-            'required_direct_sponsors' => 5, // Need 5 Starter-rank sponsors to advance
-            'is_mlm_package' => true,
-            'is_rankable' => true,
-            'max_mlm_levels' => 5,
-            'monthly_quota_points' => 100.00, // FOR UNILEVEL BONUSES ONLY
-            'enforce_monthly_quota' => true, // FOR UNILEVEL BONUSES ONLY
-            'points_awarded' => 100,
-            'quantity_available' => 9999,
-            'short_description' => 'Starter Rank - Entry level MLM package',
-            'long_description' => 'Join our MLM program at the Starter rank. Earn commissions from your network across 5 levels. Sponsor 5 Starter-rank members to automatically advance to Newbie rank!',
-            'is_active' => true,
-            'sort_order' => 1,
-            'next_rank_package_id' => null, // Will set after creating next package
-            'meta_data' => [
-                'total_commission' => 400.00,
-                'company_profit' => 600.00,
-                'features' => [
-                    'Starter Rank Package',
-                    'MLM Business Opportunity',
-                    '5-Level Commission Structure',
-                    'Auto-advance to Newbie after 5 sponsors',
+        // Find or create MLM Starter Package (Rank 1)
+        $starterPackage = Package::updateOrCreate(
+            ['slug' => 'starter-package'],
+            [
+                'name' => 'Starter Package',
+                'rank_name' => 'Starter',
+                'rank_order' => 1,
+                'price' => 1000.00,
+                'required_direct_sponsors' => 5,
+                'required_sponsors_ppv_gpv' => 4,
+                'ppv_required' => 100,
+                'gpv_required' => 1000,
+                'rank_pv_enabled' => true,
+                'is_mlm_package' => true,
+                'is_rankable' => true,
+                'max_mlm_levels' => 5,
+                'monthly_quota_points' => 100.00,
+                'enforce_monthly_quota' => true,
+                'points_awarded' => 100,
+                'quantity_available' => 9999,
+                'short_description' => 'Starter Rank - Entry level MLM package',
+                'long_description' => 'Join our MLM program at Starter rank. Earn commissions from your network across 5 levels. Sponsor 5 Starter-rank members to automatically advance to Newbie rank!',
+                 'is_active' => true,
+                'sort_order' => 1,
+                'meta_data' => [
+                    'total_commission' => 400.00,
+                    'company_profit' => 600.00,
+                    'features' => [
+                        'Starter Rank Package',
+                        'MLM Business Opportunity',
+                        '5-Level Commission Structure',
+                        'Auto-advance to Newbie after 5 sponsors',
+                    ],
                 ],
-            ],
-        ]);
+            ]
+        );
 
         $this->command->info("✅ Created Starter Package (Rank 1) - ID: {$starterPackage->id}");
 
@@ -55,19 +60,23 @@ class PackageSeeder extends Seeder
             'rank_name' => 'Newbie',
             'rank_order' => 2,
             'price' => 2500.00,
-            'required_direct_sponsors' => 8, // Need 8 Newbie-rank sponsors to advance
+            'required_direct_sponsors' => 8,
+            'required_sponsors_ppv_gpv' => 6,
+            'ppv_required' => 300,
+            'gpv_required' => 5000,
+            'rank_pv_enabled' => true,
             'is_mlm_package' => true,
             'is_rankable' => true,
             'max_mlm_levels' => 5,
-            'monthly_quota_points' => 150.00, // FOR UNILEVEL BONUSES ONLY
-            'enforce_monthly_quota' => true, // FOR UNILEVEL BONUSES ONLY
+            'monthly_quota_points' => 150.00,
+            'enforce_monthly_quota' => true,
             'points_awarded' => 250,
             'quantity_available' => 9999,
             'short_description' => 'Newbie Rank - Enhanced MLM package with higher commissions',
             'long_description' => 'Advance to Newbie rank for higher earnings. Sponsor 8 Newbie-rank members to automatically advance to Bronze rank!',
             'is_active' => true,
             'sort_order' => 2,
-            'next_rank_package_id' => null, // Will set after creating next package
+            'next_rank_package_id' => null,
             'meta_data' => [
                 'total_commission' => 800.00,
                 'company_profit' => 1700.00,
@@ -89,12 +98,16 @@ class PackageSeeder extends Seeder
             'rank_name' => 'Bronze',
             'rank_order' => 3,
             'price' => 5000.00,
-            'required_direct_sponsors' => 10, // Top rank requirement
+            'required_direct_sponsors' => 10,
+            'required_sponsors_ppv_gpv' => 8,
+            'ppv_required' => 500,
+            'gpv_required' => 15000,
+            'rank_pv_enabled' => true,
             'is_mlm_package' => true,
             'is_rankable' => true,
             'max_mlm_levels' => 5,
-            'monthly_quota_points' => 200.00, // FOR UNILEVEL BONUSES ONLY
-            'enforce_monthly_quota' => true, // FOR UNILEVEL BONUSES ONLY
+            'monthly_quota_points' => 200.00,
+            'enforce_monthly_quota' => true,
             'points_awarded' => 500,
             'quantity_available' => 9999,
             'short_description' => 'Bronze Rank - Top tier MLM package with maximum commissions',

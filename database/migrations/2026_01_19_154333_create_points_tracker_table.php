@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('points_tracker', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
-            $table->unsignedBigInteger('order_item_id');
+            $table->unsignedBigInteger('order_item_id')->nullable();
             $table->decimal('ppv', 10, 2)->default(0);
             $table->decimal('gpv', 10, 2)->default(0);
             $table->timestamp('earned_at')->useCurrent();
