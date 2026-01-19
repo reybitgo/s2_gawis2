@@ -212,4 +212,135 @@ class PointsServiceTest extends TestCase
 
         $this->pointsService->processOrderPoints($order);
     }
+
+    public function test_deductorderpoints_skips_uncredited_orders(): void
+    {
+        $user = User::factory()->create(['current_ppv' => 100, 'current_gpv' => 500]);
+        $product = Product::factory()->create(['points_awarded' => 25]);
+        $order = Order::factory()->create(['user_id' => $user->id, 'points_credited' => false]);
+        OrderItem::factory()->create([
+            'order_id' => $order->id,
+            'product_id' => $product->id,
+            'quantity' => 2,
+        ]);
+
+        $this->pointsService->deductOrderPoints($order);
+
+        $user->refresh();
+        $this->assertEquals(100, $user->current_ppv);
+        $this->assertEquals(500, $user->current_gpv);
+    }
+
+    public function test_deductorderpoints_deducts_ppv_from_buyer(): void
+    {
+        $user = User::factory()->create(['current_ppv' => 100, 'current_gpv' => 500]);
+        $product = Product::factory()->create(['points_awarded' => 25]);
+        $order = Order::factory()->create(['user_id' => $user->id, 'points_credited' => true]);
+        OrderItem::factory()->create([
+            'order_id' => $order->id,
+            'product_id' => $product->id,
+            'quantity' => 2,
+        ]);
+
+        $this->pointsService->deductOrderPoints($order);
+
+        $user->refresh();
+        $this->assertEquals(50, $user->current_ppv);
+    }
+
+    public function test_deductorderpoints_deducts_gpv_from_buyer(): void
+    {
+        $user = User::factory()->create(['current_ppv' => 100, 'current_gpv' => 500]);
+        $product = Product::factory()->create(['points_awarded' => 25]);
+        $order = Order::factory()->create(['user_id' => $user->id, 'points_credited' => true]);
+        OrderItem::factory()->create([
+            'order_id' => $order->id,
+            'product_id' => $product->id,
+            'quantity' => 2,
+        ]);
+
+        $this->pointsService->deductOrderPoints($order);
+
+        $user->refresh();
+        $this->assertEquals(450, $user->current_gpv);
+    }
+
+    public function test_deductorderpoints_deducts_gpv_from_all_uplines(): void
+    {
+        $sponsor = User::factory()->create(['current_ppv' => 0, 'current_gpv' => 200]);
+        $buyer = User::factory()->create(['sponsor_id' => $sponsor->id, 'current_ppv' => 100, 'current_gpv' => 500]);
+        $product = Product::factory()->create(['points_awarded' => 25]);
+        $order = Order::factory()->create(['user_id' => $buyer->id, 'points_credited' => true]);
+        $orderItem = OrderItem::factory()->create([
+            'order_id' => $order->id,
+            'product_id' => $product->id,
+            'quantity' => 2,
+        ]);
+
+        $this->pointsService->deductOrderPoints($order);
+
+        $buyer->refresh();
+        $sponsor->refresh();
+
+        $this->assertEquals(50, $buyer->current_ppv);
+        $this->assertEquals(450, $buyer->current_gpv);
+        $this->assertEquals(150, $sponsor->current_gpv);
+    }
+
+    public function test_deductorderpoints_creates_negative_tracker_entries(): void
+    {
+        $user = User::factory()->create(['current_ppv' => 100, 'current_gpv' => 500]);
+        $product = Product::factory()->create(['points_awarded' => 25]);
+        $order = Order::factory()->create(['user_id' => $user->id, 'points_credited' => true]);
+        $orderItem = OrderItem::factory()->create([
+            'order_id' => $order->id,
+            'product_id' => $product->id,
+            'quantity' => 2,
+        ]);
+
+        $this->pointsService->deductOrderPoints($order);
+
+        $this->assertDatabaseHas('points_tracker', [
+            'user_id' => $user->id,
+            'order_item_id' => $orderItem->id,
+            'ppv' => -50,
+            'gpv' => -50,
+            'point_type' => 'order_refund',
+        ]);
+    }
+
+    public function test_deductorderpoints_sets_points_credited_to_false(): void
+    {
+        $user = User::factory()->create(['current_ppv' => 100, 'current_gpv' => 500]);
+        $product = Product::factory()->create(['points_awarded' => 25]);
+        $order = Order::factory()->create(['user_id' => $user->id, 'points_credited' => true]);
+        OrderItem::factory()->create([
+            'order_id' => $order->id,
+            'product_id' => $product->id,
+            'quantity' => 1,
+        ]);
+
+        $this->pointsService->deductOrderPoints($order);
+
+        $order->refresh();
+        $this->assertFalse($order->points_credited);
+    }
+
+    public function test_deductorderpoints_wraps_in_transaction(): void
+    {
+        DB::shouldReceive('beginTransaction')->once();
+        DB::shouldReceive('commit')->once();
+        DB::shouldReceive('rollBack')->never();
+
+        $user = User::factory()->create();
+        $product = Product::factory()->create(['points_awarded' => 10]);
+        $order = Order::factory()->create(['user_id' => $user->id, 'points_credited' => true]);
+        OrderItem::factory()->create([
+            'order_id' => $order->id,
+            'product_id' => $product->id,
+            'quantity' => 1,
+        ]);
+
+        $this->pointsService->deductOrderPoints($order);
+    }
 }

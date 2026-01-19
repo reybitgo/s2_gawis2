@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use App\Services\PointsService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class Order extends Model
@@ -300,6 +302,15 @@ class Order extends Model
             'cancelled_at' => now(),
             'metadata' => $metadata,
         ]);
+
+        try {
+            app(PointsService::class)->deductOrderPoints($this);
+        } catch (\Exception $e) {
+            Log::error('Failed to deduct points on order cancellation', [
+                'order_id' => $this->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 
     public function getTotalItemsCount(): int

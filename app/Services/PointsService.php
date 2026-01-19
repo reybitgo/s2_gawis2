@@ -134,4 +134,88 @@ class PointsService
             'reset_to' => [0, 0],
         ]);
     }
+
+    public function deductOrderPoints(Order $order): void
+    {
+        if (!$order->points_credited) {
+            return;
+        }
+
+        $order->load('orderItems.product');
+
+        DB::beginTransaction();
+        try {
+            foreach ($order->orderItems as $item) {
+                if ($item->product && $item->product->points_awarded > 0) {
+                    $points = $item->product->points_awarded * $item->quantity;
+
+                    $this->deductPPV($order->user, $points, $item);
+                    $this->deductGPVFromUplines($order->user, $points, $item);
+                }
+            }
+
+            $order->update(['points_credited' => false]);
+
+            DB::commit();
+
+            Log::info('Points deducted for order', [
+                'order_id' => $order->id,
+                'order_number' => $order->order_number,
+                'buyer_id' => $order->user_id,
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Failed to deduct order points', [
+                'order_id' => $order->id,
+                'error' => $e->getMessage(),
+            ]);
+            throw $e;
+        }
+    }
+
+    private function deductPPV(User $user, float $points, OrderItem $item): void
+    {
+        $user->decrement('current_ppv', $points);
+        $user->update(['ppv_gpv_updated_at' => now()]);
+
+        $this->recordPoints($user, -$points, 0, $item, null, 'order_refund');
+    }
+
+    private function deductGPVFromUplines(User $user, float $points, OrderItem $item): void
+    {
+        $user->decrement('current_gpv', $points);
+        $this->recordPoints($user, -$points, -$points, $item, null, 'order_refund');
+
+        $currentUpline = $user->sponsor;
+        $uplineData = [];
+
+        while ($currentUpline) {
+            $uplineData[] = [
+                'id' => $currentUpline->id,
+                'rank_at_time' => $currentUpline->current_rank,
+            ];
+            $currentUpline = $currentUpline->sponsor;
+        }
+
+        if (count($uplineData) > 0) {
+            $uplineIds = array_column($uplineData, 'id');
+            User::whereIn('id', $uplineIds)->decrement('current_gpv', $points);
+
+            $trackerData = [];
+            foreach ($uplineData as $upline) {
+                $trackerData[] = [
+                    'user_id' => $upline['id'],
+                    'order_item_id' => $item->id,
+                    'ppv' => 0,
+                    'gpv' => -$points,
+                    'earned_at' => now()->toDateTimeString(),
+                    'awarded_to_user_id' => $user->id,
+                    'point_type' => 'order_refund',
+                    'rank_at_time' => $upline['rank_at_time'],
+                ];
+            }
+
+            PointsTracker::insert($trackerData);
+        }
+    }
 }
