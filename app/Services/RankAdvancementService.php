@@ -425,11 +425,37 @@ class RankAdvancementService
         }
 
         $sameRankSponsorsCount = $user->getSameRankSponsorsCount();
-        $requiredSponsors = $currentPackage->required_direct_sponsors;
-        $remaining = max(0, $requiredSponsors - $sameRankSponsorsCount);
-        $progress = $requiredSponsors > 0
-            ? min(100, ($sameRankSponsorsCount / $requiredSponsors) * 100)
+        $requiredSponsorsRecruit = $currentPackage->required_direct_sponsors;
+        $remainingRecruit = max(0, $requiredSponsorsRecruit - $sameRankSponsorsCount);
+        $progressRecruit = $requiredSponsorsRecruit > 0
+            ? min(100, ($sameRankSponsorsCount / $requiredSponsorsRecruit) * 100)
             : 0;
+
+        $requiredSponsorsPV = $currentPackage->required_sponsors_ppv_gpv;
+        $remainingPV = max(0, $requiredSponsorsPV - $sameRankSponsorsCount);
+        $progressPV = $requiredSponsorsPV > 0
+            ? min(100, ($sameRankSponsorsCount / $requiredSponsorsPV) * 100)
+            : 0;
+
+        $currentPPV = $user->current_ppv;
+        $requiredPPV = $currentPackage->ppv_required;
+        $remainingPPV = max(0, $requiredPPV - $currentPPV);
+        $progressPPV = $requiredPPV > 0
+            ? min(100, ($currentPPV / $requiredPPV) * 100)
+            : 0;
+
+        $currentGPV = $user->current_gpv;
+        $requiredGPV = $currentPackage->gpv_required;
+        $remainingGPV = max(0, $requiredGPV - $currentGPV);
+        $progressGPV = $requiredGPV > 0
+            ? min(100, ($currentGPV / $requiredGPV) * 100)
+            : 0;
+
+        $pathAEligible = $sameRankSponsorsCount >= $requiredSponsorsRecruit;
+        $pathBEligible = $currentPackage->rank_pv_enabled
+            && $sameRankSponsorsCount >= $requiredSponsorsPV
+            && $currentPPV >= $requiredPPV
+            && $currentGPV >= $requiredGPV;
 
         return [
             'current_rank' => $currentPackage->rank_name,
@@ -437,11 +463,39 @@ class RankAdvancementService
             'next_rank' => $currentPackage->nextRankPackage?->rank_name ?? 'Top Rank',
             'next_rank_package' => $currentPackage->nextRankPackage,
             'can_advance' => $currentPackage->canAdvanceToNextRank(),
-            'sponsors_count' => $sameRankSponsorsCount,
-            'required_sponsors' => $requiredSponsors,
-            'remaining_sponsors' => $remaining,
-            'progress_percentage' => $progress,
-            'is_eligible' => $sameRankSponsorsCount >= $requiredSponsors,
+            'rank_pv_enabled' => $currentPackage->rank_pv_enabled,
+            'path_a' => [
+                'sponsors_count' => $sameRankSponsorsCount,
+                'required_sponsors' => $requiredSponsorsRecruit,
+                'remaining_sponsors' => $remainingRecruit,
+                'progress_percentage' => $progressRecruit,
+                'is_eligible' => $pathAEligible,
+            ],
+            'path_b' => [
+                'directs_ppv_gpv' => [
+                    'current' => $sameRankSponsorsCount,
+                    'required' => $requiredSponsorsPV,
+                    'remaining' => $remainingPV,
+                    'progress' => $progressPV,
+                    'met' => $sameRankSponsorsCount >= $requiredSponsorsPV,
+                ],
+                'ppv' => [
+                    'current' => $currentPPV,
+                    'required' => $requiredPPV,
+                    'remaining' => $remainingPPV,
+                    'progress' => $progressPPV,
+                    'met' => $currentPPV >= $requiredPPV,
+                ],
+                'gpv' => [
+                    'current' => $currentGPV,
+                    'required' => $requiredGPV,
+                    'remaining' => $remainingGPV,
+                    'progress' => $progressGPV,
+                    'met' => $currentGPV >= $requiredGPV,
+                ],
+                'is_eligible' => $pathBEligible,
+            ],
+            'is_eligible' => $pathAEligible || $pathBEligible,
         ];
     }
 }
