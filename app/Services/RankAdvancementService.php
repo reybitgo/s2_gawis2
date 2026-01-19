@@ -10,7 +10,7 @@ use App\Models\RankAdvancement;
 use App\Models\DirectSponsorsTracker;
 use App\Services\PointsService;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
 use App\Services\MLMCommissionService;
 
 class RankAdvancementService

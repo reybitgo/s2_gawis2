@@ -57,11 +57,35 @@ class PointsService
         $this->recordPoints($user, $points, $points, $item, null, 'product_purchase');
 
         $currentUpline = $user->sponsor;
+        $uplineData = [];
 
         while ($currentUpline) {
-            $currentUpline->increment('current_gpv', $points);
-            $this->recordPoints($currentUpline, 0, $points, $item, $user->id, 'product_purchase');
+            $uplineData[] = [
+                'id' => $currentUpline->id,
+                'rank_at_time' => $currentUpline->current_rank,
+            ];
             $currentUpline = $currentUpline->sponsor;
+        }
+
+        if (count($uplineData) > 0) {
+            $uplineIds = array_column($uplineData, 'id');
+            User::whereIn('id', $uplineIds)->increment('current_gpv', $points);
+
+            $trackerData = [];
+            foreach ($uplineData as $upline) {
+                $trackerData[] = [
+                    'user_id' => $upline['id'],
+                    'order_item_id' => $item->id,
+                    'ppv' => 0,
+                    'gpv' => $points,
+                    'earned_at' => now()->toDateTimeString(),
+                    'awarded_to_user_id' => $user->id,
+                    'point_type' => 'product_purchase',
+                    'rank_at_time' => $upline['rank_at_time'],
+                ];
+            }
+
+            PointsTracker::insert($trackerData);
         }
     }
 
