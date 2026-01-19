@@ -76,37 +76,107 @@
                             {{ $user->rankPackage->nextRankPackage->rank_name }}
                         </span>
                     </div>
-                    @if($user->rankPackage->required_direct_sponsors)
-                        @php
-                            $qualifiedSponsors = $user->referrals()
-                                ->where('rank_package_id', $user->rank_package_id)
-                                ->where('network_status', 'active')
-                                ->count();
-                            $required = $user->rankPackage->required_direct_sponsors;
-                            $percentage = $required > 0 ? min(100, ($qualifiedSponsors / $required) * 100) : 0;
-                        @endphp
+
+                    {{-- Path A: Recruitment-Only --}}
+                    @if($rankProgress['path_a']['required_sponsors'] > 0)
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-1">
+                                <small class="text-muted">
+                                    <strong>Path A: Recruitment</strong>
+                                    <br>
+                                    Direct Sponsors: {{ $rankProgress['path_a']['sponsors_count'] }}/{{ $rankProgress['path_a']['required_sponsors'] }}
+                                </small>
+                            </div>
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar {{ $rankProgress['path_a']['is_eligible'] ? 'bg-success' : 'bg-primary' }}"
+                                     role="progressbar"
+                                     style="width: {{ $rankProgress['path_a']['progress_percentage'] }}%"
+                                     aria-valuenow="{{ $rankProgress['path_a']['sponsors_count'] }}"
+                                     aria-valuemin="0"
+                                     aria-valuemax="{{ $rankProgress['path_a']['required_sponsors'] }}">
+                                </div>
+                            </div>
+                            @if($rankProgress['path_a']['is_eligible'])
+                                <span class="badge bg-success mt-1">
+                                    <svg class="icon icon-sm">
+                                        <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-check') }}"></use>
+                                    </svg>
+                                    Ready to Advance!
+                                </span>
+                            @endif
+                        </div>
+                    @endif
+
+                    {{-- Path B: PV-Based --}}
+                    @if($rankProgress['rank_pv_enabled'])
+                        <div class="mb-2">
+                            <small class="text-muted">
+                                <strong>Path B: PV-Based</strong>
+                                <br>
+                                Requires: {{ $rankProgress['path_b']['directs_ppv_gpv']['required'] }} sponsors +
+                                {{ number_format($rankProgress['path_b']['ppv']['required']) }} PPV +
+                                {{ number_format($rankProgress['path_b']['gpv']['required']) }} GPV
+                            </small>
+                        </div>
+
+                        {{-- Direct Sponsors for PV Path --}}
                         <div class="mb-2">
                             <small class="text-muted d-block mb-1">
-                                Qualified Sponsors: {{ $qualifiedSponsors }}/{{ $required }}
+                                Direct Sponsors (PV): {{ $rankProgress['path_b']['directs_ppv_gpv']['current'] }}/{{ $rankProgress['path_b']['directs_ppv_gpv']['required'] }}
                             </small>
                             <div class="progress" style="height: 8px;">
-                                <div class="progress-bar {{ $qualifiedSponsors >= $required ? 'bg-success' : 'bg-primary' }}" 
-                                     role="progressbar" 
-                                     style="width: {{ $percentage }}%"
-                                     aria-valuenow="{{ $qualifiedSponsors }}" 
-                                     aria-valuemin="0" 
-                                     aria-valuemax="{{ $required }}">
+                                <div class="progress-bar {{ $rankProgress['path_b']['directs_ppv_gpv']['met'] ? 'bg-success' : 'bg-warning' }}"
+                                     role="progressbar"
+                                     style="width: {{ $rankProgress['path_b']['directs_ppv_gpv']['progress'] }}%">
                                 </div>
                             </div>
                         </div>
-                        @if($qualifiedSponsors >= $required)
+
+                        {{-- PPV --}}
+                        <div class="mb-2">
+                            <small class="text-muted d-block mb-1">
+                                PPV: {{ number_format($rankProgress['path_b']['ppv']['current'], 2) }}/{{ number_format($rankProgress['path_b']['ppv']['required'], 2) }}
+                            </small>
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar {{ $rankProgress['path_b']['ppv']['met'] ? 'bg-success' : 'bg-warning' }}"
+                                     role="progressbar"
+                                     style="width: {{ $rankProgress['path_b']['ppv']['progress'] }}%">
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- GPV --}}
+                        <div class="mb-2">
+                            <small class="text-muted d-block mb-1">
+                                GPV: {{ number_format($rankProgress['path_b']['gpv']['current'], 2) }}/{{ number_format($rankProgress['path_b']['gpv']['required'], 2) }}
+                            </small>
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar {{ $rankProgress['path_b']['gpv']['met'] ? 'bg-success' : 'bg-warning' }}"
+                                     role="progressbar"
+                                     style="width: {{ $rankProgress['path_b']['gpv']['progress'] }}%">
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Path B Eligible --}}
+                        @if($rankProgress['path_b']['is_eligible'])
                             <span class="badge bg-success">
                                 <svg class="icon icon-sm">
                                     <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-check') }}"></use>
                                 </svg>
-                                Ready to Advance!
+                                PV Path Ready!
                             </span>
                         @endif
+                    @endif
+
+                    {{-- Overall Eligibility --}}
+                    @if($rankProgress['is_eligible'])
+                        <div class="alert alert-success mt-2">
+                            <svg class="icon me-1">
+                                <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-star') }}"></use>
+                            </svg>
+                            You meet requirements for {{ $user->rankPackage->nextRankPackage->rank_name }} rank!
+                        </div>
                     @endif
                 @elseif($user->current_rank)
                     <div class="text-center p-3 bg-light rounded">

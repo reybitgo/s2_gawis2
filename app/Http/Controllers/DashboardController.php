@@ -5,12 +5,19 @@ namespace App\Http\Controllers;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Models\Order;
+use App\Services\RankAdvancementService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
+    protected RankAdvancementService $rankAdvancementService;
+
+    public function __construct(RankAdvancementService $rankAdvancementService)
+    {
+        $this->rankAdvancementService = $rankAdvancementService;
+    }
 
     public function index()
     {
@@ -52,6 +59,9 @@ class DashboardController extends Controller
 
         $pendingPoints = $totalPointsEarned - $totalPointsCredited;
 
+        // Get rank advancement progress
+        $rankProgress = $this->rankAdvancementService->getRankAdvancementProgress($user);
+
         // Get monthly transaction data for chart
         $monthlyTransactions = $user->transactions()
             ->select(
@@ -79,7 +89,8 @@ class DashboardController extends Controller
             'totalPointsEarned',
             'totalPointsCredited',
             'pendingPoints',
-            'monthlyTransactions'
+            'monthlyTransactions',
+            'rankProgress'
         ));
     }
 }
