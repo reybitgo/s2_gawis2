@@ -8,12 +8,20 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\RankAdvancement;
 use App\Models\DirectSponsorsTracker;
+use App\Services\PointsService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Services\MLMCommissionService;
 
 class RankAdvancementService
 {
+    private PointsService $pointsService;
+
+    public function __construct(PointsService $pointsService)
+    {
+        $this->pointsService = $pointsService;
+    }
+
     /**
      * Track a new sponsorship and check if rank advancement is triggered
      * 
@@ -58,16 +66,8 @@ class RankAdvancementService
         }
     }
 
-    /**
-     * Check if user meets advancement criteria and trigger if yes
-     * BACKWARD COMPATIBLE: Counts both tracked sponsorships AND legacy referrals
-     * 
-     * @param User $user
-     * @return bool Whether advancement was triggered
-     */
     public function checkAndTriggerAdvancement(User $user): bool
     {
-        // Get user's current rank package
         $currentPackage = $user->rankPackage;
 
         if (!$currentPackage) {
@@ -75,7 +75,6 @@ class RankAdvancementService
             return false;
         }
 
-        // Check if there's a next rank available
         if (!$currentPackage->canAdvanceToNextRank()) {
             Log::info('User is at top rank, cannot advance', [
                 'user_id' => $user->id,
@@ -84,44 +83,70 @@ class RankAdvancementService
             return false;
         }
 
-        // BACKWARD COMPATIBILITY: Count same-rank sponsors from BOTH sources
-        // 1. Tracked sponsorships (new data)
-        $trackedCount = $user->directSponsorsTracked()
-            ->where('counted_for_rank', $user->current_rank)
-            ->count();
+        $directSponsorsCount = $user->getSameRankSponsorsCount();
+        $currentPPV = $user->current_ppv;
+        $currentGPV = $user->current_gpv;
 
-        // 2. Legacy sponsorships (existing sponsor_id relationships not yet tracked)
-        $legacyCount = User::where('sponsor_id', $user->id)
-            ->where('current_rank', $user->current_rank)
-            ->whereNotIn('id', function ($query) use ($user) {
-                $query->select('sponsored_user_id')
-                    ->from('direct_sponsors_tracker')
-                    ->where('user_id', $user->id);
-            })
-            ->count();
+        $requiredDirectsRecruit = $currentPackage->required_direct_sponsors;
+        $pathAEligible = $directSponsorsCount >= $requiredDirectsRecruit;
 
-        $totalSameRankSponsors = $trackedCount + $legacyCount;
-        $requiredSponsors = $currentPackage->required_direct_sponsors;
+        if ($pathAEligible) {
+            Log::info('Rank Advancement: Path A (Recruitment) eligible', [
+                'user_id' => $user->id,
+                'directs' => $directSponsorsCount,
+                'required' => $requiredDirectsRecruit,
+            ]);
 
-        Log::info('Checking Rank Advancement Criteria (Backward Compatible)', [
-            'user_id' => $user->id,
-            'current_rank' => $user->current_rank,
-            'tracked_sponsors' => $trackedCount,
-            'legacy_sponsors' => $legacyCount,
-            'total_same_rank_sponsors' => $totalSameRankSponsors,
-            'required_sponsors' => $requiredSponsors,
-            'can_advance' => $totalSameRankSponsors >= $requiredSponsors,
-        ]);
-
-        // Check if criteria met
-        if ($totalSameRankSponsors >= $requiredSponsors) {
-            // IMPORTANT: Before advancing, backfill legacy sponsorships into tracker
-            $this->backfillLegacySponsorships($user);
-
-            return $this->advanceUserRank($user, $totalSameRankSponsors);
+            return $this->advanceUserRank($user, $directSponsorsCount, 'recruitment');
         }
 
-        return false;
+        if (!$currentPackage->rank_pv_enabled) {
+            Log::info('Rank Advancement: PV-based disabled, Path B not available', [
+                'user_id' => $user->id,
+                'rank' => $currentPackage->rank_name,
+            ]);
+            return false;
+        }
+
+        $requiredDirectsPV = $currentPackage->required_sponsors_ppv_gpv;
+        $requiredPPV = $currentPackage->ppv_required;
+        $requiredGPV = $currentPackage->gpv_required;
+
+        if ($directSponsorsCount < $requiredDirectsPV) {
+            Log::info('Rank Advancement: Path B - Not enough direct sponsors', [
+                'user_id' => $user->id,
+                'directs' => $directSponsorsCount,
+                'required_ppv_gpv' => $requiredDirectsPV,
+            ]);
+            return false;
+        }
+
+        if ($currentPPV < $requiredPPV) {
+            Log::info('Rank Advancement: Path B - PPV requirement not met', [
+                'user_id' => $user->id,
+                'current_ppv' => $currentPPV,
+                'required_ppv' => $requiredPPV,
+            ]);
+            return false;
+        }
+
+        if ($currentGPV < $requiredGPV) {
+            Log::info('Rank Advancement: Path B - GPV requirement not met', [
+                'user_id' => $user->id,
+                'current_gpv' => $currentGPV,
+                'required_gpv' => $requiredGPV,
+            ]);
+            return false;
+        }
+
+        Log::info('Rank Advancement: Path B (PV-based) eligible', [
+            'user_id' => $user->id,
+            'directs' => $directSponsorsCount,
+            'ppv' => $currentPPV,
+            'gpv' => $currentGPV,
+        ]);
+
+        return $this->advanceUserRank($user, $directSponsorsCount, 'pv_based');
     }
 
     /**
@@ -167,15 +192,11 @@ class RankAdvancementService
         }
     }
 
-    /**
-     * Advance user to next rank (system-funded package purchase)
-     * 
-     * @param User $user
-     * @param int $sponsorsCount
-     * @return bool
-     */
-    public function advanceUserRank(User $user, int $sponsorsCount): bool
-    {
+    public function advanceUserRank(
+        User $user,
+        int $sponsorsCount,
+        string $advancementType = 'recruitment'
+    ): bool {
         DB::beginTransaction();
         try {
             $currentPackage = $user->rankPackage;
@@ -190,7 +211,6 @@ class RankAdvancementService
                 return false;
             }
 
-            // Create system-funded order
             $order = $this->createSystemFundedOrder($user, $nextPackage);
 
             if (!$order) {
@@ -202,29 +222,38 @@ class RankAdvancementService
                 return false;
             }
 
-            // Update user rank
             $user->update([
                 'current_rank' => $nextPackage->rank_name,
                 'rank_package_id' => $nextPackage->id,
                 'rank_updated_at' => now(),
             ]);
 
-            // Activate network status if not already active
             $user->activateNetwork();
 
-            // Record advancement
+            $this->pointsService->resetPPVGPVOnRankAdvancement($user);
+
+            if ($advancementType === 'recruitment') {
+                $advancementTypeDb = 'recruitment_based';
+                $notes = "Rank advancement via recruitment path: {$sponsorsCount} same-rank sponsors";
+            } else {
+                $advancementTypeDb = 'pv_based';
+                $notes = "Rank advancement via PV-based path: {$sponsorsCount} sponsors, {$user->current_ppv} PPV, {$user->current_gpv} GPV";
+            }
+
             RankAdvancement::create([
                 'user_id' => $user->id,
                 'from_rank' => $currentPackage->rank_name,
                 'to_rank' => $nextPackage->rank_name,
                 'from_package_id' => $currentPackage->id,
                 'to_package_id' => $nextPackage->id,
-                'advancement_type' => 'sponsorship_reward',
-                'required_sponsors' => $currentPackage->required_direct_sponsors,
+                'advancement_type' => $advancementTypeDb,
+                'required_sponsors' => $advancementType === 'recruitment'
+                    ? $currentPackage->required_direct_sponsors
+                    : $currentPackage->required_sponsors_ppv_gpv,
                 'sponsors_count' => $sponsorsCount,
                 'system_paid_amount' => $nextPackage->rank_reward,
                 'order_id' => $order->id,
-                'notes' => "Automatic rank advancement for sponsoring {$sponsorsCount} {$currentPackage->rank_name}-rank users",
+                'notes' => $notes,
             ]);
 
             // CREDIT RANK REWARD TO USER WALLET (mlm_balance + withdrawable_balance)

@@ -10,6 +10,7 @@ use App\Services\InputSanitizationService;
 use App\Services\FraudDetectionService;
 use App\Services\MonthlyQuotaService;
 use App\Services\RankAdvancementService;
+use App\Services\PointsService;
 use App\Jobs\ProcessMLMCommissions;
 use App\Jobs\ProcessUnilevelBonusesJob;
 use App\Models\Product;
@@ -27,6 +28,7 @@ class CheckoutController extends Controller
     protected FraudDetectionService $fraudDetectionService;
     protected MonthlyQuotaService $quotaService;
     protected RankAdvancementService $rankAdvancementService;
+    protected PointsService $pointsService;
 
     public function __construct(
         CartService $cartService,
@@ -34,7 +36,8 @@ class CheckoutController extends Controller
         InputSanitizationService $sanitizationService,
         FraudDetectionService $fraudDetectionService,
         MonthlyQuotaService $quotaService,
-        RankAdvancementService $rankAdvancementService
+        RankAdvancementService $rankAdvancementService,
+        PointsService $pointsService
     ) {
         $this->cartService = $cartService;
         $this->walletPaymentService = $walletPaymentService;
@@ -42,6 +45,7 @@ class CheckoutController extends Controller
         $this->fraudDetectionService = $fraudDetectionService;
         $this->quotaService = $quotaService;
         $this->rankAdvancementService = $rankAdvancementService;
+        $this->pointsService = $pointsService;
     }
 
     /**
@@ -418,7 +422,11 @@ class CheckoutController extends Controller
             });
 
             if ($hasProduct) {
-                // PHASE 2: Process monthly quota points FIRST (before Unilevel bonuses)
+                // PHASE 2: Rank & Points - Process PPV/GPV points FIRST (before Unilevel)
+                // This updates buyer's PPV/GPV for rank advancement
+                $this->pointsService->processOrderPoints($order);
+
+                // PHASE 2: Process monthly quota points SECOND (before Unilevel bonuses)
                 // This updates the buyer's monthly PV tracker
                 $this->quotaService->processOrderPoints($order);
 
