@@ -31,6 +31,10 @@ class Package extends Model
         'rank_name',
         'rank_order',
         'required_direct_sponsors',
+        'required_sponsors_ppv_gpv',
+        'ppv_required',
+        'gpv_required',
+        'rank_pv_enabled',
         'is_rankable',
         'next_rank_package_id',
         'rank_reward',
@@ -50,6 +54,10 @@ class Package extends Model
         'enforce_monthly_quota' => 'boolean',
         'rank_order' => 'integer',
         'required_direct_sponsors' => 'integer',
+        'required_sponsors_ppv_gpv' => 'integer',
+        'ppv_required' => 'decimal:2',
+        'gpv_required' => 'decimal:2',
+        'rank_pv_enabled' => 'boolean',
         'is_rankable' => 'boolean',
     ];
 

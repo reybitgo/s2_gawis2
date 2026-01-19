@@ -47,6 +47,9 @@ class User extends Authenticatable implements MustVerifyEmail
         'current_rank',
         'rank_package_id',
         'rank_updated_at',
+        'current_ppv',
+        'current_gpv',
+        'ppv_gpv_updated_at',
     ];
 
     /**
@@ -74,6 +77,9 @@ class User extends Authenticatable implements MustVerifyEmail
             'network_activated_at' => 'datetime',
             'last_product_purchase_at' => 'datetime',
             'rank_updated_at' => 'datetime',
+            'ppv_gpv_updated_at' => 'datetime',
+            'current_ppv' => 'decimal:2',
+            'current_gpv' => 'decimal:2',
             'password' => 'hashed',
         ];
     }
@@ -455,7 +461,7 @@ class User extends Authenticatable implements MustVerifyEmail
         $trackedCount = $this->directSponsorsTracked()
             ->where('counted_for_rank', $this->current_rank)
             ->count();
-        
+
         // Legacy sponsorships (not yet tracked)
         $legacyCount = User::where('sponsor_id', $this->id)
             ->where('current_rank', $this->current_rank)
@@ -465,7 +471,31 @@ class User extends Authenticatable implements MustVerifyEmail
                       ->where('user_id', $this->id);
             })
             ->count();
-        
+
         return $trackedCount + $legacyCount;
+    }
+
+    /**
+     * Get user's points tracker records
+     */
+    public function pointsTracker()
+    {
+        return $this->hasMany(PointsTracker::class)->orderBy('earned_at', 'desc');
+    }
+
+    /**
+     * Get current PPV attribute
+     */
+    public function getCurrentPPVAttribute(): float
+    {
+        return $this->attributes['current_ppv'] ?? 0;
+    }
+
+    /**
+     * Get current GPV attribute
+     */
+    public function getCurrentGPVAttribute(): float
+    {
+        return $this->attributes['current_gpv'] ?? 0;
     }
 }
