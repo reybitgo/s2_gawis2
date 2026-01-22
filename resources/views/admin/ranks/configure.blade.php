@@ -5,73 +5,90 @@
 
 @push('styles')
 <style>
-    /* Ensure proper input widths in mobile mode for rank configuration table */
     .rank-config-table {
-        min-width: 1000px; /* Ensures table scrolls horizontally on mobile */
-        table-layout: auto; /* Allow columns to size based on content */
+        min-width: 1000px;
+        table-layout: auto;
     }
-    
-    /* Column-specific sizing through CSS instead of HTML width attributes */
+
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        width: 100%;
+        max-width: 100%;
+        position: relative;
+    }
+
     .rank-config-table th:nth-child(1),
     .rank-config-table td:nth-child(1) {
-        min-width: 150px; /* Package column */
+        min-width: 150px;
     }
-    
+
     .rank-config-table th:nth-child(2),
     .rank-config-table td:nth-child(2) {
-        min-width: 200px; /* Rank Name column */
+        min-width: 200px;
     }
-    
+
     .rank-config-table th:nth-child(3),
     .rank-config-table td:nth-child(3) {
-        min-width: 120px; /* Rank Order column */
+        min-width: 120px;
     }
-    
+
     .rank-config-table th:nth-child(4),
     .rank-config-table td:nth-child(4) {
-        min-width: 150px; /* Required Sponsors column */
+        min-width: 150px;
     }
-    
+
     .rank-config-table th:nth-child(5),
     .rank-config-table td:nth-child(5) {
-        min-width: 250px; /* Next Rank Package column */
+        min-width: 250px;
     }
-    
+
     .rank-config-table th:nth-child(6),
     .rank-config-table td:nth-child(6) {
-        min-width: 120px; /* Price column */
+        min-width: 120px;
     }
 
     .rank-config-table th:nth-child(7),
     .rank-config-table td:nth-child(7) {
-        min-width: 130px; /* PV Required column */
+        min-width: 130px;
     }
 
     .rank-config-table th:nth-child(8),
     .rank-config-table td:nth-child(8) {
-        min-width: 130px; /* GPV Required column */
+        min-width: 130px;
     }
 
     .rank-config-table th:nth-child(9),
     .rank-config-table td:nth-child(9) {
-        min-width: 100px; /* PV Enabled column */
+        min-width: 100px;
     }
-    
+
     .rank-config-table td input.form-control,
     .rank-config-table td select.form-select {
         width: 100%;
+        min-width: 100px;
     }
-    
-    /* Ensure table cells don't shrink below content size */
+
     .rank-config-table td,
     .rank-config-table th {
         white-space: nowrap;
     }
-    
+
     .rank-config-table td small {
-        white-space: normal; /* Allow small text to wrap */
+        white-space: normal;
         display: block;
         margin-top: 4px;
+    }
+
+    @media (max-width: 991.98px) {
+        .table-responsive {
+            margin: 0 -1rem;
+            width: calc(100% + 2rem);
+        }
+    }
+
+    .body {
+        overflow-x: hidden;
     }
 </style>
 @endpush
@@ -119,6 +136,12 @@
                             <th>Rank Name <span class="text-danger">*</span></th>
                              <th>Rank Order <span class="text-danger">*</span></th>
                              <th>
+                                Required Sponsors <span class="text-danger">*</span>
+                                <svg class="icon ms-1 text-muted" data-coreui-toggle="tooltip" title="Same-rank sponsors" style="vertical-align: middle;">
+                                    <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-info') }}"></use>
+                                </svg>
+                            </th>
+                             <th>
                                  Required Sponsors (PV)
                                  <svg class="icon ms-1 text-muted" data-coreui-toggle="tooltip" title="Sponsors for PV-based advancement" style="vertical-align: middle;">
                                      <use xlink:href="{{ asset('coreui-template/vendors/@coreui/icons/svg/free.svg#cil-info') }}"></use>
@@ -161,10 +184,10 @@
                             <tr>
                                 <td class="align-middle">
                                     <strong>{{ $package->name }}</strong>
-                                    <br>
-                                    <small class="text-muted">ID: {{ $package->id }}</small>
+                                    {{-- <br>
+                                    <small class="text-muted">ID: {{ $package->id }}</small> --}}
                                 </td>
-                                <td>
+                                <td class="align-middle">
                                     <input type="text" 
                                            name="packages[{{ $package->id }}][rank_name]" 
                                            value="{{ old('packages.'.$package->id.'.rank_name', $package->rank_name) }}" 
@@ -175,7 +198,7 @@
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </td>
-                                <td>
+                                <td class="align-middle">
                                     <input type="number" 
                                            name="packages[{{ $package->id }}][rank_order]" 
                                            value="{{ old('packages.'.$package->id.'.rank_order', $package->rank_order) }}" 
@@ -188,7 +211,7 @@
                                     @enderror
                                     
                                 </td>
-                                <td>
+                                <td class="align-middle">
                                      <input type="number"
                                             name="packages[{{ $package->id }}][required_direct_sponsors]"
                                             value="{{ old('packages.'.$package->id.'.required_direct_sponsors', $package->required_direct_sponsors) }}"
@@ -196,12 +219,12 @@
                                             min="0"
                                             placeholder="e.g., 5"
                                             required>
-                                     <small class="text-muted">Path A: Recruitment</small>
+                                     {{-- <small class="text-muted">Path A: Recruitment</small> --}}
                                      @error('packages.'.$package->id.'.required_direct_sponsors')
                                          <div class="invalid-feedback">{{ $message }}</div>
                                      @enderror
                                 </td>
-                                <td>
+                                <td class="align-middle">
                                      <input type="number"
                                             name="packages[{{ $package->id }}][required_sponsors_ppv_gpv]"
                                             value="{{ old('packages.'.$package->id.'.required_sponsors_ppv_gpv', $package->required_sponsors_ppv_gpv) }}"
@@ -209,12 +232,12 @@
                                             min="0"
                                             placeholder="e.g., 4"
                                             required>
-                                     <small class="text-muted">Path B: PV</small>
+                                     {{-- <small class="text-muted">Path B: PV</small> --}}
                                      @error('packages.'.$package->id.'.required_sponsors_ppv_gpv')
                                          <div class="invalid-feedback">{{ $message }}</div>
                                      @enderror
                                 </td>
-                                <td>
+                                <td class="align-middle">
                                     @php
                                         // Get currently selected next rank packages to exclude them
                                         $selectedNextRanks = $packages->pluck('next_rank_package_id')->filter()->toArray();
@@ -269,7 +292,7 @@
                                             value="{{ old('packages.'.$package->id.'.ppv_required', $package->ppv_required) }}"
                                             class="form-control @error('packages.'.$package->id.'.ppv_required') is-invalid @enderror"
                                             placeholder="0.00">
-                                     <small class="text-muted">PPV needed</small>
+                                     {{-- <small class="text-muted">PPV needed</small> --}}
                                      @error('packages.'.$package->id.'.ppv_required')
                                          <div class="invalid-feedback">{{ $message }}</div>
                                      @enderror
@@ -282,24 +305,25 @@
                                             value="{{ old('packages.'.$package->id.'.gpv_required', $package->gpv_required) }}"
                                             class="form-control @error('packages.'.$package->id.'.gpv_required') is-invalid @enderror"
                                             placeholder="0.00">
-                                     <small class="text-muted">GPV needed</small>
+                                     {{-- <small class="text-muted">GPV needed</small> --}}
                                      @error('packages.'.$package->id.'.gpv_required')
                                          <div class="invalid-feedback">{{ $message }}</div>
                                      @enderror
                                 </td>
                                 <td class="align-middle text-center">
-                                     <div class="form-check">
-                                         <input class="form-check-input" type="checkbox" id="rank_pv_enabled_{{ $package->id }}"
-                                                name="packages[{{ $package->id }}][rank_pv_enabled]"
-                                                value="1"
-                                                {{ old('packages.'.$package->id.'.rank_pv_enabled', $package->rank_pv_enabled) ? 'checked' : '' }}>
-                                         <label class="form-check-label" for="rank_pv_enabled_{{ $package->id }}">
-                                             {{ $package->rank_pv_enabled ? 'Yes' : 'No' }}
-                                         </label>
-                                     </div>
-                                     @error('packages.'.$package->id.'.rank_pv_enabled')
-                                         <div class="invalid-feedback">{{ $message }}</div>
-                                     @enderror
+                                      <div class="form-check">
+                                          <input type="hidden" name="packages[{{ $package->id }}][rank_pv_enabled]" value="0">
+                                          <input class="form-check-input" type="checkbox" id="rank_pv_enabled_{{ $package->id }}"
+                                                 name="packages[{{ $package->id }}][rank_pv_enabled]"
+                                                 value="1"
+                                                 {{ old('packages.'.$package->id.'.rank_pv_enabled', $package->rank_pv_enabled) ? 'checked' : '' }}>
+                                          <label class="form-check-label" for="rank_pv_enabled_{{ $package->id }}">
+                                              {{ $package->rank_pv_enabled ? 'Yes' : 'No' }}
+                                          </label>
+                                      </div>
+                                      @error('packages.'.$package->id.'.rank_pv_enabled')
+                                          <div class="invalid-feedback">{{ $message }}</div>
+                                      @enderror
                                 </td>
                             </tr>
                         @empty
@@ -438,7 +462,9 @@
                 <li><strong>Path B (PV-Based):</strong> When a user meets PPV/GPV sponsor requirement + PPV threshold + GPV threshold, they advance!</li>
             </ul>
         </p>
-	    
+    </div>
+</div>
+@endsection
     @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function () {
