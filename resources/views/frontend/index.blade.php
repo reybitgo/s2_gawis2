@@ -167,12 +167,13 @@
     <section id="pricing" class="py-5">
         <div class="container">
             <div class="text-center mb-5">
-                <h2 class="display-3 fw-bold mb-3">Gawis Packages</h2>
+                <h2 class="display-3 fw-bold mb-3">Gawis Package</h2>
                 <p class="lead text-muted mb-4">Your first step to financial wellness.</p>
             </div>
 
             <div class="row g-4 mb-5 justify-content-center">
                 @foreach ($packages as $package)
+                    @if ($package->rank_name === 'Starter')
                 <div class="col-lg-4">
                     <div class="pricing-card">
                         <div class="pricing-header @if ($package->image_path && strpos($package->image_url, 'package-placeholder.svg') === false) has-image @endif" style="height: 200px; overflow: hidden; @if ($package->image_path && strpos($package->image_url, 'package-placeholder.svg') === false) padding: 0; background: none; @endif">
@@ -238,6 +239,7 @@
                         </div>
                     </div>
                 </div>
+                    @endif
                 @endforeach
             </div>
         </div>
